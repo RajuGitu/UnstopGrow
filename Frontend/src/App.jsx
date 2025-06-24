@@ -6,8 +6,9 @@ import ForgetPassword from "./pages/ForgetPassword";
 import Founder from "./pages/Founder/Founder";
 import DashBoard from "./pages/Founder/Dashboard";
 import PostUpdates from "./pages/Founder/PostUpdates";
-import Investor from "./pages/Investor/Investor";
+
 import InvestDashboard from "./pages/Investor/InvestDashboard";
+import InvestorLayout from "./Components/Investor/InvestorLayout";
 function App() {
   return (
     <>
@@ -22,7 +23,7 @@ function App() {
             <Route path="dashboard" element={<DashBoard />} />
             <Route path="updates" element={<PostUpdates/>}/>
           </Route>
-          <Route path="/investor" element={<Investor/>}>
+          <Route path="/investor" element={<InvestorLayout/>}>
             <Route index element={<Navigate to="/investor/dashboard"/>}/>
             <Route path="dashboard" element={<InvestDashboard/>}/>
           </Route>
