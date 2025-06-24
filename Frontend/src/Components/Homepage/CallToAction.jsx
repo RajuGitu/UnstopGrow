@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '../../Components/UI/Button';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 //import RoleSelectModal from './RoleSelectModal';
 
@@ -53,15 +54,15 @@ const CallToAction = () => {
           </div>
 
           {/* CTA Button */}
-          <div className="space-y-4">
-            <Button 
+          <div className="space-y-4 flex justify-center flex-col items-center">
+            <Link to="/login"
             //   onClick={() => setIsModalOpen(true)}
               size="lg"
-              className="bg-white text-indigo-600 hover:bg-gray-50 px-12 py-4 rounded-2xl font-semibold text-lg shadow-2xl hover:scale-105 transition-all duration-300 group"
+              className="flex w-1/3 bg-white text-indigo-600 hover:bg-gray-50 px-12 py-4 rounded-2xl font-semibold text-lg shadow-2xl hover:scale-105 transition-all duration-300 group"
             >
               Get Started Today
               <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            </Link>
             
             <p className="text-white/80 text-sm">
               Free to join • No credit card required • Start in 2 minutes

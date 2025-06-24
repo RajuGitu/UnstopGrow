@@ -1,8 +1,8 @@
 import React from 'react';
-
+import { Link } from 'react-router-dom';
 const Hero = () => {
   return (
-    <section id = "hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <nav className=" top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm border-b border-indigo-100 fixed ">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -22,7 +22,7 @@ const Hero = () => {
               <a href="#how-it-works" className="text-slate-600 hover:text-indigo-600 transition-colors">How It Works</a>
               <a href="#startup-feed" className="text-slate-600 hover:text-indigo-600 transition-colors">Startups</a>
               <a href="#call-to-action" className="text-slate-600 hover:text-indigo-600 transition-colors">Contact</a>
-              <button className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">Get Started</button>
+              <Link to="/login" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">Get Started</Link>
             </div>
           </div>
         </div>
@@ -52,13 +52,13 @@ const Hero = () => {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="flex items-center h-11 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 group">
+              <Link to="/login" className="flex items-center h-11 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 group">
                 Get Started
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform">
                   <path d="M5 12h14" />
                   <path d="m12 5 7 7-7 7" />
                 </svg>
-              </button>
+              </Link>
               <button className="flex items-center h-11 px-8 py-4 rounded-xl border-2 border-slate-200 hover:border-indigo-300 transition-all duration-300 group">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-play mr-2 h-5 w-5 group-hover:scale-110 transition-transform">
                   <polygon points="6 3 20 12 6 21 6 3" />

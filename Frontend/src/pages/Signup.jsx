@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import axiosInstance from '../../utils/axiosInstance';
 
 const Signup = () => {
     const [selectedRole, setSelectedRole] = useState("Select Role");
     const [loading, setLoading] = useState(false);
+    const navigate =useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -69,12 +70,20 @@ const Signup = () => {
             });
 
             alert(`${role} registered successfully`);
-            console.log(res.data);
+            navigate("/founder");
             setLoading(false);
         } catch (error) {
+
+            setLoading(false);
+
+            const res = error.response;
+
+            if (res?.status === 409) {
+                alert(res.data.error); 
+                return;
+            }
             console.error(`${role} registration failed:`, error.response?.data || error.message);
             alert("Error during registration");
-            setLoading(false);
         }
     };
 

@@ -47,7 +47,17 @@ const Login = () => {
             });
 
             alert(`${role} registered successfully`);
-            console.log(res.data);
+            switch (role) {
+                case "founder":
+                    navigate("/founder/dashboard");
+                    break;
+                case "investor":
+                    navigate("/investor/dashboard");
+                    break;
+                case "supporter":
+                    navigate("/supporter");
+                    break;
+            }
             setLoading(false);
 
         } catch (error) {
