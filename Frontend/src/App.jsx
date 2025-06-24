@@ -9,6 +9,7 @@ import PostUpdates from "./pages/Founder/PostUpdates";
 
 import InvestDashboard from "./pages/Investor/InvestDashboard";
 import InvestorLayout from "./Components/Investor/InvestorLayout";
+import InvestorDiscover from "./pages/Investor/InvertorDiscover";
 function App() {
   return (
     <>
@@ -26,6 +27,7 @@ function App() {
           <Route path="/investor" element={<InvestorLayout/>}>
             <Route index element={<Navigate to="/investor/dashboard"/>}/>
             <Route path="dashboard" element={<InvestDashboard/>}/>
+            <Route path="discover" element={<InvestorDiscover/>}/>
           </Route>
         </Routes>
       </Router>
