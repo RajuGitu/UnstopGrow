@@ -10,6 +10,9 @@ import PostUpdates from "./pages/Founder/PostUpdates";
 import InvestDashboard from "./pages/Investor/InvestDashboard";
 import InvestorLayout from "./Components/Investor/InvestorLayout";
 import InvestorDiscover from "./pages/Investor/InvertorDiscover";
+import InvestorSaved from "./pages/Investor/InvestorSaved";
+import InvestorContacts from "./pages/Investor/InvestorContacts";
+import InvestorSettings from "./pages/Investor/InvertorSettings";
 function App() {
   return (
     <>
@@ -28,6 +31,9 @@ function App() {
             <Route index element={<Navigate to="/investor/dashboard"/>}/>
             <Route path="dashboard" element={<InvestDashboard/>}/>
             <Route path="discover" element={<InvestorDiscover/>}/>
+            <Route path="saved" element={<InvestorSaved/>}/>
+            <Route path='contacts' element={<InvestorContacts/>}/>
+            <Route path='settings' element={<InvestorSettings/>}/>
           </Route>
         </Routes>
       </Router>

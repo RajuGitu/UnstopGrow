@@ -17,8 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../Components/UI/Select";
-
-// Removed: import { toast } from "sonner";
+import { toast } from "sonner";
 
 export const ExpressInterestModal = ({ isOpen, onClose, startup }) => {
   const [formData, setFormData] = useState({
@@ -30,10 +29,7 @@ export const ExpressInterestModal = ({ isOpen, onClose, startup }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Optional: basic alert
-    alert(`Interest request sent to ${startup?.founder?.name}!`);
-
+    toast.success(`Interest request sent to ${startup?.founder?.name}!`);
     onClose();
     setFormData({ ...formData, message: "" });
   };
@@ -87,7 +83,7 @@ export const ExpressInterestModal = ({ isOpen, onClose, startup }) => {
               }
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select contact method" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="email">Email</SelectItem>

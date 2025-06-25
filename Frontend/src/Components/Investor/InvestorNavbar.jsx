@@ -13,14 +13,14 @@ export const InvestorNavbar = () => {
             <Input
               type="text"
               placeholder="Search startups, founders, or domains..."
-              className="pl-10 pr-4 py-2 w-full"
+              className="pl-10 pr-4 py-2 w-full border-gray-300"
             />
           </div>
         </div>
 
         {/* Right Side */}
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm">
+        <div className="flex items-center space-x-4 ">
+          <Button variant="outline" size="sm" className="border-gray-300">
             Filters
           </Button>
           

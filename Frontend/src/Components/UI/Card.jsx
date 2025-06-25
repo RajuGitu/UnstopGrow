@@ -8,7 +8,7 @@ const Card = forwardRef((props, ref) => {
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border border-gray-100 bg-card text-card-foreground shadow-sm ",
+        "rounded-lg border border-gray-300 bg-card text-card-foreground shadow-sm ",
         className
       )}
       {...rest}
@@ -62,7 +62,7 @@ CardDescription.displayName = "CardDescription";
 const CardContent = forwardRef((props, ref) => {
   const { className, ...rest } = props;
 
-  return <div ref={ref} className={cn("p-6 pt-0 ", className)} {...rest} />;
+  return <div ref={ref} className={cn("p-6 pt-0  ", className)} {...rest} />;
 });
 CardContent.displayName = "CardContent";
 
