@@ -1,6 +1,7 @@
-import { Calendar } from "lucide-react";
+import { useState } from "react";
+import { Calendar, Plus, X } from "lucide-react";
 
-// Simple Avatar components (since you're using them)
+// Simple Avatar components
 const Avatar = ({ className, children }) => (
     <div className={`relative inline-flex items-center justify-center rounded-full ${className}`}>
         {children}
@@ -14,11 +15,18 @@ const AvatarFallback = ({ children }) => (
 );
 
 // Simple Button component
-const Button = ({ variant = "default", className, children, ...props }) => {
+const Button = ({ variant = "default", className, children, isActive = false, ...props }) => {
     const variants = {
         default: "bg-slate-900 text-white hover:bg-slate-800",
-        outline: "border border-slate-300 bg-white text-slate-900 hover:bg-slate-50",
-        destructive: "bg-red-500 text-white hover:bg-red-600",
+        outline: isActive
+            ? "border border-slate-400 bg-slate-100 text-slate-900"
+            : "border border-slate-300 bg-white text-slate-900 hover:bg-slate-50",
+        destructive: isActive
+            ? "bg-red-600 text-white"
+            : "bg-red-500 text-white hover:bg-red-600",
+        success: isActive
+            ? "bg-green-600 text-white"
+            : "bg-green-500 text-white hover:bg-green-600",
     };
 
     return (
@@ -30,7 +38,8 @@ const Button = ({ variant = "default", className, children, ...props }) => {
         </button>
     );
 };
-// Fixed Badge component
+
+// Badge component
 const Badge = ({ className, variant = "default", children, ...props }) => {
     const variantStyles = {
         default: "border-transparent bg-slate-900 text-white hover:bg-slate-800",
@@ -49,14 +58,73 @@ const Badge = ({ className, variant = "default", children, ...props }) => {
         </div>
     );
 };
-/* map status → badge variant */
-const statusVariant = {
-    Hot: "destructive",  // red badge
-    Warm: "secondary",   // gray badge
-    Cold: "outline",     // outline badge
-};
 
-export default function InvestorCard({ investor }) {
+export default function InvestorCard({ investor, onAddNote, initialStatus = null }) {
+    const [showNoteInput, setShowNoteInput] = useState(false);
+    const [noteText, setNoteText] = useState('');
+    const [notes, setNotes] = useState(investor.notes || []);
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState(initialStatus);
+
+    const handleStatusChange = async (newStatus) => {
+        if (isLoading) return;
+
+        setIsLoading(true);
+        try {
+            // Toggle logic: if clicking the same status, deselect it
+            const finalStatus = selectedStatus === newStatus ? null : newStatus;
+
+            // Update local state immediately for better UX
+            setSelectedStatus(finalStatus);
+
+            // You can add API call here if needed
+            // await updateInvestorStatus(investor.id, finalStatus);
+
+        } catch (error) {
+            // Revert state if API call fails
+            setSelectedStatus(selectedStatus);
+            console.error('Failed to update investor status:', error);
+            alert('Failed to update status. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAddNote = async () => {
+        if (!noteText.trim()) return;
+
+        setIsLoading(true);
+        try {
+            const newNote = {
+                id: Date.now(),
+                text: noteText.trim(),
+                timestamp: new Date().toLocaleDateString()
+            };
+
+            // Add note to local state
+            setNotes(prev => [...prev, newNote]);
+
+            // Call parent callback if provided
+            if (onAddNote) {
+                onAddNote(investor.id, newNote);
+            }
+
+            // Reset form
+            setNoteText('');
+            setShowNoteInput(false);
+        } catch (error) {
+            console.error('Failed to add note:', error);
+            alert('Failed to add note. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancelNote = () => {
+        setNoteText('');
+        setShowNoteInput(false);
+    };
+
     return (
         <div className="p-4 bg-slate-50 rounded-lg">
             {/* ───── top row ───── */}
@@ -75,7 +143,7 @@ export default function InvestorCard({ investor }) {
                         </p>
 
                         <div className="flex items-center space-x-2 mt-2">
-                            {investor.tags.map((tag) => (
+                            {investor.tags && investor.tags.map((tag) => (
                                 <Badge key={tag} className="text-xs" variant="secondary">
                                     {tag}
                                 </Badge>
@@ -86,10 +154,6 @@ export default function InvestorCard({ investor }) {
 
                 {/* right side */}
                 <div className="text-right">
-                    <Badge variant={statusVariant[investor.status]}>
-                        {investor.status}
-                    </Badge>
-
                     <p className="text-xs text-slate-500 mt-2 flex items-center">
                         <Calendar className="h-3 w-3 mr-1" />
                         {investor.lastContact}
@@ -97,11 +161,93 @@ export default function InvestorCard({ investor }) {
                 </div>
             </div>
 
+            {/* ───── status indicator ───── */}
+            {selectedStatus && (
+                <div className="mt-3 px-3 py-2 bg-white rounded-md border-l-4 border-l-blue-500">
+                    <p className="text-sm font-medium text-slate-700">
+                        Status: <span className="capitalize text-blue-600">{selectedStatus}</span>
+                    </p>
+                </div>
+            )}
+
+            {/* ───── existing notes ───── */}
+            {notes.length > 0 && (
+                <div className="mt-4 space-y-2">
+                    <h4 className="text-sm font-medium text-slate-700">Notes:</h4>
+                    {notes.map((note) => (
+                        <div key={note.id} className="bg-white p-3 rounded-md border-l-4 border-l-blue-500">
+                            <p className="text-sm text-slate-700">{note.text}</p>
+                            <p className="text-xs text-slate-500 mt-1">{note.timestamp}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* ───── add note form ───── */}
+            {showNoteInput && (
+                <div className="mt-4 p-3 bg-white rounded-md border">
+                    <textarea
+                        value={noteText}
+                        onChange={(e) => setNoteText(e.target.value)}
+                        placeholder="Add a note about this investor..."
+                        className="w-full p-2 border border-slate-300 rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows={3}
+                        disabled={isLoading}
+                    />
+                    <div className="flex justify-end space-x-2 mt-2">
+                        <Button
+                            variant="outline"
+                            onClick={handleCancelNote}
+                            disabled={isLoading}
+                        >
+                            <X className="h-4 w-4 mr-1" />
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="success"
+                            onClick={handleAddNote}
+                            disabled={isLoading || !noteText.trim()}
+                        >
+                            <Plus className="h-4 w-4 mr-1" />
+                            {isLoading ? 'Adding...' : 'Add Note'}
+                        </Button>
+                    </div>
+                </div>
+            )}
+
             {/* ───── action buttons ───── */}
             <div className="flex justify-end space-x-2 mt-4">
-                <Button variant="outline">Add Note</Button>
-                <Button variant="destructive">Schedule Call</Button>
+                <Button
+                    variant="outline"
+                    onClick={() => setShowNoteInput(true)}
+                    disabled={showNoteInput || isLoading}
+                >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Note
+                </Button>
+                <Button
+                    variant="success"
+                    isActive={selectedStatus === 'accepted'}
+                    onClick={() => handleStatusChange('accepted')}
+                    disabled={isLoading}
+                >
+                    {selectedStatus === 'accepted' ? 'Accepted ✓' : 'Accept'}
+                </Button>
+                <Button
+                    variant="destructive"
+                    isActive={selectedStatus === 'rejected'}
+                    onClick={() => handleStatusChange('rejected')}
+                    disabled={isLoading}
+                >
+                    {selectedStatus === 'rejected' ? 'Rejected ✗' : 'Reject'}
+                </Button>
             </div>
+
+            {isLoading && (
+                <div className="mt-2 text-center">
+                    <p className="text-xs text-slate-500">Updating status...</p>
+                </div>
+            )}
         </div>
     );
 }
