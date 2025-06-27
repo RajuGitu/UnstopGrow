@@ -2,7 +2,7 @@ import { Eye, TrendingUp } from 'lucide-react';
 
 const HeaderSection = () => {
     return (
-        <div className="p-5 flex justify-between items-start">
+        <div className="flex justify-between items-start">
             <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     Welcome back, Alex! 👋

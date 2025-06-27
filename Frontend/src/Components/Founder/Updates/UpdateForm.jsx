@@ -24,13 +24,13 @@ const UpdateForm = () => {
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0]; // Only take first file
-        
+
         if (file && file.type.startsWith('image/')) {
             // Clean up previous image URL if it exists
             if (selectedImage) {
                 URL.revokeObjectURL(selectedImage.preview);
             }
-            
+
             setSelectedImage({
                 file,
                 preview: URL.createObjectURL(file),
@@ -71,12 +71,12 @@ const UpdateForm = () => {
                 if (selectedImage) {
                     URL.revokeObjectURL(selectedImage.preview);
                 }
-                
+
                 setTitle('');
                 setDescriptions('');
                 setSelectedTags([]);
                 setSelectedImage(null);
-                
+
                 alert('Update published successfully!');
             } else {
                 alert('Failed to publish update');
@@ -126,7 +126,7 @@ const UpdateForm = () => {
                 {/* Single Image Upload */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Add Image *</label>
-                    
+
                     {!selectedImage ? (
                         <label className="cursor-pointer block">
                             <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
