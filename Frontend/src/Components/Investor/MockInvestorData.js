@@ -18,7 +18,7 @@ export const mockStartups = [
     founder: {
       name: "Priya Sharma",
       role: "CEO & Co-founder",
-      linkedin: "https://linkedin.com/in/priyasharma"
+      linkedin: "https://linkedin.com/in/priyasharma" 
     },
     traction: {
       users: 15000,
