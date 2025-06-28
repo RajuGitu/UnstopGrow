@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { loginUserController, SignupUserController, getFounderFileById, registerFounderController, registerInvestorController, loginFounderController, loginInvestorController,forgotUserController,forgotFounderController,forgotInvestorController } = require('../controller/userController');
-const uploadFounder = require('../middleware/uploadMiddleware');
-const uploadInvestor = require('../middleware/uploadFounderMiddle');
+const getUploader = require('../middleware/getUploaderMiddleware');
+const uploadFounderProof = getUploader('founder');
+const uploadInvestorProof = getUploader('investor');
 
 router.post('/supporter/login', loginUserController);
 router.post('/founder/login', loginFounderController);
 router.post('/investor/login', loginInvestorController);
 router.post('/supporter/register', SignupUserController);
-router.post('/founder/register', uploadFounder.single('file'), registerFounderController);
-router.post('/investor/register', uploadInvestor.single('file'), registerInvestorController);
+router.post('/founder/register', uploadFounderProof .single('file'), registerFounderController);
+router.post('/investor/register', uploadInvestorProof.single('file'), registerInvestorController);
 router.post('/supporter/forgot-password',forgotUserController);
 router.post('/founder/forgot-password',forgotFounderController);
 router.post('/investor/forgot-password',forgotInvestorController);

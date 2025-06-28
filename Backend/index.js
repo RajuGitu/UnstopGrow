@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const connectDb = require('./config/db');
 
+const founderRoutes = require('./route/founderRoutes');
+
 // Load .env variables
 dotenv.config();
 
@@ -26,7 +28,9 @@ app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes can go here...
-app.use('/user', require('./route/userRoutes'));
+app.use('/', require('./route/userRoutes'));
+//Routes of Founder
+app.use('/founder',founderRoutes);
 
 // Start the server
 app.listen(port, () => {
