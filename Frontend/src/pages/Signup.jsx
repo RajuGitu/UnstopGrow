@@ -7,7 +7,8 @@ import axiosInstance from '../../utils/axiosInstance';
 const Signup = () => {
     const [selectedRole, setSelectedRole] = useState("Select Role");
     const [loading, setLoading] = useState(false);
-    const navigate =useNavigate();
+    const navigate = useNavigate();
+    const [message, setMessage] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,27 +24,27 @@ const Signup = () => {
             }
         }
         if (!isStrongPassword(data.password)) {
-            alert("Password must be 8+ characters, include uppercase, number, and symbol");
+            setMessage("Password must be 8+ characters, include uppercase, number, and symbol");
             return;
         }
         if (data.password !== data.confirmPassword) {
-            alert("Passwords do not match");
+            setMessage("Passwords do not match");
             return;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-            alert("Invalid email format");
+            setMessage("Invalid email format");
             return;
         }
         if ((role === "founder" || role === "investor") && !/^\d{12}$/.test(data.aadhaar)) {
-            alert("Aadhaar must be exactly 12 digits");
+            setMessage("Aadhaar must be exactly 12 digits");
             return;
         }
         if ((role === "founder" || role === "investor") && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(data.pancard.toUpperCase())) {
-            alert("Invalid PAN format");
+            setMessage("Invalid PAN format");
             return;
         }
         if ((role === "founder" || role === "investor") && !data.file) {
-            alert("Please upload a PDF document (max 5MB)");
+            setMessage("Please upload a PDF document (max 5MB)");
             return;
         }
 
@@ -68,8 +69,8 @@ const Signup = () => {
                 headers: { "Content-Type": "multipart/form-data" },
                 withCredentials: true
             });
+            localStorage.setItem("authUser", res.data.userId);
 
-            alert(`${role} registered successfully`);
             navigate("/founder");
             setLoading(false);
         } catch (error) {
@@ -79,11 +80,12 @@ const Signup = () => {
             const res = error.response;
 
             if (res?.status === 409) {
-                alert(res.data.error); 
+                alert(res.data.error);
                 return;
             }
-            console.error(`${role} registration failed:`, error.response?.data || error.message);
+            console.error(`${role} registration failed:`, error.response?.data || error.error);
             alert("Error during registration");
+            setMessage(error.error)
         }
     };
 
@@ -332,6 +334,7 @@ const Signup = () => {
                             </div>
                         </MenuItems>
                     </Menu>
+                    {message && <p className="">{message}</p>}  
 
                     {/* Form Fields */}
                     {selectedRole === "Founder" && renderFounderFields()}

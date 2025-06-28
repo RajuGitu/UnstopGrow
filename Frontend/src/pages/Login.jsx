@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import axiosInstance from '../../utils/axiosInstance';
+
 
 const Login = () => {
 
@@ -10,6 +11,8 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [selectedRole, setSelectedRole] = useState("Select Role");
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
     const roles = ['Founder', 'Investor', 'Supporter'];
 
@@ -45,7 +48,9 @@ const Login = () => {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true
             });
-
+            const { token, userId } = res.data;
+            localStorage.setItem("token", token);
+            localStorage.setItem("authUser", userId);
             alert(`${role} registered successfully`);
             switch (role) {
                 case "founder":
@@ -58,11 +63,12 @@ const Login = () => {
                     navigate("/supporter");
                     break;
             }
+
             setLoading(false);
 
         } catch (error) {
             console.error(`${role} login failed:`, error.response?.data || error.message);
-            alert(error.response?.data?.error || "Login failed");
+            setMessage(error.error);
             setLoading(false);
         }
     }
@@ -73,6 +79,7 @@ const Login = () => {
                 <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-4">
                     {/* Heading */}
                     <h2 className="text-2xl font-bold text-purple-700">Login</h2>
+                    {message && <p className="">{message}</p>}
 
                     {/* Dropdown */}
                     <Menu as="div" className="relative inline-block text-left w-full">

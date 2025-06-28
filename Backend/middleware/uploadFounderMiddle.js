@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure uploads directory exists
-const uploadPath = path.join(__dirname, '../uploads/founderProofs');
+const uploadPath = path.join(__dirname, '../uploads/investorProofs');
 if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
 }
@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const uploadFounder = multer({
+const uploadInvestor = multer({
     storage,
     fileFilter: function (req, file, cb) {
         const ext = path.extname(file.originalname).toLowerCase();
@@ -35,4 +35,4 @@ const uploadFounder = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // Max 5MB
 });
 
-module.exports = uploadFounder;
+module.exports = uploadInvestor;

@@ -126,7 +126,7 @@ const SignupUserController = async (req, res) => {
         const savedSupporter = await newSupporter.save();
         res.status(201).json({
             message: 'Founder registered successfully',
-            supporterId: savedSupporter._id,
+            userId: savedSupporter._id,
         });
     } catch (error) {
         console.error('Register Supporter Error:', error.message);
@@ -187,7 +187,7 @@ const registerFounderController = async (req, res) => {
 
         res.status(201).json({
             message: 'Founder registered successfully',
-            founderId: savedFounder._id,
+            userId: savedFounder._id,
         });
     } catch (err) {
         console.error('Register Founder Error:', err.message);
@@ -225,7 +225,7 @@ const registerInvestorController = async (req, res) => {
         const savedInvestor = await newInvestor.save();
         res.status(201).json({
             message: 'Investor registered successfully',
-            investorId: savedInvestor._id,
+            userId: savedInvestor._id,
         });
     } catch (error) {
         console.error('Register Investor Error:', error.message);
