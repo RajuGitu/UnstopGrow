@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
                     message: isExpired ? "Token Expired" : "Unauthorized User",
                 });
             }
-            req.body.id = decode.id;
+            req.user = decode;
             next();
         });
         
