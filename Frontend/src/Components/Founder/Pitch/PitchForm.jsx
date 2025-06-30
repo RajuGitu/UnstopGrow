@@ -1,224 +1,256 @@
+import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../../UI/Card";
 import { Input } from "../../UI/Input";
 import { Button } from "../../UI/Button";
-import { FileText, Video, Youtube } from "lucide-react";
-import { Upload } from "lucide-react";
+import { FileText, Video, Youtube, Upload } from "lucide-react";
+import axiosInstance from "../../../../utils/axiosInstance";
 
 const PitchForm = () => {
-    const fields = [
-        {
-            key: "title",
-            label: "Startup Title",
-            placeholder: "Your startup name or title",
-            defaultValue: "Revolutionary AI-Powered SaaS Platform",
-        },
-        {
-            key: "tagline",
-            label: "Tagline",
-            placeholder: "One-line description of what you do",
-            defaultValue: "Transforming how businesses automate their workflows",
-        },
-    ];
-    const funding = [
-        {
-            key: "raised",
-            label: "Already Raised",
-            placeholder: "50 lakhs",
-            defaultValue: "50 lakhs",
-        },
-        {
-            key: "active",
-            label: "Active Users",
-            placeholder: "5000",
-            defaultValue: "5000",
-        },
-    ];
-    const one = [
-        {
-            key: "problem",
-            label: "Problem Statement",
-            placeholder: "What problem are you solving? Why is it important?",
-        },
-        {
-            key: "solution",
-            label: "Your Solution",
-            placeholder: "How does your product solve this problem?",
-        },
-    ];
-    const two = [
-        {
-            key: "market",
-            label: "Market Opportunity",
-            placeholder: "Market Size growth potential,target audience",
-        },
-        {
-            key: "traction",
-            label: "Traction & Metrics",
-            placeholder: "User, revenue, growth metrics, key achievments",
-        },
-    ];
-    const three = [
-        {
-            key: "funding",
-            label: "funding Requirements",
-            placeholder: "How much do u need and what will you use it for?",
-        },
-        {
-            key: "team",
-            label: "Team",
-            placeholder: "key team members, their experience and expertise",
-        },
+  const [formData, setFormData] = useState({
+    title: "",
+    tagline: "",
+    youtube: "",
+    problem: "",
+    solution: "",
+    market: "",
+    funding: "",
+    team: "",
+    raised: "",
+    activeUser: "",
+  });
+
+  const [pdfFile, setPdfFile] = useState(null);
+
+  const handleInputChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handlePdfChange = (e) => {
+    setPdfFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async () => {
+    const requiredFields = [
+      "title",
+      "tagline",
+      "youtube",
+      "problem",
+      "solution",
+      "market",
+      "funding",
+      "team",
+      "raised",
+      "activeUser",
     ];
 
-    return (
-        <>
-            <Card className="bg-white/80 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Basic Information</CardTitle>
-                </CardHeader>
+    for (const field of requiredFields) {
+      if (!formData[field] || formData[field].trim() === "") {
+        alert(`Please fill out the ${field} field.`);
+        return;
+      }
+    }
 
-                <CardContent className="space-y-4">
-                    {fields.map(({ key, label, placeholder, defaultValue }) => (
-                        <div key={key}>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
-                            <Input
-                                name={key}
-                                placeholder={placeholder}
-                                defaultValue={defaultValue}
-                            />
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
-            <Card className="bg-white/80 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl flex items-center">
-                        <Video className="h-5 w-5 mr-2" />
-                        Pitch Media
-                    </CardTitle>
-                </CardHeader>
+    if (!pdfFile) {
+      alert("Please upload a pitch deck PDF.");
+      return;
+    }
 
-                <CardContent className="space-y-6">
+    try {
+      const token = localStorage.getItem("token");
+      const data = new FormData();
 
-                    {/* Pitch Deck PDF Upload */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            <FileText className="h-4 w-4 inline mr-1" />
-                            Pitch Deck PDF
-                        </label>
-                        <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors">
-                            <input type="file" accept=".pdf" id="pdf-upload" className="hidden" />
-                            <label htmlFor="pdf-upload" className="cursor-pointer">
-                                <FileText className="h-8 w-8 mx-auto mb-2 text-slate-400" />
-                                <div>
-                                    <p className="text-slate-600">Click to upload your pitch deck PDF</p>
-                                    <p className="text-sm text-slate-500">Supports PDF files up to 10MB</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
+      Object.entries(formData).forEach(([key, value]) => {
+        data.append(key, value);
+      });
 
-                    {/* YouTube Pitch Video URL */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            <Youtube className="h-4 w-4 inline mr-1 text-red-600" />
-                            YouTube Pitch Video URL
-                        </label>
-                        <Input
-                            placeholder="https://www.youtube.com/watch?v=..."
-                            className="w-full"
-                        />
-                        <p className="text-xs text-slate-500 mt-1">
-                            Share your pitch video from YouTube
-                        </p>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card className="bg-white/80 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Problem &amp; Solution</CardTitle>
-                </CardHeader>
+      data.append("pitch", pdfFile);
 
-                <CardContent className="space-y-4">
-                    {one.map(({ key, label, placeholder }) => (
-                        <div key={key}>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                {label}
-                            </label>
-                            <textarea
-                                rows={3}
-                                placeholder={placeholder}
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            />
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
-            <Card className="bg-white/80 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Market &amp; Traction</CardTitle>
-                </CardHeader>
+      const res = await axiosInstance.post("/founder/pitchForm", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-                <CardContent className="space-y-4">
-                    {two.map(({ key, label, placeholder }) => (
-                        <div key={key}>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                {label}
-                            </label>
-                            <textarea
-                                rows={3}
-                                placeholder={placeholder}
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            />
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
-            <Card className="bg-white/80 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Funding &amp; Team</CardTitle>
-                </CardHeader>
+      console.log("Pitch uploaded successfully", res.data);
+      alert("Pitch uploaded successfully!");
+    } catch (err) {
+      console.error("Upload error", err);
+      alert("Something went wrong. Please try again.");
+    }
+  };
 
-                <CardContent className="space-y-4">
-                    {three.map(({ key, label, placeholder }) => (
-                        <div key={key}>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                {label}
-                            </label>
-                            <textarea
-                                rows={3}
-                                placeholder={placeholder}
-                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            />
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+  const renderTextInput = (key, label, placeholder) => (
+    <div key={key}>
+      <label className="block text-sm font-medium text-slate-700 mb-2">
+        {label}
+      </label>
+      <Input
+        name={key}
+        placeholder={placeholder}
+        onChange={handleInputChange}
+      />
+    </div>
+  );
 
-            <Card className="bg-white/80 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Basic Information</CardTitle>
-                </CardHeader>
+  const renderTextarea = (key, label, placeholder) => (
+    <div key={key}>
+      <label className="block text-sm font-medium text-slate-700 mb-2">
+        {label}
+      </label>
+      <textarea
+        name={key}
+        rows={3}
+        placeholder={placeholder}
+        onChange={handleInputChange}
+        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      />
+    </div>
+  );
 
-                <CardContent className="space-y-4">
-                    {funding.map(({ key, label, placeholder, defaultValue }) => (
-                        <div key={key}>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
-                            <Input
-                                name={key}
-                                placeholder={placeholder}
-                                defaultValue={defaultValue}
-                            />
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
-            <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white">
-                <Upload className="h-4 w-4 mr-2" />
-                Publish Pitch
-            </Button>
-        </>
-    );
+  return (
+    <>
+      {/* Basic Info */}
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Basic Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {renderTextInput(
+            "title",
+            "Startup Title",
+            "Your startup name or title"
+          )}
+          {renderTextInput(
+            "tagline",
+            "Tagline",
+            "One-line description of what you do"
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Media */}
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center">
+            <Video className="h-5 w-5 mr-2" />
+            Pitch Media
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* PDF Upload */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              <FileText className="h-4 w-4 inline mr-1" />
+              Pitch Deck PDF
+            </label>
+            <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors">
+              <input
+                type="file"
+                accept=".pdf"
+                id="pdf-upload"
+                className="hidden"
+                onChange={handlePdfChange}
+              />
+              <label htmlFor="pdf-upload" className="cursor-pointer">
+                <FileText className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+                <p className="text-slate-600">
+                  Click to upload your pitch deck PDF
+                </p>
+                <p className="text-sm text-slate-500">
+                  Supports PDF files up to 10MB
+                </p>
+              </label>
+            </div>
+          </div>
+
+          {/* YouTube URL */}
+          {renderTextInput(
+            "youtube",
+            "YouTube Pitch Video URL",
+            "https://www.youtube.com/watch?v=..."
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Problem & Solution */}
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Problem & Solution</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {renderTextarea(
+            "problem",
+            "Problem Statement",
+            "What problem are you solving?"
+          )}
+          {renderTextarea(
+            "solution",
+            "Your Solution",
+            "How does your product solve it?"
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Market & Traction */}
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Market & Traction</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {renderTextarea(
+            "market",
+            "Market Opportunity",
+            "Market size, growth, and audience"
+          )}
+          {renderTextarea(
+            "traction",
+            "Traction & Metrics",
+            "Users, revenue, achievements"
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Funding & Team */}
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Funding & Team</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {renderTextarea(
+            "funding",
+            "Funding Requirements",
+            "How much do you need? Use of funds?"
+          )}
+          {renderTextarea(
+            "team",
+            "Team",
+            "Key team members and their experience"
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Metrics */}
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Business Metrics</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {renderTextInput("raised", "Already Raised", "e.g. 50 lakhs")}
+          {renderTextInput("activeUser", "Active Users", "e.g. 5000")}
+        </CardContent>
+      </Card>
+
+      {/* Submit */}
+      <Button
+        onClick={handleSubmit}
+        className="mt-6 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
+      >
+        <Upload className="h-4 w-4 mr-2" />
+        Publish Pitch
+      </Button>
+    </>
+  );
 };
 
 export default PitchForm;
