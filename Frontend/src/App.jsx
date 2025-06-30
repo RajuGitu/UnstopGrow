@@ -22,36 +22,39 @@ import InvestorDiscover from "./pages/Investor/InvertorDiscover";
 import InvestorSaved from "./pages/Investor/InvestorSaved";
 import InvestorContacts from "./pages/Investor/InvestorContacts";
 import InvestorSettings from "./pages/Investor/InvertorSettings";
+import { AuthProvider } from "./context/AuthContext";
 function App() {
   return (
     <>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgetPassword />} />
-          <Route path="/founder" element={<Founder />}>
-            <Route index element={<Navigate to="/founder/dashboard" />} />
-            <Route path="dashboard" element={<FounderDashboard />} />
-            <Route path="updates" element={<FounderUpdates />} />
-            <Route path="pitch" element={<FounderPitch />} />
-            <Route path="settings" element={<FounderSettings />} />
-            <Route path="merge" element={<FounderMerge />} />
-            <Route path="search" element={<FounderSearch />} />
-            <Route path="interests" element={<FounderInvestor />} />
-            <Route path="feedback" element={<FounderFeedback />} />
-          </Route>
-          <Route path="/investor" element={<InvestorLayout />}>
-            <Route index element={<Navigate to="/investor/dashboard" />} />
-            <Route path="dashboard" element={<InvestDashboard />} />
-            <Route path="discover" element={<InvestorDiscover />} />
-            <Route path="saved" element={<InvestorSaved />} />
-            <Route path='contacts' element={<InvestorContacts />} />
-            <Route path='settings' element={<InvestorSettings />} />  
-          </Route>
-        </Routes>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgetPassword />} />
+            <Route path="/founder" element={<Founder />}>
+              <Route index element={<Navigate to="/founder/dashboard" />} />
+              <Route path="dashboard" element={<FounderDashboard />} />
+              <Route path="updates" element={<FounderUpdates />} />
+              <Route path="pitch" element={<FounderPitch />} />
+              <Route path="settings" element={<FounderSettings />} />
+              <Route path="merge" element={<FounderMerge />} />
+              <Route path="search" element={<FounderSearch />} />
+              <Route path="interests" element={<FounderInvestor />} />
+              <Route path="feedback" element={<FounderFeedback />} />
+            </Route>
+            <Route path="/investor" element={<InvestorLayout />}>
+              <Route index element={<Navigate to="/investor/dashboard" />} />
+              <Route path="dashboard" element={<InvestDashboard />} />
+              <Route path="discover" element={<InvestorDiscover />} />
+              <Route path="saved" element={<InvestorSaved />} />
+              <Route path='contacts' element={<InvestorContacts />} />
+              <Route path='settings' element={<InvestorSettings />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
     </>
   )
 }

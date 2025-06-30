@@ -7,14 +7,6 @@ const updateFormController = async (req, res) => {
     const image = req.file; // Changed from req.media to req.file (standard multer)
     const startupId = req.user.id;
 
-    console.log("Received data:", {
-      title,
-      descriptions,
-      tags,
-      image,
-      startupId,
-    });
-
     if (!title || !descriptions || !image || !startupId) {
       return res.status(400).json({
         error: "Title, descriptions, image, and startupId are required.",

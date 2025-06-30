@@ -12,7 +12,7 @@ const pitchUpload = createPitchPdfUploadMiddleware("pitch");
 const router = express.Router();
 
 const uploadFounderPost = createUploadMiddleware(
-  "founderPostMedia",
+  undefined,
   ["jpg", "jpeg", "png", "webp"],
   1, // maxFiles (not used in this example but available)
   "uploads/postImages"

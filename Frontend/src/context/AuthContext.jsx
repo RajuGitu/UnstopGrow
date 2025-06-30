@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         if (!token) {
             setFounder(null);
-            return false;
+            return false; // Return false if no token
         }
 
         try {
@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
+                credentials:"include"
             });
 
             if (!response.ok) {
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
             return false;
         }
     }, []);
-
+    
     const getInvestorName = useCallback(async () => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -54,6 +55,7 @@ export const AuthProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
+                credentials:"include",
             });
 
             if (!response.ok) {
@@ -75,7 +77,7 @@ export const AuthProvider = ({ children }) => {
         const initializeAuth = async () => {
             setLoading(true);
             const token = localStorage.getItem('token');
-
+            
             if (!token) {
                 setFounder(null);
                 setInvestor(null);
@@ -89,7 +91,7 @@ export const AuthProvider = ({ children }) => {
             if (!founderAuth) {
                 await getInvestorName();
             }
-
+            
             setLoading(false);
             setInitialized(true);
         };
@@ -97,24 +99,26 @@ export const AuthProvider = ({ children }) => {
         initializeAuth();
     }, [getFounderName, getInvestorName]);
 
+    // Logout function
     const logout = useCallback(() => {
         localStorage.removeItem('token');
         setFounder(null);
         setInvestor(null);
     }, []);
 
+    // Check if user is authenticated (either founder or investor)
     const isAuthenticated = founder !== null || investor !== null;
 
     return (
-        <AuthContext.Provider value={{
-            founder,
-            investor,
-            getFounderName,
-            getInvestorName,
-            loading,
+        <AuthContext.Provider value={{ 
+            founder, 
+            investor, 
+            getFounderName, 
+            getInvestorName, 
+            loading, 
             initialized,
             isAuthenticated,
-            logout
+            logout 
         }}>
             {children}
         </AuthContext.Provider>

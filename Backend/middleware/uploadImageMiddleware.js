@@ -6,7 +6,7 @@ const createUploadMiddleware = (
   fieldName = "image",
   allowedExtensions = ["jpg", "jpeg", "png", "webp"],
   maxFiles = 1,
-  customPath = "uploads/images"
+  customPath = "uploads/postImages"
 ) => {
   const uploadPath = path.join(__dirname, `../${customPath}`);
 

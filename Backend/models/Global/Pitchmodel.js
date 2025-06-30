@@ -45,11 +45,11 @@ const PitchSchema = new Schema(
       required: true,
     },
     raised: {
-      type: Number,
+      type: String,
       required: true,
     },
     activeUser: {
-      type: Number,
+      type: String,
       required: true,
     },
   },

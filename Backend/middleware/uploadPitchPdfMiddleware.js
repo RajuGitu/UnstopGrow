@@ -21,7 +21,7 @@ const createPitchPdfUploadMiddleware = (
     },
     filename: function (req, file, cb) {
       const title = req.body.title || "pitch";
-      const startupId = req.body.startupId || "unknown";
+      const startupId = req.user.id || "unknown";
 
       const safeTitle = title.toLowerCase().replace(/[^a-z0-9]/g, "_").slice(0, 30);
       const safeStartupId = startupId.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20);

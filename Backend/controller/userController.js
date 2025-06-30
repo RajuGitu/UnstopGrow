@@ -2,6 +2,7 @@ const Founder = require("../models/foundermodel");
 const Investor = require("../models/investormodel");
 const Supporter = require("../models/supportermodel");
 const JWT = require("jsonwebtoken");
+const Profile = require("../models/Global/Profilemodel");
 //const bcrypt = require('bcryptjs');
 
 const loginUserController = async (req, res) => {
@@ -201,13 +202,14 @@ const registerFounderController = async (req, res) => {
       return res.status(400).json({ error: "Invalid PAN format" });
     }
 
-    const existingFounder = await Investor.findOne({ email });
+    const existingFounder = await Founder.findOne({ email });
     if (existingFounder) {
       return res
         .status(409)
         .json({ error: "Founder with this email already exists" });
     }
 
+    // Create new founder
     const newFounder = new Founder({
       companyName,
       ownerName,
@@ -223,16 +225,30 @@ const registerFounderController = async (req, res) => {
 
     const savedFounder = await newFounder.save();
 
+    const newProfile = new Profile({
+      startupId: savedFounder._id,
+      startUpName: companyName,
+      bio: "Tell us about your startup...", 
+      location: "Location not specified", 
+      domain: "Technology", 
+      email: email,
+      socials: {
+        linkedin: linkedin,
+      },
+    });
+
+    const savedProfile = await newProfile.save();
+
     res.status(201).json({
       message: "Founder registered successfully",
       userId: savedFounder._id,
+      profileId: savedProfile._id,
     });
   } catch (err) {
     console.error("Register Founder Error:", err.message);
     res.status(500).json({ error: "Server error while registering founder" });
   }
 };
-
 const registerInvestorController = async (req, res) => {
   try {
     const {
@@ -408,6 +424,35 @@ const getFounderFileById = async (req, res) => {
   }
 };
 
+const getInvestorAuthenticate = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const founduser = await Investor.findById(userId);
+    if (!founduser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json({ userName: founduser.investorName })
+
+  } catch (error) {
+    console.error("Error fetching founder file:", error);
+    res.status(500).json({ error: "Server error while fetching file" });
+  }
+}
+
+const getFounderAuthenticate = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const founduser = await Founder.findById(userId);
+    if (!founduser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json({ userName: founduser.ownerName })
+  } catch (error) {
+    console.error("Error fetching founder file:", error);
+    res.status(500).json({ error: "Server error while fetching file" });
+  }
+}
+
 module.exports = {
   loginUserController,
   loginFounderController,
@@ -419,4 +464,6 @@ module.exports = {
   forgotFounderController,
   forgotInvestorController,
   getFounderFileById,
+  getFounderAuthenticate,
+  getInvestorAuthenticate
 };

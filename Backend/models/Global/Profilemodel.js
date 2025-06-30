@@ -1,60 +1,63 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const ProfileSchema =new mongoose.connect({
+const ProfileSchema = new Schema({
     startupId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Founder',
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: "Founder",
+        required: true,
+        index: true,
+        unique: true,
     },
     startUpName: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        maxlength: 80,
     },
     bio: {
         type: String,
         required: true,
-        maxlength: 250
+        maxlength: 250,
+        trim: true,
     },
     location: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
     },
     domain: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
     },
     website: {
         type: String,
-        required: true
+        trim: true,
     },
     email: {
         type: String,
-        required: true
+        trim: true,
+    },
+    socials: {
+        twitter: { type: String, trim: true },
+        linkedin: { type: String, trim: true },
+        github: { type: String, trim: true },
     },
     achievements: {
         type: String,
-        required: true
+        trim: true,
+        maxlength: 500,
     },
     readytomerge: {
         type: Boolean,
-        required: true
-    },
-    twitter: {
-        type: String,
-        required: true
-    },
-    linked: {
-        type: String,
-        required: true
-    },
-    github: {
-        type: String,
-        required: true
+        default: true,
     },
     logo: {
         type: String,
-        required: true
     }
-})
+}, {
+    timestamps: true 
+});
 
 module.exports = mongoose.model("Profile", ProfileSchema);

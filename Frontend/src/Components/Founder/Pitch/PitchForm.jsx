@@ -2,31 +2,63 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../../UI/Card";
 import { Input } from "../../UI/Input";
 import { Button } from "../../UI/Button";
-import { FileText, Video, Youtube, Upload } from "lucide-react";
+import { FileText, Video, Youtube, Upload, X, Check } from "lucide-react";
 import axiosInstance from "../../../../utils/axiosInstance";
 
-const PitchForm = () => {
-  const [formData, setFormData] = useState({
-    title: "",
-    tagline: "",
-    youtube: "",
-    problem: "",
-    solution: "",
-    market: "",
-    funding: "",
-    team: "",
-    raised: "",
-    activeUser: "",
-  });
+const BLANK_FORM = {
+  title: "",
+  tagline: "",
+  youtube: "",
+  problem: "",
+  solution: "",
+  market: "",
+  traction: "",
+  funding: "",   // string
+  team: "",
+  raised: "",    // string
+  activeUser: "",
+};
 
+const PitchForm = () => {
+  const [formData, setFormData] = useState(BLANK_FORM);
   const [pdfFile, setPdfFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handlePdfChange = (e) => {
-    setPdfFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      setPdfFile(file);
+    } else {
+      alert('Please select a valid PDF file');
+    }
+  };
+
+  const removePdfFile = () => {
+    setPdfFile(null);
+    // Reset the file input
+    const fileInput = document.getElementById('pdf-upload');
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  const resetForm = () => {
+    setFormData(BLANK_FORM);
+    setPdfFile(null);
+    // Reset all form inputs
+    const form = document.querySelector('form') || document;
+    const inputs = form.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+      if (input.type === 'file') {
+        input.value = '';
+      } else {
+        input.value = '';
+      }
+    });
   };
 
   const handleSubmit = async () => {
@@ -55,6 +87,8 @@ const PitchForm = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const token = localStorage.getItem("token");
       const data = new FormData();
@@ -72,11 +106,14 @@ const PitchForm = () => {
         },
       });
 
-      console.log("Pitch uploaded successfully", res.data);
+      // Reset form after successful submission
+      resetForm();
       alert("Pitch uploaded successfully!");
     } catch (err) {
-      console.error("Upload error", err);
+      console.log("Upload error", err);
       alert("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -87,6 +124,7 @@ const PitchForm = () => {
       </label>
       <Input
         name={key}
+        value={formData[key]}
         placeholder={placeholder}
         onChange={handleInputChange}
       />
@@ -101,6 +139,7 @@ const PitchForm = () => {
       <textarea
         name={key}
         rows={3}
+        value={formData[key]}
         placeholder={placeholder}
         onChange={handleInputChange}
         className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -109,7 +148,7 @@ const PitchForm = () => {
   );
 
   return (
-    <>
+    <div className="space-y-6">
       {/* Basic Info */}
       <Card className="bg-white/80 backdrop-blur-sm">
         <CardHeader>
@@ -144,24 +183,53 @@ const PitchForm = () => {
               <FileText className="h-4 w-4 inline mr-1" />
               Pitch Deck PDF
             </label>
-            <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors">
-              <input
-                type="file"
-                accept=".pdf"
-                id="pdf-upload"
-                className="hidden"
-                onChange={handlePdfChange}
-              />
-              <label htmlFor="pdf-upload" className="cursor-pointer">
-                <FileText className="h-8 w-8 mx-auto mb-2 text-slate-400" />
-                <p className="text-slate-600">
-                  Click to upload your pitch deck PDF
-                </p>
-                <p className="text-sm text-slate-500">
-                  Supports PDF files up to 10MB
-                </p>
-              </label>
-            </div>
+
+            {!pdfFile ? (
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  id="pdf-upload"
+                  className="hidden"
+                  onChange={handlePdfChange}
+                />
+                <label htmlFor="pdf-upload" className="cursor-pointer">
+                  <FileText className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+                  <p className="text-slate-600">
+                    Click to upload your pitch deck PDF
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Supports PDF files up to 10MB
+                  </p>
+                </label>
+              </div>
+            ) : (
+              <div className="border-2 border-green-300 bg-green-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 rounded-full">
+                      <Check className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-green-800">
+                        {pdfFile.name}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {(pdfFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removePdfFile}
+                    className="p-1 hover:bg-red-100 rounded-full transition-colors"
+                    title="Remove file"
+                  >
+                    <X className="h-4 w-4 text-red-500" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* YouTube URL */}
@@ -242,14 +310,26 @@ const PitchForm = () => {
       </Card>
 
       {/* Submit */}
-      <Button
-        onClick={handleSubmit}
-        className="mt-6 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
-      >
-        <Upload className="h-4 w-4 mr-2" />
-        Publish Pitch
-      </Button>
-    </>
+      <div className="flex gap-4">
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white disabled:opacity-50"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          {isSubmitting ? "Publishing..." : "Publish Pitch"}
+        </Button>
+
+        <Button
+          onClick={resetForm}
+          variant="outline"
+          disabled={isSubmitting}
+          className="px-6"
+        >
+          Clear Form
+        </Button>
+      </div>
+    </div>
   );
 };
 
