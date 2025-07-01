@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
+const {Schema} = mongoose;
 
-const DomainInterest = new mongoose.Schema({
-    investorId: {
+const DomainInterest = new Schema({
+    investorId:{
         type: Schema.Types.ObjectId,
-        ref: 'Investor',
+        ref:"Investor",
         required: true,
+        index:true,
+        unique:true,      
     },
     interests: {
         type: [String],
-        default: ["AI", "EdTech", "FinTech", "HealthTech"],
         set: vals => [...new Set(vals.map(v => v.trim()))],
         validate: {
             validator: (arr) => arr.length <= 20,
@@ -17,4 +19,4 @@ const DomainInterest = new mongoose.Schema({
     }
 });
 
-module.export = mongoose.model("Domain", DomainInterest);   
+module.exports = mongoose.model("Domain", DomainInterest);   

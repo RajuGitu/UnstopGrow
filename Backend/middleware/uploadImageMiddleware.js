@@ -20,14 +20,12 @@ const createUploadMiddleware = (
       cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
+      const userId = req.user?.id || "unknown"; // ⬅️ Safe fallback
       const safeTitle = req.body.title
-        ? req.body.title
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, "_")
-            .slice(0, 40)
+        ? req.body.title.toLowerCase().replace(/[^a-z0-9]/g, "_").slice(0, 40)
         : fieldName;
       const ext = path.extname(file.originalname).toLowerCase();
-      cb(null, `${safeTitle}_${Date.now()}${ext}`);
+      cb(null, `${safeTitle}_${userId}_${Date.now()}${ext}`);
     },
   });
 

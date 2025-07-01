@@ -87,7 +87,7 @@ const pitchFormController = async (req, res) => {
     } = req.body;
     const pdf = req.file;
 
-    console.log("Received data:",{
+    console.log("Received data:", {
       startupId,
       title,
       tagline,
@@ -100,13 +100,26 @@ const pitchFormController = async (req, res) => {
       team,
       raised,
       activeUser,
-    })
+    });
 
-    if(!startupId || !title || !tagline || !pdf || !youtube || !problem || !solution || !market || !funding || !team || !raised || !activeUser){
-        return res.status(400).json({
-          error:"You have to provide all the details."
-        })
-      }
+    if (
+      !startupId ||
+      !title ||
+      !tagline ||
+      !pdf ||
+      !youtube ||
+      !problem ||
+      !solution ||
+      !market ||
+      !funding ||
+      !team ||
+      !raised ||
+      !activeUser
+    ) {
+      return res.status(400).json({
+        error: "You have to provide all the details.",
+      });
+    }
 
     const newPitch = new Pitch({
       startupId,
@@ -121,13 +134,12 @@ const pitchFormController = async (req, res) => {
       team,
       raised,
       activeUser,
-    }) 
+    });
     const savedPitch = await newPitch.save();
     res.status(201).json({
-      message:"Pitch Published Successfully.",
+      message: "Pitch Published Successfully.",
       pitch: savedPitch,
-    })
-
+    });
   } catch (error) {
     console.log("publish Pitch Error:", error.message);
     res.status(500).json({ error: "Server error while publishing pitch" });

@@ -7,6 +7,7 @@ const path = require('path');
 const connectDb = require('./config/db');
 
 const founderRoutes = require('./route/founderRoutes');
+const investorRoutes = require('./route/investorRoutes');
 
 // Load .env variables
 dotenv.config();
@@ -31,6 +32,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/', require('./route/userRoutes'));
 //Routes of Founder
 app.use('/founder',founderRoutes);
+//Routes of Investor
+app.use("/investor",investorRoutes);
 
 // Start the server
 app.listen(port, () => {

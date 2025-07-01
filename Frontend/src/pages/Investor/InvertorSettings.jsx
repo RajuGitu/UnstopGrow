@@ -1,7 +1,7 @@
-import InvestorProfile from "../../Components/Investor/Settings/InvestorProfile";
-import InvestorInvestment from "../../Components/Investor/Settings/InvestorInvestment";
-import InvestorNotification from "../../Components/Investor/Settings/InvestorNotification";
-import InvestorSecurity from "../../Components/Investor/Settings/InvestorSecurity";
+import InvestorProfile from "../../Components/Investor/InvestorSettings/InvestorProfile";
+import InvestorInvestment from "../../Components/Investor/InvestorSettings/InvestorDomainInterest";
+//import InvestorNotification from "../../Components/Investor/InvestorSettings/InvestorNotification";
+import InvestorSecurity from "../../Components/Investor/InvestorSettings/InvestorSecurity";
 
 const InvestorSettings = () => {
 
@@ -14,7 +14,7 @@ const InvestorSettings = () => {
       </div>
       <InvestorProfile />
       <InvestorInvestment />
-      <InvestorNotification />
+      {/* <InvestorNotification /> */}
       <InvestorSecurity />
     </div>
   );

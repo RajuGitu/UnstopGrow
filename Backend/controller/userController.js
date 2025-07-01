@@ -3,6 +3,8 @@ const Investor = require("../models/investormodel");
 const Supporter = require("../models/supportermodel");
 const JWT = require("jsonwebtoken");
 const Profile = require("../models/Global/Profilemodel");
+const investorProfileInfo = require("../models/Investor/Setting");
+const investorDomain = require("../models/Investor/Domain");
 //const bcrypt = require('bcryptjs');
 
 const loginUserController = async (req, res) => {
@@ -308,9 +310,27 @@ const registerInvestorController = async (req, res) => {
       answer,
     });
     const savedInvestor = await newInvestor.save();
+
+    const newInvestorProfileinfo = new investorProfileInfo({
+      investorId: savedInvestor._id,
+      name: investorName,
+      email: email,
+      linkedin:linkedin,
+    })
+
+    const savedInvestorProfileinfo = await newInvestorProfileinfo.save();
+
+    const newInvestorDomain = new investorDomain({
+      investorId:savedInvestor._id,
+    })
+
+    const savedInvestorDomain = await newInvestorDomain.save();
+
     res.status(201).json({
       message: "Investor registered successfully",
       userId: savedInvestor._id,
+      profile:savedInvestorProfileinfo,
+      domain: savedInvestorDomain,
     });
   } catch (error) {
     console.error("Register Investor Error:", error.message);
