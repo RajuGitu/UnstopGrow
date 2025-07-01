@@ -1,71 +1,99 @@
-import { useState } from "react";
-import axios from "axios";
-import { Card, CardHeader, CardTitle, CardContent, } from "../../UI/Card";
+import { useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "../../UI/Card";
 import { Input } from "../../UI/Input";
 import { Textarea } from "../../UI/Textarea";
 import { Switch } from "../../UI/Switch";
 import { Button } from "../../UI/Button";
-import { Building, MapPin, Target, Award, Globe, Upload, Loader2, } from "lucide-react";
-const MAX_BIO = 250;
-const MAX_ACH = 500;
+import { Building, MapPin, Target, Award, Globe, Upload, Loader2 } from "lucide-react";
+import { useProfile } from "../../../context/ProfileContext";
 
 export default function SettingsForm() {
-    const [form, setForm] = useState({
-        startUpName: "TechFlow AI",
-        bio: "Building the future of AI-powered analytics for businesses",
-        location: "San Francisco, CA",
-        domain: "AI & Machine Learning",
-        website: "https://techflow.ai",
-        email: "alex@techflow.ai",
-        achievements: "Raised $2M Series A, 85% YoY growth, Featured in TechCrunch",
-        readytomerge: true,
-        socials: {
-            twitter: "",
-            linkedin: "",
-            github: "",
-        },
-    });
+    const {
+        // State
+        form,
+        lockedFields,
+        loading,
+        fetchLoading,
+        errors,
+        saveStatus,
+        MAX_BIO,
+        MAX_ACH,
 
-    const [loading, setLoading] = useState(false);
+        // Actions
+        fetchProfile,
+        saveProfile,
+        updateForm,
+        updateSocial,
+    } = useProfile();
 
-    const handleChange = (key, value) =>
-        setForm((prev) => ({ ...prev, [key]: value }));
+    useEffect(() => {
+        fetchProfile();
+    }, [fetchProfile]);
 
-    const handleSocialChange = (key, value) =>
-        setForm((prev) => ({
-            ...prev,
-            socials: { ...prev.socials, [key]: value },
-        }));
+    // Show loading spinner while fetching profile
+    if (fetchLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-indigo-600" />
+                    <p className="text-gray-600">Loading profile...</p>
+                </div>
+            </div>
+        );
+    }
 
-    const handleSubmit = async () => {
-        if (loading) return;
-        try {
-            setLoading(true);
-            const token = localStorage.getItem("token");
-            await axios.post(
-                "http://localhost:5000/founder/profile",
-                form,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            alert("Profile updated successfully!");
-        } catch (err) {
-            console.error("Update failed:", err);
-            alert("Could not save changes. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    /* ────────── UI ────────── */
     return (
-        <>
-            {/* ───────── Startup Profile ───────── */}
+        <div className="space-y-6">
+            {/* Error Display */}
+            {errors.fetch && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-800">{errors.fetch}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success/Error Status */}
+            {saveStatus === 'success' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-green-800">Profile updated successfully!</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {saveStatus === 'error' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-800">
+                                {errors.save || "Failed to save changes. Please try again."}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Startup Profile */}
             <Card className="bg-white/80 backdrop-blur-sm">
                 <CardHeader>
                     <CardTitle className="flex items-center space-x-2 text-2xl">
@@ -76,23 +104,39 @@ export default function SettingsForm() {
 
                 <CardContent className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-2">Startup Name</label>
+                        <label className="block text-sm font-medium mb-2">
+                            <Building className="inline h-4 w-4 mr-1" />
+                            Startup Name
+                        </label>
                         <Input
-                            value={form.startupName}
-                            onChange={(e) => handleChange("startupName", e.target.value)}
+                            value={form.startUpName}
+                            onChange={(e) => updateForm("startUpName", e.target.value)}
                             required
+                            disabled={lockedFields.startUpName}
+                            className={`${errors.startUpName ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.startUpName ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         />
+                        {lockedFields.startUpName && (
+                            <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
+                        )}
+                        {errors.startUpName && (
+                            <p className="text-xs text-red-600 mt-1">{errors.startUpName}</p>
+                        )}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-2">Bio</label>
+                        <label className="block text-sm font-medium mb-2">
+                            Bio
+                        </label>
                         <Textarea
                             value={form.bio}
                             maxLength={MAX_BIO}
-                            onChange={(e) => handleChange("bio", e.target.value)}
-                            className="h-24 resize-none"
+                            onChange={(e) => updateForm("bio", e.target.value)}
+                            className={`h-24 resize-none ${errors.bio ? "border-red-500 focus:ring-red-500" : ""}`}
                             required
                         />
+                        {errors.bio && (
+                            <p className="text-xs text-red-600 mt-1">{errors.bio}</p>
+                        )}
                         <p className="text-xs text-slate-500 mt-1">
                             {form.bio.length}/{MAX_BIO} characters
                         </p>
@@ -106,9 +150,17 @@ export default function SettingsForm() {
                             </label>
                             <Input
                                 value={form.location}
-                                onChange={(e) => handleChange("location", e.target.value)}
+                                onChange={(e) => updateForm("location", e.target.value)}
                                 required
+                                disabled={lockedFields.location}
+                                className={`${errors.location ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.location ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             />
+                            {lockedFields.location && (
+                                <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
+                            )}
+                            {errors.location && (
+                                <p className="text-xs text-red-600 mt-1">{errors.location}</p>
+                            )}
                         </div>
 
                         <div>
@@ -116,68 +168,84 @@ export default function SettingsForm() {
                                 <Target className="inline h-4 w-4 mr-1" />
                                 Domain
                             </label>
-                            <select
+                            <Input
                                 value={form.domain}
-                                onChange={(e) => handleChange("domain", e.target.value)}
-                                className="w-full h-10 px-3 py-2 border rounded-lg"
-                            >
-                                {[
-                                    "AI & Machine Learning",
-                                    "Clean Energy",
-                                    "HealthTech",
-                                    "Data Analytics",
-                                    "EdTech",
-                                    "FinTech",
-                                    "E-commerce",
-                                    "Cybersecurity",
-                                    "IoT",
-                                    "Blockchain",
-                                ].map((d) => (
-                                    <option key={d}>{d}</option>
-                                ))}
-                            </select>
+                                onChange={(e) => updateForm("domain", e.target.value)}
+                                placeholder="e.g., AI & Machine Learning, FinTech, HealthTech"
+                                required
+                                className={`${errors.domain ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.domain ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                            />
+                            {errors.domain && (
+                                <p className="text-xs text-red-600 mt-1">{errors.domain}</p>
+                            )}
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-2">Website URL</label>
+                        <label className="block text-sm font-medium mb-2">
+                            <Globe className="inline h-4 w-4 mr-1" />
+                            Website URL
+                        </label>
                         <Input
                             type="url"
                             value={form.website}
-                            onChange={(e) => handleChange("website", e.target.value)}
+                            onChange={(e) => updateForm("website", e.target.value)}
+                            disabled={lockedFields.website}
+                            className={`${errors.website ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.website ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         />
+                        {lockedFields.website && (
+                            <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
+                        )}
+                        {errors.website && (
+                            <p className="text-xs text-red-600 mt-1">{errors.website}</p>
+                        )}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-2">Contact Email</label>
+                        <label className="block text-sm font-medium mb-2">
+                            Contact Email
+                        </label>
                         <Input
                             type="email"
                             value={form.email}
-                            onChange={(e) => handleChange("email", e.target.value)}
+                            onChange={(e) => updateForm("email", e.target.value)}
                             required
+                            disabled={lockedFields.email}
+                            className={`${errors.email ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.email ? "bg-gray-100 cursor-not-allowed" : ""}`}
                         />
+                        {lockedFields.email && (
+                            <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
+                        )}
+                        {errors.email && (
+                            <p className="text-xs text-red-600 mt-1">{errors.email}</p>
+                        )}
                     </div>
                 </CardContent>
             </Card>
 
-            {/* ───────── Achievements & Merge ───────── */}
+            {/* Achievements & Merge Status */}
             <Card className="bg-white/80 backdrop-blur-sm">
                 <CardHeader>
                     <CardTitle className="flex items-center space-x-2 text-2xl">
                         <Award className="h-5 w-5 text-yellow-600" />
-                        <span>Achievements &amp; Merge Status</span>
+                        <span>Achievements & Merge Status</span>
                     </CardTitle>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-2">Top Achievements</label>
+                        <label className="block text-sm font-medium mb-2">
+                            Top Achievements
+                        </label>
                         <Textarea
                             value={form.achievements}
                             maxLength={MAX_ACH}
-                            onChange={(e) => handleChange("achievements", e.target.value)}
-                            className="h-32 resize-none"
+                            onChange={(e) => updateForm("achievements", e.target.value)}
+                            className={`h-32 resize-none ${errors.achievements ? "border-red-500 focus:ring-red-500" : ""}`}
                         />
+                        {errors.achievements && (
+                            <p className="text-xs text-red-600 mt-1">{errors.achievements}</p>
+                        )}
                         <p className="text-xs text-slate-500 mt-1">
                             {form.achievements.length}/{MAX_ACH} characters
                         </p>
@@ -192,13 +260,13 @@ export default function SettingsForm() {
                         </div>
                         <Switch
                             checked={form.readytomerge}
-                            onCheckedChange={(v) => handleChange("readytomerge", v)}
+                            onCheckedChange={(v) => updateForm("readytomerge", v)}
                         />
                     </div>
                 </CardContent>
             </Card>
 
-            {/* ───────── Social Links ───────── */}
+            {/* Social Links */}
             <Card className="bg-white/80 backdrop-blur-sm">
                 <CardHeader>
                     <CardTitle className="flex items-center space-x-2 text-2xl">
@@ -214,31 +282,54 @@ export default function SettingsForm() {
                         ["github", "GitHub", "https://github.com/yourstartup"],
                     ].map(([key, label, placeholder]) => (
                         <div key={key}>
-                            <label className="block text-sm font-medium mb-2">{label}</label>
+                            <label className="block text-sm font-medium mb-2">
+                                {label}
+                            </label>
                             <Input
                                 type="url"
                                 value={form.socials[key]}
                                 placeholder={placeholder}
-                                onChange={(e) => handleSocialChange(key, e.target.value)}
+                                onChange={(e) => updateSocial(key, e.target.value)}
+                                disabled={lockedFields.socials[key]}
+                                className={`${errors[`socials.${key}`] ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.socials[key] ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             />
+                            {lockedFields.socials[key] && (
+                                <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
+                            )}
+                            {errors[`socials.${key}`] && (
+                                <p className="text-xs text-red-600 mt-1">{errors[`socials.${key}`]}</p>
+                            )}
                         </div>
                     ))}
                 </CardContent>
             </Card>
 
-            {/* ───────── Save Button ───────── */}
-            <Button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50"
-            >
-                {loading ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                    <Upload className="h-4 w-4 mr-2" />
+            {/* Save Button */}
+            <div className="flex items-center justify-between">
+                <Button
+                    onClick={saveProfile}
+                    disabled={loading || fetchLoading}
+                    className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50 transition-all duration-200 px-8 py-2"
+                >
+                    {loading ? (
+                        <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Saving Changes...
+                        </>
+                    ) : (
+                        <>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Save Changes
+                        </>
+                    )}
+                </Button>
+
+                {loading && (
+                    <div className="flex items-center text-sm text-gray-500">
+                        <div className="animate-pulse">Please wait while we save your changes...</div>
+                    </div>
                 )}
-                {loading ? "Saving..." : "Save Changes"}
-            </Button>
-        </>
+            </div>
+        </div>
     );
 }

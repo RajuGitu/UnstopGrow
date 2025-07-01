@@ -1,6 +1,8 @@
 const Post = require("../models/Global/Postmodel"); // Make sure to import your Post model
 const Pitch = require("../models/Global/Pitchmodel");
-
+const Profile = require("../models/Global/Profilemodel");
+const path = require("path");
+const fs = require("fs/promises");
 const updateFormController = async (req, res) => {
   try {
     const { title, descriptions, tags } = req.body;
@@ -102,23 +104,10 @@ const pitchFormController = async (req, res) => {
       activeUser,
     });
 
-    if (
-      !startupId ||
-      !title ||
-      !tagline ||
-      !pdf ||
-      !youtube ||
-      !problem ||
-      !solution ||
-      !market ||
-      !funding ||
-      !team ||
-      !raised ||
-      !activeUser
-    ) {
+    if (!startupId || !title || !tagline || !pdf || !youtube || !problem || !solution || !market || !funding || !team || !raised || !activeUser) {
       return res.status(400).json({
-        error: "You have to provide all the details.",
-      });
+        error: "You have to provide all the details."
+      })
     }
 
     const newPitch = new Pitch({
@@ -134,7 +123,7 @@ const pitchFormController = async (req, res) => {
       team,
       raised,
       activeUser,
-    });
+    })
     const savedPitch = await newPitch.save();
     res.status(201).json({
       message: "Pitch Published Successfully.",
@@ -145,8 +134,132 @@ const pitchFormController = async (req, res) => {
     res.status(500).json({ error: "Server error while publishing pitch" });
   }
 };
+
+const getFounderProfileController = async (req, res) => {
+  try {
+    const founderId = req.user.id;
+
+    if (!founderId) {
+      return res.status(401).json({ error: "Unauthorized person" });
+    }
+
+    const founder = await Profile.findOne({ startupId: founderId });
+
+    if (!founder) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      founderProfile: founder,
+    });
+  } catch (error) {
+    console.error("Get Founder Profile Error:", error.message);
+    res.status(500).json({ error: "Server error while fetching profile" });
+  }
+};
+
+const updateProfileController = async (req, res) => {
+  try {
+    const founderId = req.user.id;
+    if (!founderId) return res.status(401).json({ error: "Unauthorized person" });
+    const $set = {};
+    const {
+      bio, domain, achievements, readytomerge,
+      location, startUpName, website, email, socials = {}
+    } = req.body;
+
+    if (bio !== undefined) $set.bio = bio;
+    if (domain !== undefined) $set.domain = domain;
+    if (achievements !== undefined) $set.achievements = achievements;
+    if (readytomerge !== undefined) $set.readytomerge = readytomerge;
+    if (location !== undefined) $set.location = location;
+    if (startUpName !== undefined) $set.startUpName = startUpName;
+    if (website !== undefined) $set.website = website;
+    if (email !== undefined) $set.email = email;
+
+    Object.entries(socials).forEach(([k, v]) => {
+      $set[`socials.${k}`] = v;
+    });
+
+    const updated = await Profile.findOneAndUpdate(
+      { startupId: founderId },
+      { $set },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) return res.status(404).json({ error: "Profile not found" });
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      data: updated,
+    });
+  } catch (err) {
+    console.error("Update Founder Profile Error:", err);
+    res.status(500).json({ error: "Server error while updating profile" });
+  }
+};
+
+const uploadImageController = async (req, res) => {
+  try {
+    const founderId = req.user?.id;
+    if (!founderId) {
+      return res.status(401).json({ error: "Unauthorized person" });
+    }
+
+    const image = req.file;
+    if (!image) {
+      return res.status(404).json({ error: "Image not found" });
+    }
+
+    const logoPath = image.path;
+
+    const updated = await Profile.findOneAndUpdate(
+      { startupId: founderId },
+      { $set: { logo: logoPath } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+
+    return res.status(200).json({
+      message: "Logo uploaded successfully",
+      url: logoPath,
+    });
+
+  } catch (error) {
+    console.error("Upload logo error:", error);
+    return res.status(500).json({ error: "Server error while uploading logo" });
+  }
+};
+
+const deleteLogoController = async (req, res) => {
+  try {
+    const founderId = req.user.id;
+    const profile = await Profile.findOne({ startupId: founderId });
+    if (!profile) return res.status(404).json({ error: "Profile not found" });
+    if (!profile.logo) return res.status(400).json({ error: "No logo to delete" });
+    const absolutePath = path.isAbsolute(profile.logo)
+      ? profile.logo
+      : path.join(__dirname, "..", profile.logo);
+    await fs.unlink(absolutePath).catch(() => { });
+    profile.logo = null;
+    await profile.save();
+    res.status(200).json({ message: "Logo deleted" });
+  } catch (error) {
+    console.error("Upload logo error:", error);
+    return res.status(500).json({ error: "Server error while uploading logo" });
+  }
+}
+
 module.exports = {
   updateFormController,
   recentUpdatesController,
   pitchFormController,
+  getFounderProfileController,
+  updateProfileController,
+  uploadImageController,
+  deleteLogoController
 };

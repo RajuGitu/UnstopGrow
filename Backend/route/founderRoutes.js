@@ -3,6 +3,10 @@ const {
   updateFormController,
   recentUpdatesController,
   pitchFormController,
+  getFounderProfileController,
+  updateProfileController,
+  uploadImageController,
+  deleteLogoController,
 } = require("../controller/founderController");
 const authMiddleware = require("../middleware/authMiddleware");
 const createUploadMiddleware = require("../middleware/uploadImageMiddleware");
@@ -27,11 +31,18 @@ router.post(
   updateFormController
 );
 
-//Routes for founder post to get recent updates post in Recentupdates components
-
 router.get("/recentUpdates", authMiddleware, recentUpdatesController);
+router.get("/getprofile", authMiddleware, getFounderProfileController);
+router.put("/updateprofile", authMiddleware, updateProfileController);
 
-//Routes for founder pitch to post the pitch in component pitchForm
+const uploadProfileImage = createUploadMiddleware(
+  undefined,
+  ["jpg", "jpeg", "png", "webp"],
+  1,
+  "uploads/FounderProfileImage"
+);
+router.post("/logoUpload", authMiddleware,uploadProfileImage.single('logo'),uploadImageController);
+router.delete("/logoUpload",authMiddleware,deleteLogoController);
 
-router.post('/pitchForm',authMiddleware,pitchUpload.single("pitch"),pitchFormController);
+router.post('/pitchForm', authMiddleware, pitchUpload.single("pitch"), pitchFormController);
 module.exports = router;

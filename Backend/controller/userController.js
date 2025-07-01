@@ -148,9 +148,21 @@ const SignupUserController = async (req, res) => {
       answer,
     });
     const savedSupporter = await newSupporter.save();
+    const token = JWT.sign(
+      { id: savedSupporter._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(201).json({
       message: "Founder registered successfully",
       userId: savedSupporter._id,
+      token
     });
   } catch (error) {
     console.error("Register Supporter Error:", error.message);
@@ -230,9 +242,8 @@ const registerFounderController = async (req, res) => {
     const newProfile = new Profile({
       startupId: savedFounder._id,
       startUpName: companyName,
-      bio: "Tell us about your startup...", 
-      location: "Location not specified", 
-      domain: "Technology", 
+      bio: "Tell us about your startup...",
+      domain: "Technology",
       email: email,
       socials: {
         linkedin: linkedin,
@@ -240,11 +251,22 @@ const registerFounderController = async (req, res) => {
     });
 
     const savedProfile = await newProfile.save();
-
+    const token = JWT.sign(
+      { id: savedFounder._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(201).json({
       message: "Founder registered successfully",
       userId: savedFounder._id,
       profileId: savedProfile._id,
+      token
     });
   } catch (err) {
     console.error("Register Founder Error:", err.message);
@@ -315,23 +337,37 @@ const registerInvestorController = async (req, res) => {
       investorId: savedInvestor._id,
       name: investorName,
       email: email,
-      linkedin:linkedin,
+      linkedin: linkedin,
     })
 
     const savedInvestorProfileinfo = await newInvestorProfileinfo.save();
 
     const newInvestorDomain = new investorDomain({
-      investorId:savedInvestor._id,
+      investorId: savedInvestor._id,
     })
 
     const savedInvestorDomain = await newInvestorDomain.save();
 
+
+    const token = JWT.sign(
+      { id: savedInvestor._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(201).json({
       message: "Investor registered successfully",
       userId: savedInvestor._id,
-      profile:savedInvestorProfileinfo,
+      token,
+      profile: savedInvestorProfileinfo,
       domain: savedInvestorDomain,
     });
+
   } catch (error) {
     console.error("Register Investor Error:", error.message);
     res.status(500).json({ error: "Server error while registering investor" });
@@ -346,7 +382,6 @@ const forgotUserController = async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Find user with matching email and security answer
     const user = await Supporter.findOne({ email, answer });
 
     if (!user) {
@@ -355,7 +390,6 @@ const forgotUserController = async (req, res) => {
         .json({ message: "User not found or incorrect security answer." });
     }
 
-    // Update the password directly (plaintext — not secure for production)
     user.password = newPassword;
     await user.save();
 

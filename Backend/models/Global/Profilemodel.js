@@ -23,12 +23,10 @@ const ProfileSchema = new Schema({
     },
     location: {
         type: String,
-        required: true,
         trim: true,
     },
     domain: {
         type: String,
-        required: true,
         trim: true,
     },
     website: {

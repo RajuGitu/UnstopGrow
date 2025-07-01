@@ -1,11 +1,12 @@
 import { Eye, TrendingUp } from 'lucide-react';
-
+import { useAuth } from '../../../context/AuthContext';
 const HeaderSection = () => {
+    const {founder} = useAuth();
     return (
         <div className="flex justify-between items-start">
             <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Welcome back, Alex! 👋
+                    Welcome back, {founder}! 👋
                 </h1>
                 <p className="text-slate-600 mt-2">
                     Here's what's happening with your startup today.

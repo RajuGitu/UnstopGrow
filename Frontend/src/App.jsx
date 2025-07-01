@@ -22,7 +22,9 @@ import InvestorDiscover from "./pages/Investor/InvertorDiscover";
 import InvestorSaved from "./pages/Investor/InvestorSaved";
 import InvestorContacts from "./pages/Investor/InvestorContacts";
 import InvestorSettings from "./pages/Investor/InvertorSettings";
+
 import { AuthProvider } from "./context/AuthContext";
+import { ProfileProvider } from "./context/ProfileContext";
 function App() {
   return (
     <>
@@ -33,7 +35,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgetPassword />} />
-            <Route path="/founder" element={<Founder />}>
+            <Route path="/founder" element={
+              <ProfileProvider>
+                <Founder />
+              </ProfileProvider>
+            }>
               <Route index element={<Navigate to="/founder/dashboard" />} />
               <Route path="dashboard" element={<FounderDashboard />} />
               <Route path="updates" element={<FounderUpdates />} />
