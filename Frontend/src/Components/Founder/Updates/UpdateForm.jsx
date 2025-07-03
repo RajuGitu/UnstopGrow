@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../UI/Card";
 import { Input } from "../../UI/Input";
 import { Button } from "../../UI/Button";
 import { Badge } from "../../UI/Badge";
-import { PenTool, Send, Upload, X, Image } from "lucide-react";
+import { PenTool, Send, Upload, X, Image, Plus } from "lucide-react";
 import axiosInstance from "../../../../utils/axiosInstance";
 
 const availableTags = [
@@ -23,6 +23,7 @@ const UpdateForm = () => {
   const [title, setTitle] = useState("");
   const [descriptions, setDescriptions] = useState(""); // Match schema field name
   const [selectedTags, setSelectedTags] = useState([]);
+  const [customTag, setCustomTag] = useState("");
   const [selectedImage, setSelectedImage] = useState(null); // Single image to match schema
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +31,41 @@ const UpdateForm = () => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
+  };
+
+  const handleCustomTagAdd = () => {
+    if (!customTag.trim()) return;
+
+    // Format the custom tag
+    let formattedTag = customTag.trim();
+    if (!formattedTag.startsWith("#")) {
+      formattedTag = "#" + formattedTag;
+    }
+
+    // Convert to lowercase for consistency
+    formattedTag = formattedTag.toLowerCase();
+
+    // Check if tag already exists (in selected tags or available tags)
+    const allTags = [...availableTags, ...selectedTags];
+    if (allTags.includes(formattedTag)) {
+      alert("This tag already exists!");
+      return;
+    }
+
+    // Add to selected tags
+    setSelectedTags((prev) => [...prev, formattedTag]);
+    setCustomTag("");
+  };
+
+  const handleCustomTagKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleCustomTagAdd();
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setSelectedTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
   const handleImageUpload = (e) => {
@@ -212,22 +248,70 @@ const UpdateForm = () => {
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Add Tags
           </label>
-          <div className="flex flex-wrap gap-2">
-            {availableTags.map((tag) => (
-              <Badge
-                key={tag}
-                variant={selectedTags.includes(tag) ? "default" : "outline"}
-                className={`cursor-pointer transition-all ${
-                  selectedTags.includes(tag)
-                    ? "bg-indigo-500 text-white"
-                    : "hover:bg-indigo-50"
-                }`}
-                onClick={() => handleTagToggle(tag)}
-              >
-                {tag}
-              </Badge>
-            ))}
+          
+          {/* Custom Tag Input */}
+          <div className="flex items-center space-x-2 mb-3">
+            <Input
+              value={customTag}
+              onChange={(e) => setCustomTag(e.target.value)}
+              onKeyPress={handleCustomTagKeyPress}
+              placeholder="Enter custom tag (e.g., success, breakthrough)"
+              className="flex-1"
+              maxLength={20}
+            />
+            <Button
+              type="button"
+              onClick={handleCustomTagAdd}
+              disabled={!customTag.trim()}
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-2"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
+
+          {/* Predefined Tags */}
+          <div className="mb-3">
+            <p className="text-xs text-slate-600 mb-2">Suggested tags:</p>
+            <div className="flex flex-wrap gap-2">
+              {availableTags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant={selectedTags.includes(tag) ? "default" : "outline"}
+                  className={`cursor-pointer transition-all ${
+                    selectedTags.includes(tag)
+                      ? "bg-indigo-500 text-white"
+                      : "hover:bg-indigo-50"
+                  }`}
+                  onClick={() => handleTagToggle(tag)}
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Selected Tags */}
+          {selectedTags.length > 0 && (
+            <div>
+              <p className="text-xs text-slate-600 mb-2">Selected tags:</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedTags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    className="bg-indigo-500 text-white relative pr-8"
+                  >
+                    {tag}
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 hover:bg-indigo-600 rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Publish Button */}
