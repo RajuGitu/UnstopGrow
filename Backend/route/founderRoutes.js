@@ -7,22 +7,32 @@ const {
   updateProfileController,
   uploadImageController,
   deleteLogoController,
+  getPitchsController,
+  deletePitchController,
+  deletePostController,
+  getAllFounderController,
+  postMergeRequest,
+  getSentRequest,
+  deleteSentRequest,
+  getRequestController,
+  updateStatusRequest,
+  getAllInterestedController,
 } = require("../controller/founderController");
 const authMiddleware = require("../middleware/authMiddleware");
 const createUploadMiddleware = require("../middleware/uploadImageMiddleware");
 const createPitchPdfUploadMiddleware = require("../middleware/uploadPitchPdfMiddleware");
 const pitchUpload = createPitchPdfUploadMiddleware("pitch");
-
+const multer = require("multer");
+const upload = multer();
 const router = express.Router();
 
 const uploadFounderPost = createUploadMiddleware(
   undefined,
   ["jpg", "jpeg", "png", "webp"],
-  1, // maxFiles (not used in this example but available)
+  1,
   "uploads/postImages"
 );
 
-//Routes for founder post to post the updates in component updateForm
 
 router.post(
   "/updateForm",
@@ -41,8 +51,21 @@ const uploadProfileImage = createUploadMiddleware(
   1,
   "uploads/FounderProfileImage"
 );
-router.post("/logoUpload", authMiddleware,uploadProfileImage.single('logo'),uploadImageController);
-router.delete("/logoUpload",authMiddleware,deleteLogoController);
+router.post("/logoUpload", authMiddleware, uploadProfileImage.single('logo'), uploadImageController);
+router.delete("/logoUpload", authMiddleware, deleteLogoController);
 
 router.post('/pitchForm', authMiddleware, pitchUpload.single("pitch"), pitchFormController);
+router.get('/getPitch', authMiddleware, getPitchsController);
+router.delete('/deletePitch/:id', authMiddleware, deletePitchController);
+router.delete('/deletePost/:id', authMiddleware, deletePostController);
+
+router.get('/allFounderProfile', authMiddleware, getAllFounderController);
+
+router.post('/mergeRequest', authMiddleware,upload.none(), postMergeRequest);
+router.get('/getsentrequest',authMiddleware,getSentRequest);
+router.get('/getrequest',authMiddleware,getRequestController);
+router.put('/updaterequest/:id',authMiddleware,updateStatusRequest);
+router.delete('/deleterequest/:id',authMiddleware,deleteSentRequest);
+
+router.get('/getinterestedfounder',authMiddleware,getAllInterestedController);
 module.exports = router;

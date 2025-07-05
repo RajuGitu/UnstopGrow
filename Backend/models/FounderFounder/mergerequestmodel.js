@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
-
-const RequestSchema =new mongoose.Schema({
-    startUpId: {
-        type: Schema.Types.ObjectId,
+const { Schema } = mongoose;
+const RequestSchema = new Schema({
+    startUpIdSent: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Founder",
         required: true,
     },
-    investorId: {
-        type: Schema.Types.ObjectId,
-        ref: "Investor",
+    startUpIdReceive: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Founder",
         required: true,
     },
     describe: {
@@ -19,7 +19,9 @@ const RequestSchema =new mongoose.Schema({
         enum: ["new", "accepted", "rejected", "pending"],
         default: "new",
         required: true,
-    },
-})
+    }
+}, {
+    timestamps: true, // Adds createdAt and updatedAt fields
+});
 
 module.exports = mongoose.model("Request", RequestSchema);

@@ -8,10 +8,9 @@ const getColorMap = {
   blue: {
     from: "#eff6ff", to: "#dbeafe", border: "#bfdbfe", text: "#2563eb", dark: "#1e3a8a",
   },
-  // add more colors
 };
 
-const MetricCard = ({ title, value, change, icon, color }) => {
+const MetricCard = ({ title, value, icon, color }) => {
   const selected = getColorMap[color];
 
   return (
@@ -27,17 +26,6 @@ const MetricCard = ({ title, value, change, icon, color }) => {
           <p className="text-sm font-medium" style={{ color: selected.text }}>{title}</p>
           <p className="text-3xl font-bold mt-1" style={{ color: selected.dark }}>{value}</p>
           <p className="text-xs flex items-center mt-1" style={{ color: selected.text }}>
-            <svg
-              className="h-3 w-3 mr-1"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M7 7h10v10" />
-              <path d="M7 17L17 7" />
-            </svg>
-            {change}
           </p>
         </div>
         <div className="h-8 w-8" style={{ color: selected.text }}>{icon}</div>

@@ -10,7 +10,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState(""); // 'error' or 'success'
+  const [messageType, setMessageType] = useState("");
 
   const initialFormData = {
     founder: {
@@ -137,20 +137,18 @@ const Signup = () => {
       localStorage.setItem("token", res.data.token);
 
       showMessage("Registration successful! Redirecting...", "success");
-      
-      setTimeout(() => {
-        switch (role) {
-          case "founder":
-            navigate("/founder/dashboard");
-            break;
-          case "investor":
-            navigate("/investor/dashboard");
-            break;
-          case "supporter":
-            navigate("/supporter");
-            break;
-        }
-      }, 1500);
+
+      switch (role) {
+        case "founder":
+          navigate("/founder/dashboard");
+          break;
+        case "investor":
+          navigate("/investor/dashboard");
+          break;
+        case "supporter":
+          navigate("/supporter");
+          break;
+      }
 
     } catch (error) {
       const res = error.response;
@@ -182,17 +180,17 @@ const Signup = () => {
 
   const handleFileChange = (role, file) => {
     if (!file) return;
-    
+
     if (file.size > 5 * 1024 * 1024) {
       showMessage("File size must be less than 5MB");
       return;
     }
-    
+
     if (file.type !== "application/pdf") {
       showMessage("Please upload a valid PDF file");
       return;
     }
-    
+
     handleChange(role, "file", file);
   };
 
@@ -221,7 +219,7 @@ const Signup = () => {
   const renderFileUpload = (role, currentFile) => (
     <div className="w-full">
       <label className={labelClass}>Upload PDF Document (max 5 MB)</label>
-      
+
       {!currentFile ? (
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
           <input
@@ -430,12 +428,12 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="flex flex-col md:flex-row min-h-[100vh]">
       {/* Left - Form */}
       <div className="w-full md:w-1/2 flex flex-col items-center justify-center bg-gradient-to-r from-purple-100 to-blue-100 px-6 py-12">
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-4 max-h-[90vh] overflow-y-auto"
+          className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-4"
         >
           <h2 className="text-2xl font-bold text-center text-purple-700">
             Signup
@@ -458,11 +456,10 @@ const Signup = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedRole(role)}
-                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                          active
-                            ? "bg-purple-100 text-purple-900"
-                            : "text-gray-700"
-                        }`}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${active
+                          ? "bg-purple-100 text-purple-900"
+                          : "text-gray-700"
+                          }`}
                       >
                         {role}
                       </button>
@@ -475,11 +472,10 @@ const Signup = () => {
 
           {/* Message Display */}
           {message && (
-            <div className={`flex items-start space-x-2 p-3 rounded-lg text-sm ${
-              messageType === "success" 
-                ? "bg-green-50 text-green-700 border border-green-200" 
-                : "bg-red-50 text-red-700 border border-red-200"
-            }`}>
+            <div className={`flex items-start space-x-2 p-3 rounded-lg text-sm ${messageType === "success"
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-red-50 text-red-700 border border-red-200"
+              }`}>
               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <p>{message}</p>
             </div>
@@ -496,15 +492,14 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`flex-1 ${
-                  loading
-                    ? "bg-purple-400 cursor-not-allowed"
-                    : "bg-purple-600 hover:bg-purple-700"
-                } text-white font-semibold py-2 rounded-lg shadow-sm transition-all duration-200`}
+                className={`flex-1 ${loading
+                  ? "bg-purple-400 cursor-not-allowed"
+                  : "bg-purple-600 hover:bg-purple-700"
+                  } text-white font-semibold py-2 rounded-lg shadow-sm transition-all duration-200`}
               >
                 {loading ? "Submitting..." : "Submit"}
               </button>
-              
+
               <button
                 type="button"
                 onClick={resetForm}
@@ -526,11 +521,11 @@ const Signup = () => {
 
       {/* Right - Image */}
       <div className="md:flex md:w-1/2 items-center justify-center p-3 bg-gradient-to-br from-white to-gray-100">
-        <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-lg max-w-[90%] h-[90%]">
+        <div className="border border-gray-200 rounded-3xl shadow-lg max-w-[90%] h-[65%]">
           <img
             src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
             alt="Side visual"
-            className="object-cover w-full h-full"
+            className="w-full h-full"
           />
         </div>
       </div>

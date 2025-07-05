@@ -1,3 +1,4 @@
+import ExpandPitch from "../../Components/Founder/Pitch/ExpandPitch";
 import PitchForm from "../../Components/Founder/Pitch/PitchForm";
 import PitchTips from "../../Components/Founder/Pitch/PitchTips";
 
@@ -21,6 +22,9 @@ const FounderPitch = () => {
                     <div className="space-y-6">
                         <PitchTips></PitchTips>
                     </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+                    <ExpandPitch />
                 </div>
             </div>
         </>

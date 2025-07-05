@@ -69,6 +69,7 @@ const PitchForm = () => {
       "problem",
       "solution",
       "market",
+      "traction",
       "funding",
       "team",
       "raised",

@@ -19,7 +19,6 @@ const Sidebar = () => {
         { icon: Presentation, label: 'Pitch Deck', href: '/founder/pitch' },
         { icon: GitMerge, label: 'Merge Requests', href: '/founder/merge' },
         { icon: Star, label: 'Investor Interest', href: '/founder/interests' },
-        { icon: MessageSquare, label: 'Feedback Log', href: '/founder/feedback' },
         { icon: Settings, label: 'Settings', href: '/founder/settings' },
     ];
 

@@ -95,7 +95,7 @@ export const ProfileProvider = ({ children }) => {
                 readytomerge: p.readytomerge ?? false,
                 socials: {
                     twitter: p.socials?.twitter ?? "",
-                    linkedin: p.socials?.linkedin ?? "",
+                    linkedin: p.socials?.linkedin ?? "",    
                     github: p.socials?.github ?? "",
                 },
             });

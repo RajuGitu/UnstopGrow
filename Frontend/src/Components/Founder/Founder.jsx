@@ -1,11 +1,15 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import {useAuth} from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Founder = () => {
-  const { founder, loading, initialized } = useAuth();
+  const { founder, loading, initialized, getFounderName } = useAuth();
 
+  useEffect(() => {
+    getFounderName();
+  }, [founder]);
   // Show loading spinner while checking authentication
   if (!initialized || loading) {
     return (

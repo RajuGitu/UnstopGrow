@@ -1,5 +1,4 @@
 import FounderCardList from "../../Components/Founder/Search/FounderCardList";
-import FounderSearchBar from "../../Components/Founder/Search/FounderSearchBar";
 
 const FounderSearch = () => {
     return (
@@ -11,7 +10,6 @@ const FounderSearch = () => {
                     </h1>
                     <p className="text-slate-600 mt-2">Discover founders ready to merge and grow together.</p>
                 </div>
-                <FounderSearchBar />
                 <FounderCardList />
             </div>
         </>

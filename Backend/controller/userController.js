@@ -5,7 +5,6 @@ const JWT = require("jsonwebtoken");
 const Profile = require("../models/Global/FounderProfilemodel");
 const investorProfileInfo = require("../models/Investor/Setting");
 const investorDomain = require("../models/Investor/Domain");
-//const bcrypt = require('bcryptjs');
 
 const loginUserController = async (req, res) => {
   try {
@@ -167,6 +166,7 @@ const SignupUserController = async (req, res) => {
     res.status(500).json({ error: "Server error while registering suppoter" });
   }
 };
+
 const registerFounderController = async (req, res) => {
   try {
     const {
@@ -261,14 +261,15 @@ const registerFounderController = async (req, res) => {
     res.status(201).json({
       message: "Founder registered successfully",
       userId: savedFounder._id,
-      profileId: savedProfile._id,
-      token,
+      profileId: savedProfile,
+      token
     });
   } catch (err) {
     console.error("Register Founder Error:", err.message);
     res.status(500).json({ error: "Server error while registering founder" });
   }
 };
+
 const registerInvestorController = async (req, res) => {
   try {
     const {
