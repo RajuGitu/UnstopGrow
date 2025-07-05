@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const ProfileSchema = new Schema({
+const FounderProfileSchema = new Schema({
     startupId: {
         type: Schema.Types.ObjectId,
         ref: "Founder",
@@ -58,4 +58,4 @@ const ProfileSchema = new Schema({
     timestamps: true 
 });
 
-module.exports = mongoose.model("Profile", ProfileSchema);
+module.exports = mongoose.model("Profile",FounderProfileSchema);

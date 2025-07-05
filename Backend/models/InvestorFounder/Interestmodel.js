@@ -5,25 +5,13 @@ const { Schema, model, models } = mongoose;
 const InterestSchema = new Schema(
     {
         startUpId: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Founder",         
             required: true,
         },
         investorId: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Investor",        
-            required: true,
-        },
-        notes: [
-            {
-                text: { type: String, required: true },
-                timestamp: { type: Date, default: Date.now },
-            },
-        ],
-        status: {
-            type: String,
-            enum: ["new", "accepted", "rejected", "pending"], 
-            default: "new",
             required: true,
         },
     },

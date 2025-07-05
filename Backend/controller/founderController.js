@@ -1,6 +1,6 @@
 const Post = require("../models/Global/Postmodel"); // Make sure to import your Post model
 const Pitch = require("../models/Global/Pitchmodel");
-const Profile = require("../models/Global/Profilemodel");
+const Profile = require("../models/Global/FounderProfilemodel");
 const path = require("path");
 const fs = require("fs/promises");
 const updateFormController = async (req, res) => {
@@ -104,10 +104,23 @@ const pitchFormController = async (req, res) => {
       activeUser,
     });
 
-    if (!startupId || !title || !tagline || !pdf || !youtube || !problem || !solution || !market || !funding || !team || !raised || !activeUser) {
+    if (
+      !startupId ||
+      !title ||
+      !tagline ||
+      !pdf ||
+      !youtube ||
+      !problem ||
+      !solution ||
+      !market ||
+      !funding ||
+      !team ||
+      !raised ||
+      !activeUser
+    ) {
       return res.status(400).json({
-        error: "You have to provide all the details."
-      })
+        error: "You have to provide all the details.",
+      });
     }
 
     const newPitch = new Pitch({
@@ -123,7 +136,7 @@ const pitchFormController = async (req, res) => {
       team,
       raised,
       activeUser,
-    })
+    });
     const savedPitch = await newPitch.save();
     res.status(201).json({
       message: "Pitch Published Successfully.",
@@ -162,11 +175,19 @@ const getFounderProfileController = async (req, res) => {
 const updateProfileController = async (req, res) => {
   try {
     const founderId = req.user.id;
-    if (!founderId) return res.status(401).json({ error: "Unauthorized person" });
+    if (!founderId)
+      return res.status(401).json({ error: "Unauthorized person" });
     const $set = {};
     const {
-      bio, domain, achievements, readytomerge,
-      location, startUpName, website, email, socials = {}
+      bio,
+      domain,
+      achievements,
+      readytomerge,
+      location,
+      startUpName,
+      website,
+      email,
+      socials = {},
     } = req.body;
 
     if (bio !== undefined) $set.bio = bio;
@@ -228,7 +249,6 @@ const uploadImageController = async (req, res) => {
       message: "Logo uploaded successfully",
       url: logoPath,
     });
-
   } catch (error) {
     console.error("Upload logo error:", error);
     return res.status(500).json({ error: "Server error while uploading logo" });
@@ -240,11 +260,12 @@ const deleteLogoController = async (req, res) => {
     const founderId = req.user.id;
     const profile = await Profile.findOne({ startupId: founderId });
     if (!profile) return res.status(404).json({ error: "Profile not found" });
-    if (!profile.logo) return res.status(400).json({ error: "No logo to delete" });
+    if (!profile.logo)
+      return res.status(400).json({ error: "No logo to delete" });
     const absolutePath = path.isAbsolute(profile.logo)
       ? profile.logo
       : path.join(__dirname, "..", profile.logo);
-    await fs.unlink(absolutePath).catch(() => { });
+    await fs.unlink(absolutePath).catch(() => {});
     profile.logo = null;
     await profile.save();
     res.status(200).json({ message: "Logo deleted" });
@@ -252,7 +273,7 @@ const deleteLogoController = async (req, res) => {
     console.error("Upload logo error:", error);
     return res.status(500).json({ error: "Server error while uploading logo" });
   }
-}
+};
 
 module.exports = {
   updateFormController,
@@ -261,5 +282,5 @@ module.exports = {
   getFounderProfileController,
   updateProfileController,
   uploadImageController,
-  deleteLogoController
+  deleteLogoController,
 };

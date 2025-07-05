@@ -4,7 +4,7 @@ const { Schema, model, models } = mongoose;
 const PitchSchema = new Schema(
   {
     startupId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Founder",
       required: true,
     },
@@ -36,6 +36,10 @@ const PitchSchema = new Schema(
       type: String,
       required: true,
     },
+    traction: {
+      type: String,
+      required: true,
+    },
     funding: {
       type: String,
       required: true,
@@ -58,4 +62,4 @@ const PitchSchema = new Schema(
   }
 );
 
-module.exports = models.Pitch || model("Pitch", PitchSchema);
+module.exports = models.Pitch || model("Pitch", PitchSchema);

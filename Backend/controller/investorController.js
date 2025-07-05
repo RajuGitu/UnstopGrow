@@ -1,7 +1,13 @@
 const investorProfileInfo = require("../models/Investor/Setting");
 const investorDomainInterest = require("../models/Investor/Domain");
+const foundermodel = require("../models/foundermodel");
+const investorSavedStartupsModel = require("../models/Investor/SavedStartups");
+const founderProfilemodel = require("../models/Global/FounderProfilemodel");
+const pitchModel = require("../models/Global/Pitchmodel");
+const investorInterestStartupsModel = require("../models/InvestorFounder/Interestmodel")
 const path = require("path");
 const fs = require("fs").promises;
+const mongoose = require("mongoose");
 
 const updateinvestorProfileController = async (req, res) => {
   try {
@@ -109,7 +115,9 @@ const deleteInvestorProfileImgController = async (req, res) => {
     }
 
     if (!investorProfile.image) {
-      return res.status(400).json({ error: "No Investor Profile Image to delete" });
+      return res
+        .status(400)
+        .json({ error: "No Investor Profile Image to delete" });
     }
 
     const absolutePath = path.isAbsolute(investorProfile.image)
@@ -132,10 +140,377 @@ const deleteInvestorProfileImgController = async (req, res) => {
   }
 };
 
+const getInvestorDiscoverStartupsController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+
+    // 1. Fetch all startups
+    const discoverStartups = await founderProfilemodel.find();
+    if (!discoverStartups || discoverStartups.length === 0) {
+      return res.status(404).json({ error: "Startups are not found" });
+    }
+
+    // 2. Fetch all saved startups for this investor
+    const savedStartups = await investorSavedStartupsModel.find({ investorId });
+
+    const interestedStartup = await investorInterestStartupsModel.find({investorId})
+    // 3. Create a Set of saved startup IDs for faster lookup
+    const savedIds = new Set(
+      savedStartups.map((item) => item.startUpId.toString())
+    );
+
+    const interestedIds = new Set(
+      interestedStartup.map((item) => item.startUpId.toString())
+    );
+
+    // 4. Add `isSaved` to each startup
+    const startupsWithSavedInterestedStatus = discoverStartups.map((startup) => {
+      return {
+        ...startup.toObject(),
+        isSaved: savedIds.has(startup.startupId.toString()),
+        isInterest: interestedIds.has(startup.startupId.toString()),
+      };
+    });
+
+    // 5. Respond
+    res.status(200).json({
+      success: true,
+      count: startupsWithSavedInterestedStatus.length,
+      data: startupsWithSavedInterestedStatus,
+    });
+  } catch (error) {
+    console.error("Fetching Startups Error:", error.message);
+    res.status(500).json({
+      error: "Server error while Fetching Startups",
+    });
+  }
+};
+
+const postInvestorSaveStartupsController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+    const { startUpId } = req.body;
+
+    if (!startUpId) {
+      return res.status(400).json({
+        success: false,
+        error: "Startup ID is required.",
+      });
+    }
+
+    if (!investorId) {
+      return res.status(401).json({
+        success: false,
+        error: "Investor authentication required.",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(startUpId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid startup ID format.",
+      });
+    }
+
+    const startupObjectId = new mongoose.Types.ObjectId(startUpId);
+
+    const startup = await foundermodel.findById(startupObjectId);
+    if (!startup) {
+      return res.status(404).json({
+        success: false,
+        error: "Startup not found",
+      });
+    }
+
+    const existingSave = await investorSavedStartupsModel.findOne({
+      investorId,
+      startUpId: startupObjectId, // 🔁 Correct field name here
+    });
+
+    if (existingSave) {
+      return res.status(400).json({
+        success: false,
+        error: "Startup already saved",
+      });
+    }
+
+    const newSavedStartup = new investorSavedStartupsModel({
+      investorId,
+      startUpId: startupObjectId, // 🔁 Correct field name here
+    });
+
+    await newSavedStartup.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Startup saved successfully",
+      data: newSavedStartup,
+    });
+  } catch (error) {
+    console.error("Save Startup Error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error while saving startup",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+const deleteInvestorSaveStartupsController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+    const { startUpId } = req.body; // Get startUpId from request body
+
+    if (!startUpId) {
+      return res.status(400).json({
+        success: false,
+        error: "Startup ID is required.",
+      });
+    }
+
+    if (!investorId) {
+      return res.status(401).json({
+        success: false,
+        error: "Investor authentication required.",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(startUpId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid startup ID format.",
+      });
+    }
+
+    const startupObjectId = new mongoose.Types.ObjectId(startUpId);
+
+    // Find the specific saved startup record
+    const savedStartup = await investorSavedStartupsModel.findOne({
+      investorId,
+      startUpId: startupObjectId,
+    });
+
+    if (!savedStartup) {
+      return res.status(404).json({
+        success: false,
+        error: "Saved startup not found",
+      });
+    }
+
+    // Delete the saved startup record
+    await investorSavedStartupsModel.findByIdAndDelete(savedStartup._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Startup unsaved successfully",
+    });
+  } catch (error) {
+    console.error("Unsave Startup Error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error while unsaving startup",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+const getInvestorViewPitchController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+    const founderId = req.params.founderId;
+
+    if (!investorId) {
+      return res.status(401).json({ error: "Unauthorized person" });
+    }
+
+    if (!founderId) {
+      return res.status(400).json({ error: "Founder ID is required" });
+    }
+
+    const founderObjectId = new mongoose.Types.ObjectId(founderId);
+
+    // Get startup info
+    const startup = await founderProfilemodel.findOne({
+      startupId : founderObjectId,
+    }).lean();
+
+    if (!startup) {
+      return res.status(404).json({ error: "Startup not found" });
+    }
+
+    const { startUpName, logo, location, domain } = startup;
+
+    // Get pitch info
+    const pitch = await pitchModel.findOne({ startupId: founderObjectId }).lean();
+
+    if (!pitch) {
+      return res.status(404).json({ error: "Pitch not found for this startup" });
+    }
+
+    // Merge and return as one object
+    const pitchData = {
+      ...pitch,
+      startUpName,
+      logo,
+      location,
+      domain,
+    };
+
+    return res.status(200).json({
+      success:true,
+      data:pitchData,
+    });
+
+  } catch (error) {
+    console.error("Fetching specific pitch error:", error);
+    return res.status(500).json({ error: "Server error while fetching pitch" });
+  }
+};
+
+
+const postInvestorInterestStartupsController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+    const { startUpId } = req.body;
+
+    if (!startUpId) {
+      return res.status(400).json({
+        success: false,
+        error: "Startup ID is required.",
+      });
+    }
+
+    if (!investorId) {
+      return res.status(401).json({
+        success: false,
+        error: "Investor authentication required.",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(startUpId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid startup ID format.",
+      });
+    }
+
+    const startupObjectId = new mongoose.Types.ObjectId(startUpId);
+
+    const startup = await foundermodel.findById(startupObjectId);
+    if (!startup) {
+      return res.status(404).json({
+        success: false,
+        error: "Startup not found",
+      });
+    }
+
+    const existingInterested = await investorInterestStartupsModel.findOne({
+      investorId,
+      startUpId: startupObjectId, // 🔁 Correct field name here
+    });
+
+    if (existingInterested) {
+      return res.status(400).json({
+        success: false,
+        error: "Startup already Interested",
+      });
+    }
+
+    const newInterestedStartup = new investorInterestStartupsModel({
+      investorId,
+      startUpId: startupObjectId, // 🔁 Correct field name here
+    });
+
+    await newInterestedStartup.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Startup Interest successfully",
+      data: newInterestedStartup,
+    });
+  } catch (error) {
+    console.error("Interest Startup Error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error while loving startup",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+const deleteInvestorInterestStartupsController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+    const { startUpId } = req.body; // Get startUpId from request body
+
+    if (!startUpId) {
+      return res.status(400).json({
+        success: false,
+        error: "Startup ID is required.",
+      });
+    }
+
+    if (!investorId) {
+      return res.status(401).json({
+        success: false,
+        error: "Investor authentication required.",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(startUpId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid startup ID format.",
+      });
+    }
+
+    const startupObjectId = new mongoose.Types.ObjectId(startUpId);
+
+    // Find the specific saved startup record
+    const interestedStartup = await investorInterestStartupsModel.findOne({
+      investorId,
+      startUpId: startupObjectId,
+    });
+
+    if (!interestedStartup) {
+      return res.status(404).json({
+        success: false,
+        error: "Saved startup not found",
+      });
+    }
+
+    // Delete the saved startup record
+    await investorInterestStartupsModel.findByIdAndDelete(interestedStartup._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Startup uninterested successfully",
+    });
+  } catch (error) {
+    console.error("Uninterested Startup Error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error while uninteresting the startup",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+
 module.exports = {
   updateinvestorProfileController,
   updateInvestorDomainInterestController,
   getinvestorProfileController,
   getInvestorDomainInterestController,
   deleteInvestorProfileImgController,
+  getInvestorDiscoverStartupsController,
+  postInvestorSaveStartupsController,
+  deleteInvestorSaveStartupsController,
+  getInvestorViewPitchController,
+  postInvestorInterestStartupsController,
+  deleteInvestorInterestStartupsController,
 };

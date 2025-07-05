@@ -2,7 +2,7 @@ const Founder = require("../models/foundermodel");
 const Investor = require("../models/investormodel");
 const Supporter = require("../models/supportermodel");
 const JWT = require("jsonwebtoken");
-const Profile = require("../models/Global/Profilemodel");
+const Profile = require("../models/Global/FounderProfilemodel");
 const investorProfileInfo = require("../models/Investor/Setting");
 const investorDomain = require("../models/Investor/Domain");
 //const bcrypt = require('bcryptjs');
@@ -148,11 +148,9 @@ const SignupUserController = async (req, res) => {
       answer,
     });
     const savedSupporter = await newSupporter.save();
-    const token = JWT.sign(
-      { id: savedSupporter._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = JWT.sign({ id: savedSupporter._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
@@ -162,7 +160,7 @@ const SignupUserController = async (req, res) => {
     res.status(201).json({
       message: "Founder registered successfully",
       userId: savedSupporter._id,
-      token
+      token,
     });
   } catch (error) {
     console.error("Register Supporter Error:", error.message);
@@ -251,11 +249,9 @@ const registerFounderController = async (req, res) => {
     });
 
     const savedProfile = await newProfile.save();
-    const token = JWT.sign(
-      { id: savedFounder._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = JWT.sign({ id: savedFounder._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
@@ -266,7 +262,7 @@ const registerFounderController = async (req, res) => {
       message: "Founder registered successfully",
       userId: savedFounder._id,
       profileId: savedProfile._id,
-      token
+      token,
     });
   } catch (err) {
     console.error("Register Founder Error:", err.message);
@@ -338,22 +334,19 @@ const registerInvestorController = async (req, res) => {
       name: investorName,
       email: email,
       linkedin: linkedin,
-    })
+    });
 
     const savedInvestorProfileinfo = await newInvestorProfileinfo.save();
 
     const newInvestorDomain = new investorDomain({
       investorId: savedInvestor._id,
-    })
+    });
 
     const savedInvestorDomain = await newInvestorDomain.save();
 
-
-    const token = JWT.sign(
-      { id: savedInvestor._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = JWT.sign({ id: savedInvestor._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
@@ -367,7 +360,6 @@ const registerInvestorController = async (req, res) => {
       profile: savedInvestorProfileinfo,
       domain: savedInvestorDomain,
     });
-
   } catch (error) {
     console.error("Register Investor Error:", error.message);
     res.status(500).json({ error: "Server error while registering investor" });
@@ -485,13 +477,12 @@ const getInvestorAuthenticate = async (req, res) => {
     if (!founduser) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.status(200).json({ userName: founduser.investorName })
-
+    res.status(200).json({ userName: founduser.investorName });
   } catch (error) {
     console.error("Error fetching founder file:", error);
     res.status(500).json({ error: "Server error while fetching file" });
   }
-}
+};
 
 const getFounderAuthenticate = async (req, res) => {
   try {
@@ -500,12 +491,12 @@ const getFounderAuthenticate = async (req, res) => {
     if (!founduser) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.status(200).json({ userName: founduser.ownerName })
+    res.status(200).json({ userName: founduser.ownerName });
   } catch (error) {
     console.error("Error fetching founder file:", error);
     res.status(500).json({ error: "Server error while fetching file" });
   }
-}
+};
 
 module.exports = {
   loginUserController,
@@ -519,5 +510,5 @@ module.exports = {
   forgotInvestorController,
   getFounderFileById,
   getFounderAuthenticate,
-  getInvestorAuthenticate
+  getInvestorAuthenticate,
 };

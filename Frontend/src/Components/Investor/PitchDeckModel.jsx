@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,7 @@ import {
 } from "../../Components/UI/Dialog";
 import { Button } from "../../Components/UI/Button";
 import { Separator } from "../../Components/UI/Separator";
-import { ExpressInterestModal } from "./ExpressInterestModal";
+
 import {
   FileText,
   Download,
@@ -24,43 +24,35 @@ import {
   MapPin,
 } from "lucide-react";
 
+import { Avatar, AvatarFallback } from "../../Components/UI/Avatar";
+
+const imgPlaceholder = "https://via.placeholder.com/120x80?text=No+Image";
+
 export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
   if (!startup) return null;
-  const [selectedStartup, setSelectedStartup] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const mockPitchData = {
-    title: `${startup.name} - Investment Opportunity`,
-    tagline: startup.tagline,
-    problem:
-      "Traditional solutions are inefficient and costly, affecting millions of users globally.",
-    solution:
-      "Our innovative platform leverages cutting-edge technology to solve this problem at scale.",
-    market: `₹${((startup.fundingGoal * 10) / 100000).toFixed(
-      0
-    )}Cr market opportunity with growing demand.`,
-    traction: `${startup.traction.users.toLocaleString()} active users with ${startup.traction.growth}% month-over-month growth.`,
-    funding: `Raising ₹${(startup.fundingGoal / 100000).toFixed(
-      1
-    )}L to accelerate growth and market expansion.`,
-    team: "Experienced founding team with proven track record in technology and business development.",
-    youtubeUrl: "https://youtube.com/watch?v=example",
-    pdfFile: {
-      name: `${startup.name}_Pitch_Deck.pdf`,
-      size: 2500000,
-      url: "/assets/pitch_decks/demo.pdf",
-    },
-    videoFile: {
-      name: `${startup.name}_Demo.mp4`,
-      size: 15000000,
-      url: "https://youtube.com/watch?v=example",
-    },
+
+ 
+
+  const getInitials = (name) => {
+    const words = name.split(" ");
+    if (words.length === 0) return "??";
+    if (words.length === 1) return words[0].charAt(0).toUpperCase();
+    return words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
   };
 
-  const handleExpressInterest = (startup) => {
-    setSelectedStartup(startup);
-    setIsModalOpen(true);
+  const makeUrl = (absolute) => {
+    if (!absolute) return imgPlaceholder;
+    const rel = absolute.split("uploads")[1];
+    // Consider making this configurable via environment variables
+    const baseUrl = "http://localhost:5000";
+    return rel
+      ? `${baseUrl}/uploads${rel.replace(/\\/g, "/")}`
+      : imgPlaceholder;
   };
+
+  
+  const startupName = startup.title || "StartupPitch";
 
   return (
     <>
@@ -68,13 +60,24 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-3">
-              <img
-                src={startup.logo}
-                alt={startup.name}
-                className="w-12 h-12 rounded-lg object-cover"
-              />
+              <Avatar className="w-12 h-12 rounded-lg shadow-md">
+                {startup.logo ? (
+                  <img
+                    src={makeUrl(startup.logo)}
+                    alt={startup.startUpName}
+                    className="w-12 h-12 rounded-lg object-cover shadow-md"
+                  />
+                ) : (
+                  <AvatarFallback>
+                    {getInitials(startup.startUpName || "Unknown")}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+
               <div>
-                <h2 className="text-2xl font-bold">{startup.name} Pitch Deck</h2>
+                <h2 className="text-2xl font-bold">
+                  {startup.startUpName} Pitch Deck
+                </h2>
                 <p className="text-sm text-gray-600 flex items-center">
                   <MapPin className="w-3 h-3 mr-1" />
                   {startup.location} • {startup.domain}
@@ -86,9 +89,9 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
           <div className="space-y-6">
             <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-l-4 border-indigo-500">
               <h3 className="font-bold text-lg text-indigo-900 mb-1">
-                {mockPitchData.title}
+                {startup.title}
               </h3>
-              <p className="text-indigo-700 italic">{mockPitchData.tagline}</p>
+              <p className="text-indigo-700 italic">{startup.tagline}</p>
             </div>
 
             {/* Pitch Video Section */}
@@ -99,7 +102,9 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                   <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                     <Play className="h-8 w-8 text-white ml-1" />
                   </div>
-                  <h4 className="text-white font-semibold mb-2">Watch Pitch Video</h4>
+                  <h4 className="text-white font-semibold mb-2">
+                    Watch Pitch Video
+                  </h4>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -107,7 +112,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                     asChild
                   >
                     <a
-                      href={mockPitchData.youtubeUrl}
+                      href={startup.youtube}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -125,7 +130,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 {
                   icon: <Target className="h-5 w-5 text-red-600 mr-2" />,
                   title: "Problem",
-                  content: mockPitchData.problem,
+                  content: startup.problem,
                   bg: "bg-red-50",
                   border: "border-red-200",
                   text: "text-red-700",
@@ -133,7 +138,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 {
                   icon: <Lightbulb className="h-5 w-5 text-green-600 mr-2" />,
                   title: "Solution",
-                  content: mockPitchData.solution,
+                  content: startup.solution,
                   bg: "bg-green-50",
                   border: "border-green-200",
                   text: "text-green-700",
@@ -141,7 +146,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 {
                   icon: <TrendingUp className="h-5 w-5 text-blue-600 mr-2" />,
                   title: "Market Opportunity",
-                  content: mockPitchData.market,
+                  content: startup.market,
                   bg: "bg-blue-50",
                   border: "border-blue-200",
                   text: "text-blue-700",
@@ -149,15 +154,17 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 {
                   icon: <Star className="h-5 w-5 text-purple-600 mr-2" />,
                   title: "Traction",
-                  content: mockPitchData.traction,
+                  content: startup.traction,
                   bg: "bg-purple-50",
                   border: "border-purple-200",
                   text: "text-purple-700",
                 },
                 {
-                  icon: <DollarSign className="h-5 w-5 text-emerald-600 mr-2" />,
+                  icon: (
+                    <DollarSign className="h-5 w-5 text-emerald-600 mr-2" />
+                  ),
                   title: "Funding Ask",
-                  content: mockPitchData.funding,
+                  content: startup.funding,
                   bg: "bg-emerald-50",
                   border: "border-emerald-200",
                   text: "text-emerald-700",
@@ -165,7 +172,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 {
                   icon: <Users className="h-5 w-5 text-indigo-600 mr-2" />,
                   title: "Team",
-                  content: mockPitchData.team,
+                  content: startup.team,
                   bg: "bg-indigo-50",
                   border: "border-indigo-200",
                   text: "text-indigo-700",
@@ -177,7 +184,9 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 >
                   <div className="flex items-center mb-2">
                     {item.icon}
-                    <h5 className={`font-semibold ${item.text}`}>{item.title}</h5>
+                    <h5 className={`font-semibold ${item.text}`}>
+                      {item.title}
+                    </h5>
                   </div>
                   <p className={`text-sm ${item.text}`}>{item.content}</p>
                 </div>
@@ -186,17 +195,19 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
 
             {/* Metrics */}
             <div className="p-4 bg-slate-50 rounded-lg">
-              <h5 className="font-semibold text-slate-800 mb-3">Current Metrics</h5>
+              <h5 className="font-semibold text-slate-800 mb-3">
+                Current Metrics
+              </h5>
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {startup.traction.users.toLocaleString()}
+                  <p className="text-sm font-semibold text-emerald-600">
+                    {startup.activeUser}
                   </p>
                   <p className="text-sm text-slate-600">Active Users</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-indigo-600">
-                    ₹{(startup.currentFunding / 100000).toFixed(1)}L
+                  <p className="text-sm font-semibold text-indigo-600">
+                    {startup.raised}
                   </p>
                   <p className="text-sm text-slate-600">Already Raised</p>
                 </div>
@@ -205,91 +216,42 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
 
             {/* Download Section */}
             <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
-              <h5 className="font-semibold text-slate-700">Download Resources</h5>
+              <h5 className="font-semibold text-slate-700">
+                Download Resources
+              </h5>
 
               {/* PDF */}
-              <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-300">
-                <div className="flex items-center space-x-3">
-                  <FileText className="h-6 w-6 text-red-600" />
-                  <div>
-                    <p className="font-medium text-sm">
-                      {mockPitchData.pdfFile.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {(mockPitchData.pdfFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
+              {startup.pdf && (
+                <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-300">
+                  <div className="flex items-center space-x-3">
+                    <FileText className="h-6 w-6 text-red-600" />
+        
+                  </div>
+                  <div className="flex gap-3">
+                    <a href={makeUrl(startup.pdf)} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4 mr-1" />
+                        View PDF
+                      </Button>
+                    </a>
+                    <a href={makeUrl(startup.pdf)} download={`${startupName}.pdf`}>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-1" />
+                        Download PDF
+                      </Button>
+                    </a>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <a
-                    href={mockPitchData.pdfFile.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4 mr-1" />
-                      View PDF
-                    </Button>
-                  </a>
-                  <a
-                    href={mockPitchData.pdfFile.url}
-                    download={mockPitchData.pdfFile.name}
-                  >
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-1" />
-                      Download PDF
-                    </Button>
-                  </a>
-                </div>
-              </div>
+              )}
 
-              {/* Video */}
-              <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-300">
-                <div className="flex items-center space-x-3">
-                  <Video className="h-6 w-6 text-blue-600" />
-                  <div>
-                    <p className="font-medium text-sm">
-                      {mockPitchData.videoFile.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {(mockPitchData.videoFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <a
-                    href={mockPitchData.videoFile.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4 mr-1" />
-                      Watch Video
-                    </Button>
-                  </a>
-                </div>
-              </div>
+            
             </div>
 
             <Separator />
-
-            <div className="text-right">
-              <Button onClick={() => handleExpressInterest(startup)} className="bg-red-700 text-white">
-                Express Interest
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Express Interest Modal */}
-      {selectedStartup && (
-        <ExpressInterestModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          startup={selectedStartup}
-        />
-      )}
     </>
   );
 };

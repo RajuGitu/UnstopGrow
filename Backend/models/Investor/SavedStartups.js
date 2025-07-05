@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const SavedSchema = new Schema(
+const SavedStartupsSchema = new Schema(
   {
     investorId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Investor",
       required: true,
       index: true,
     },
     startUpId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Founder",
       required: true,
     },
@@ -18,4 +18,4 @@ const SavedSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Saved", SavedSchema);
+module.exports = mongoose.model("Saved", SavedStartupsSchema);
