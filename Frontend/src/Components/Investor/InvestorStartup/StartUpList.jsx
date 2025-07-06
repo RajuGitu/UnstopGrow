@@ -1,149 +1,150 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../../UI/Card";
 import StartupCard from "./StartUpCard";
 import { Button } from "../../UI/Button";
-
-const mockStartups = [
-    {
-        id: 1,
-        name: "EcoTech Solutions",
-        logo: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=100&h=100&fit=crop&crop=face",
-        tagline: "Revolutionizing renewable energy with AI-powered smart grids",
-        domain: "GreenTech",
-        stage: "MVP",
-        fundingGoal: 5000000,
-        currentFunding: 1200000,
-        location: "Bangalore, India",
-        founded: "2023",
-        employees: "11-50",
-        tags: ["AI", "GreenTech", "B2B"],
-        pitchDeck: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop",
-        description: "EcoTech Solutions is building the next generation of smart grid technology that uses AI to optimize renewable energy distribution.",
-        founder: {
-            name: "Priya Sharma",
-            role: "CEO & Co-founder",
-            linkedin: "https://linkedin.com/in/priyasharma"
-        },
-        traction: {
-            users: 15000,
-            revenue: 250000,
-            growth: 45
-        },
-        verified: true,
-        saved: false
-    },
-    {
-        id: 2,
-        name: "HealthHub AI",
-        logo: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=100&h=100&fit=crop&crop=center",
-        tagline: "AI-powered healthcare diagnostics for rural communities",
-        domain: "HealthTech",
-        stage: "Prototype",
-        fundingGoal: 3000000,
-        currentFunding: 800000,
-        location: "Mumbai, India",
-        founded: "2023",
-        employees: "1-10",
-        tags: ["AI", "HealthTech", "Rural"],
-        pitchDeck: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=300&fit=crop",
-        description: "Bringing world-class healthcare diagnostics to underserved rural communities through AI-powered mobile health units.",
-        founder: {
-            name: "Dr. Rajesh Kumar",
-            role: "Founder & CTO",
-            linkedin: "https://linkedin.com/in/drrajeshkumar"
-        },
-        traction: {
-            users: 8500,
-            revenue: 120000,
-            growth: 67
-        },
-        verified: true,
-        saved: true
-    },
-    {
-        id: 3,
-        name: "EdFuture",
-        logo: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=100&h=100&fit=crop&crop=center",
-        tagline: "Personalized learning platform for K-12 students",
-        domain: "EdTech",
-        stage: "Funded",
-        fundingGoal: 8000000,
-        currentFunding: 6500000,
-        location: "Delhi, India",
-        founded: "2022",
-        employees: "51-100",
-        tags: ["EdTech", "AI", "K12"],
-        pitchDeck: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop",
-        description: "AI-powered personalized learning platform that adapts to each student's learning style and pace.",
-        founder: {
-            name: "Anita Patel",
-            role: "CEO",
-            linkedin: "https://linkedin.com/in/anitapatel"
-        },
-        traction: {
-            users: 50000,
-            revenue: 1200000,
-            growth: 89
-        },
-        verified: true,
-        saved: false
-    },
-    {
-        id: 4,
-        name: "FinFlow",
-        logo: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=100&h=100&fit=crop&crop=center",
-        tagline: "Digital banking solutions for small businesses",
-        domain: "FinTech",
-        stage: "MVP",
-        fundingGoal: 4500000,
-        currentFunding: 2100000,
-        location: "Pune, India",
-        founded: "2023",
-        employees: "11-50",
-        tags: ["FinTech", "B2B", "Banking"],
-        pitchDeck: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=300&fit=crop",
-        description: "Comprehensive digital banking platform designed specifically for small and medium businesses.",
-        founder: {
-            name: "Vikram Singh",
-            role: "Founder",
-            linkedin: "https://linkedin.com/in/vikramsingh"
-        },
-        traction: {
-            users: 12000,
-            revenue: 350000,
-            growth: 52
-        },
-        verified: true,
-        saved: true
-    }
-];
+import { useEffect, useState } from "react";
+import { useInvestorSavedStartups } from "../../../context/getinvestorSavedStartupsContext";
+import SavedStartUp from "./SavedStartUp";
+import { Input } from "../../UI/Input";
+import { Select ,SelectTrigger,SelectContent, SelectItem, SelectValue } from "../../UI/Select";
 
 const StartupList = () => {
+  const { savedStartups, loading, getAllSavedStartups } =
+    useInvestorSavedStartups();
+  // Fetch saved startups when the component mounts
 
-    const savedStartups = mockStartups.filter(startup => startup.saved);
-    if (savedStartups.length === 0) {
-        return (
-            <Card className="text-center py-12">
-                <CardContent>
-                    <h3 className="text-lg font-semibold mb-2">No saved startups yet</h3>
-                    <p className="text-gray-600 mb-4">
-                        Start exploring startups and save the ones that interest you!
-                    </p>
-                    <Button>Discover Startups</Button>
-                </CardContent>
-            </Card>
-        );
-    }
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedDomain, setSelectedDomain] = useState("all");
 
+
+  useEffect(() => {
+    getAllSavedStartups();
+  }, []);
+
+  const filteredStartups = savedStartups.filter((startup) => {
+    const matchesSearch = 
+      startup.profile.startUpName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      startup.profile.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      startup.profile.domain.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesDomain = 
+      selectedDomain === "all" || startup.profile.domain === selectedDomain;
+
+    return matchesSearch && matchesDomain;
+  });
+
+    const uniqueDomains = [...new Set(savedStartups.map(startup => startup.profile.domain))];
+
+  if (loading) {
+    <SavedStartUp />;
+  }
+
+  if (savedStartups.length === 0) {
     return (
-        <div className="space-y-4">
-            {savedStartups.map((startup) => (
-                <StartupCard
-                    key={startup.id}
-                    startup={startup}
-                />
-            ))}
-        </div>
+      <Card className="text-center py-12">
+        <CardContent>
+          <h3 className="text-lg font-semibold mb-2">No saved startups yet</h3>
+          <p className="text-gray-600 mb-4">
+            Start exploring startups and save the ones that interest you!
+          </p>
+          <Button>Discover Startups</Button>
+        </CardContent>
+      </Card>
     );
+  }
+
+  return (
+<div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <SavedStartUp />
+       
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Search</label>
+              <Input
+                placeholder="Search startups..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border-gray-300"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Domain</label>
+              <Select
+                value={selectedDomain}
+                onValueChange={setSelectedDomain}
+              >
+                <SelectTrigger className="border-gray-300">
+                  <SelectValue placeholder="All Domains" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Domains</SelectItem>
+                  {uniqueDomains.map((domain) => (
+                    <SelectItem key={domain} value={domain}>
+                      {domain}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-gray-600">
+            Showing {filteredStartups.length} startup
+            {filteredStartups.length !== 1 ? "s" : ""}
+            {searchTerm && <span className="ml-1">for "{searchTerm}"</span>}
+            {selectedDomain !== "all" && <span className="ml-1">in {selectedDomain}</span>}
+          </p>
+
+          {(searchTerm || selectedDomain !== "all") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedDomain("all");
+
+              }}
+            >
+              Clear Filters
+            </Button>
+          )}
+        </div>
+
+        {filteredStartups.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 text-lg mb-2">No startups found</div>
+            <p className="text-gray-400">
+              Try adjusting your search criteria or clearing filters
+            </p>
+          </div>
+        ) : (
+          <div
+            className=
+              
+                
+               "space-y-4"
+            
+          >
+            {filteredStartups.map((startup) => (
+              <StartupCard key={startup.savedstartupId} startup={startup} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default StartupList;

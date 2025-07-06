@@ -4,7 +4,7 @@ const foundermodel = require("../models/foundermodel");
 const investorSavedStartupsModel = require("../models/Investor/SavedStartups");
 const founderProfilemodel = require("../models/Global/FounderProfilemodel");
 const pitchModel = require("../models/Global/Pitchmodel");
-const investorInterestStartupsModel = require("../models/InvestorFounder/Interestmodel")
+const investorInterestStartupsModel = require("../models/InvestorFounder/Interestmodel");
 const path = require("path");
 const fs = require("fs").promises;
 const mongoose = require("mongoose");
@@ -153,7 +153,9 @@ const getInvestorDiscoverStartupsController = async (req, res) => {
     // 2. Fetch all saved startups for this investor
     const savedStartups = await investorSavedStartupsModel.find({ investorId });
 
-    const interestedStartup = await investorInterestStartupsModel.find({investorId})
+    const interestedStartup = await investorInterestStartupsModel.find({
+      investorId,
+    });
     // 3. Create a Set of saved startup IDs for faster lookup
     const savedIds = new Set(
       savedStartups.map((item) => item.startUpId.toString())
@@ -164,13 +166,15 @@ const getInvestorDiscoverStartupsController = async (req, res) => {
     );
 
     // 4. Add `isSaved` to each startup
-    const startupsWithSavedInterestedStatus = discoverStartups.map((startup) => {
-      return {
-        ...startup.toObject(),
-        isSaved: savedIds.has(startup.startupId.toString()),
-        isInterest: interestedIds.has(startup.startupId.toString()),
-      };
-    });
+    const startupsWithSavedInterestedStatus = discoverStartups.map(
+      (startup) => {
+        return {
+          ...startup.toObject(),
+          isSaved: savedIds.has(startup.startupId.toString()),
+          isInterest: interestedIds.has(startup.startupId.toString()),
+        };
+      }
+    );
 
     // 5. Respond
     res.status(200).json({
@@ -332,9 +336,11 @@ const getInvestorViewPitchController = async (req, res) => {
     const founderObjectId = new mongoose.Types.ObjectId(founderId);
 
     // Get startup info
-    const startup = await founderProfilemodel.findOne({
-      startupId : founderObjectId,
-    }).lean();
+    const startup = await founderProfilemodel
+      .findOne({
+        startupId: founderObjectId,
+      })
+      .lean();
 
     if (!startup) {
       return res.status(404).json({ error: "Startup not found" });
@@ -343,15 +349,21 @@ const getInvestorViewPitchController = async (req, res) => {
     const { startUpName, logo, location, domain } = startup;
 
     // Get pitch info
-    const pitch = await pitchModel.findOne({ startupId: founderObjectId }).lean();
+    const pitch = await pitchModel
+      .find({ startupId: founderObjectId })
+      .sort({ createdAt: -1 })
+      .lean();
+    const latestPitch = pitch[0];
 
-    if (!pitch) {
-      return res.status(404).json({ error: "Pitch not found for this startup" });
+    if (!latestPitch) {
+      return res
+        .status(404)
+        .json({ error: "Pitch not found for this startup" });
     }
 
     // Merge and return as one object
     const pitchData = {
-      ...pitch,
+      ...latestPitch,
       startUpName,
       logo,
       location,
@@ -359,16 +371,14 @@ const getInvestorViewPitchController = async (req, res) => {
     };
 
     return res.status(200).json({
-      success:true,
-      data:pitchData,
+      success: true,
+      data: pitchData,
     });
-
   } catch (error) {
     console.error("Fetching specific pitch error:", error);
     return res.status(500).json({ error: "Server error while fetching pitch" });
   }
 };
-
 
 const postInvestorInterestStartupsController = async (req, res) => {
   try {
@@ -483,7 +493,9 @@ const deleteInvestorInterestStartupsController = async (req, res) => {
     }
 
     // Delete the saved startup record
-    await investorInterestStartupsModel.findByIdAndDelete(interestedStartup._id);
+    await investorInterestStartupsModel.findByIdAndDelete(
+      interestedStartup._id
+    );
 
     res.status(200).json({
       success: true,
@@ -500,6 +512,49 @@ const deleteInvestorInterestStartupsController = async (req, res) => {
   }
 };
 
+const getInvestorSaveStartupsController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+    if (!investorId) {
+      return res.status(401).json({ error: "Unauthorized person" });
+    }
+
+    const savedStartups = await investorSavedStartupsModel.find({ investorId });
+
+    const savedIds = [...new Set(savedStartups.map((item) => item.startUpId))];
+
+    console.log("savedIds:", savedIds);
+
+    const profiles = await founderProfilemodel
+      .find({ startupId: { $in: savedIds } })
+      .sort({ createdAt: -1 });
+
+    const followers = await foundermodel.find({ _id: { $in: savedIds } });
+
+    const savedStartupInfo = profiles.map((profile) => {
+      const follow = followers.find(
+        (f) => f._id.toString() === profile.startupId.toString()
+      );
+      return {
+        savedstartupId: profile.startupId,
+        profile,
+        follow,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      count: savedStartupInfo.length,
+      data: savedStartupInfo,
+    });
+
+  } catch (error) {
+    console.error("Fetching Saved Startups Error:", error.message);
+    res.status(500).json({
+      error: "Server error while Fetching Saved Startups",
+    });
+  }
+};
 
 module.exports = {
   updateinvestorProfileController,
@@ -513,4 +568,5 @@ module.exports = {
   getInvestorViewPitchController,
   postInvestorInterestStartupsController,
   deleteInvestorInterestStartupsController,
+  getInvestorSaveStartupsController,
 };

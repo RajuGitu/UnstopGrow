@@ -10,7 +10,6 @@ import StartupCard from "../../Components/Investor/InvertorDiscover/StartupCard"
 const InvestorDiscover = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("all");
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [viewMode, setViewMode] = useState("list");
   const [startups, setStartups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +37,7 @@ const InvestorDiscover = () => {
           domain: startup?.domain || "General",
           companyName: startup?.startUpName || startup?.name || "Unknown Company",
           location: startup?.location || "Location not specified",
-          readyToMerge: startup?.readytoMerge || false,
+          readyToMerge: startup?.readytomerge || false,
           tagline: startup?.bio || startup?.tagline || "No description available",
           website: startup?.website || "",
           achievements: startup?.achievements || [],
@@ -73,9 +72,9 @@ const InvestorDiscover = () => {
     const matchesDomain = 
       selectedDomain === "all" || startup.domain === selectedDomain;
 
-    const matchesVerified = !verifiedOnly || startup.verified;
 
-    return matchesSearch && matchesDomain && matchesVerified;
+
+    return matchesSearch && matchesDomain
   });
 
   const uniqueDomains = [...new Set(startups.map(startup => startup.domain))];
@@ -167,17 +166,6 @@ const InvestorDiscover = () => {
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="flex items-center space-x-2 pt-6">
-              <Checkbox
-                id="verified"
-                checked={verifiedOnly}
-                onCheckedChange={(checked) => setVerifiedOnly(checked === true)}
-              />
-              <label htmlFor="verified" className="text-sm font-medium cursor-pointer">
-                Verified Only
-              </label>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -191,14 +179,14 @@ const InvestorDiscover = () => {
             {selectedDomain !== "all" && <span className="ml-1">in {selectedDomain}</span>}
           </p>
 
-          {(searchTerm || selectedDomain !== "all" || verifiedOnly) && (
+          {(searchTerm || selectedDomain !== "all") && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
                 setSearchTerm("");
                 setSelectedDomain("all");
-                setVerifiedOnly(false);
+
               }}
             >
               Clear Filters

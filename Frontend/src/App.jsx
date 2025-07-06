@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 // First Pages
 // First Pages
 import Login from "./pages/Login";
@@ -28,6 +33,7 @@ import FounderAllPost from "./pages/Founder/FounderAllPost";
 import FounderAllPitch from "./pages/Founder/FounderAllPitch";
 import { PitchPostProvider } from "./context/PitchPostContext";
 import { InterestProvider } from "./context/InterestContext";
+import { InvestorSavedStartupsProvider } from "./context/getinvestorSavedStartupsContext";
 function App() {
   return (
     <>
@@ -39,13 +45,16 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgetPassword />} />
-              <Route path="/founder" element={
-                <InterestProvider>
-                  <ProfileProvider>
-                    <Founder />
-                  </ProfileProvider>
-                </InterestProvider>
-              }>
+              <Route
+                path="/founder"
+                element={
+                  <InterestProvider>
+                    <ProfileProvider>
+                      <Founder />
+                    </ProfileProvider>
+                  </InterestProvider>
+                }
+              >
                 <Route index element={<Navigate to="/founder/dashboard" />} />
                 <Route path="dashboard" element={<FounderDashboard />} />
                 <Route path="updates" element={<FounderUpdates />} />
@@ -57,20 +66,28 @@ function App() {
                 <Route path="all-post" element={<FounderAllPost />} />
                 <Route path="all-pitch" element={<FounderAllPitch />} />
               </Route>
-              <Route path="/investor" element={<InvestorLayout />}>
+
+              <Route
+                path="/investor"
+                element={
+                  <InvestorSavedStartupsProvider>
+                    <InvestorLayout />
+                  </InvestorSavedStartupsProvider>
+                }
+              >
                 <Route index element={<Navigate to="/investor/dashboard" />} />
                 <Route path="dashboard" element={<InvestDashboard />} />
                 <Route path="discover" element={<InvestorDiscover />} />
                 <Route path="saved" element={<InvestorSaved />} />
-                <Route path='contacts' element={<InvestorContacts />} />
-                <Route path='settings' element={<InvestorSettings />} />
+                <Route path="contacts" element={<InvestorContacts />} />
+                <Route path="settings" element={<InvestorSettings />} />
               </Route>
             </Routes>
           </Router>
         </AuthProvider>
       </PitchPostProvider>
     </>
-  )
+  );
 }
 
 export default App;

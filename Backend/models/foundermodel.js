@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const FounderSchema = new mongoose.Schema({
-  companyName: { type: String, required: true },
+  companyName: { type: String, required: true },//
   ownerName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -21,7 +21,7 @@ const FounderSchema = new mongoose.Schema({
       userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // or 'Founder' if mutual follow
       followedAt: { type: Date, default: Date.now }
     }
-  ],
+  ],//
   following: [
     {
       founderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Founder' },

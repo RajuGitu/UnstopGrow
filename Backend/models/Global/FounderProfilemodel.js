@@ -20,7 +20,7 @@ const FounderProfileSchema = new Schema({
         required: true,
         maxlength: 250,
         trim: true,
-    },
+    },//
     location: {
         type: String,
         trim: true,
@@ -28,7 +28,7 @@ const FounderProfileSchema = new Schema({
     domain: {
         type: String,
         trim: true,
-    },
+    },//
     website: {
         type: String,
         trim: true,

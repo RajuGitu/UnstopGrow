@@ -13,9 +13,9 @@ const SavedStartupsSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Founder",
       required: true,
-    },
+    },//
   },
-  { timestamps: true }
+  { timestamps: true }//
 );
 
 module.exports = mongoose.model("Saved", SavedStartupsSchema);

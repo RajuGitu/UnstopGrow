@@ -12,6 +12,7 @@ const {
   getInvestorViewPitchController,
   postInvestorInterestStartupsController,
   deleteInvestorInterestStartupsController,
+  getInvestorSaveStartupsController,
 } = require("../controller/investorController");
 const createUploadMiddleware = require("../middleware/uploadImageMiddleware");
 const uploadInvestorProfileImg = createUploadMiddleware(
@@ -106,6 +107,14 @@ router.delete(
   "/investorInterestStartups",
   authMiddleware,
   deleteInvestorInterestStartupsController
+);
+
+//router to get the saved startups in savedStartupCard components
+
+router.get(
+  "/investorSaveStartups",
+  authMiddleware,
+  getInvestorSaveStartupsController
 );
 
 module.exports = router;
