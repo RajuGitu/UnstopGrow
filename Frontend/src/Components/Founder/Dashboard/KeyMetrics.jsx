@@ -1,5 +1,5 @@
 import MetricCard from "./MetricCard";
-import { MessageCircle, Star, Users } from "lucide-react";
+import { Heart, MessageCircle, Star } from "lucide-react";
 import { usePitchPost } from "../../../context/PitchPostContext";
 import { useInterest } from "../../../context/InterestContext";
 import { useEffect } from "react";
@@ -22,12 +22,12 @@ const KeyMetrics = () => {
     return (count / 1_000_000).toFixed(1).replace(/\.0$/, '') + "M";
   }
 
-  const totalfollowers = formatLikesCount(likesCount);
+  const totalLikes = formatLikesCount(likesCount);
   const metrics = [
     {
-      title: "Total Followers",
-      value: `${totalfollowers}`,
-      icon: <Users className="h-8 w-8 text-blue-500" />,
+      title: "Total Likes",
+      value: `${totalLikes}`,
+      icon: <Heart className="h-8 w-8 text-blue-500" />,
       color: "blue",
     },
     {

@@ -1,13 +1,11 @@
 import { Outlet } from "react-router-dom";
 import { InvestorSidebar } from "./InvestorSidebar";
-import { InvestorNavbar } from "./InvestorNavbar";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const InvestorLayout = () => {
   const { investor, loading, initialized } = useAuth();
 
-  // Show loading spinner while checking authentication
   if (!initialized || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -17,7 +15,6 @@ const InvestorLayout = () => {
     );
   }
 
-  // Only redirect after initialization is complete and investor is null
   if (initialized && !investor) {
     return <Navigate to="/login" replace />;
   }
@@ -25,7 +22,6 @@ const InvestorLayout = () => {
     <div className="min-h-screen bg-gray-50 flex">
       <InvestorSidebar />
       <div className="flex-1 flex flex-col">
-        <InvestorNavbar />
         <main className="flex-1 overflow-auto">
           <Outlet />
         </main>

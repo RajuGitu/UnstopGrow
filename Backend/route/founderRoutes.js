@@ -17,6 +17,7 @@ const {
   getRequestController,
   updateStatusRequest,
   getAllInterestedController,
+  logoutController,
 } = require("../controller/founderController");
 const authMiddleware = require("../middleware/authMiddleware");
 const createUploadMiddleware = require("../middleware/uploadImageMiddleware");
@@ -61,11 +62,13 @@ router.delete('/deletePost/:id', authMiddleware, deletePostController);
 
 router.get('/allFounderProfile', authMiddleware, getAllFounderController);
 
-router.post('/mergeRequest', authMiddleware,upload.none(), postMergeRequest);
-router.get('/getsentrequest',authMiddleware,getSentRequest);
-router.get('/getrequest',authMiddleware,getRequestController);
-router.put('/updaterequest/:id',authMiddleware,updateStatusRequest);
-router.delete('/deleterequest/:id',authMiddleware,deleteSentRequest);
+router.post('/mergeRequest', authMiddleware, upload.none(), postMergeRequest);
+router.get('/getsentrequest', authMiddleware, getSentRequest);
+router.get('/getrequest', authMiddleware, getRequestController);
+router.put('/updaterequest/:id', authMiddleware, updateStatusRequest);
+router.delete('/deleterequest/:id', authMiddleware, deleteSentRequest);
 
-router.get('/getinterestedfounder',authMiddleware,getAllInterestedController);
+router.get('/getinterestedfounder', authMiddleware, getAllInterestedController);
+
+router.post("/logout", logoutController);
 module.exports = router;

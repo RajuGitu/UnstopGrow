@@ -4,12 +4,13 @@ import {
     Presentation,
     GitMerge,
     Star,
-    MessageSquare,
     Settings,
-    Rocket
+    Rocket,
+    LogOut
 } from 'lucide-react';
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import axiosInstance from "../../../utils/axiosInstance"
 
 
 const Sidebar = () => {
@@ -22,6 +23,24 @@ const Sidebar = () => {
         { icon: Settings, label: 'Settings', href: '/founder/settings' },
     ];
 
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            return;
+        }
+        try {
+            await axiosInstance.post("/founder/logout");
+            localStorage.removeItem("authUser");
+            localStorage.removeItem('token');
+            navigate('/login');
+        } catch (err) {
+            console.error("Logout failed (client will still clear token):", err);
+            localStorage.removeItem("authUser");
+            localStorage.removeItem("token");
+            navigate("/login");
+        }
+    };
 
     return (
         <div className="group peer hidden md:block text-gray-700" data-state="expanded">
@@ -42,9 +61,6 @@ const Sidebar = () => {
                                 <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                                     UnstopGrow
                                 </h1>
-                                <p className="text-xs text-slate-500 -mt-1">
-                                    Founder Panel
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -52,11 +68,6 @@ const Sidebar = () => {
                     {/* Content */}
                     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-4">
                         <div className="relative flex w-full min-w-0 flex-col p-2">
-
-                            {/* Group Label */}
-                            <div className="duration-200 flex h-8 shrink-0 items-center rounded-md px-2 text-xs text-slate-600 font-medium mb-2">
-                                Main Navigation
-                            </div>
 
                             {/* Menu Items */}
                             <div className="w-full text-sm">
@@ -75,18 +86,29 @@ const Sidebar = () => {
                                                         }`
                                                     }
                                                 >
-                                                <IconComponent className="h-5 w-5" />
-                                                <span>{item.label}</span>
-                                            </NavLink>
+                                                    <IconComponent className="h-5 w-5" />
+                                                    <span>{item.label}</span>
+                                                </NavLink>
                                             </li>
-                                );
+                                        );
                                     })}
-                            </ul>
+                                </ul>
+                            </div>
                         </div>
+                    </div>
+
+                    {/* Logout Button at Bottom */}
+                    <div className="p-4 border-t border-slate-200 mt-auto">
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+                        >
+                            <LogOut className="h-5 w-5" />
+                            <span>Logout</span>
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
         </div >
     );
 };

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const InvestorSchema = new mongoose.Schema({
     investorName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, },
     password: { type: String, required: true },
     pastInvestment: { type: String },
     linkedin: { type: String, required: true },

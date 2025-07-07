@@ -1,16 +1,37 @@
-import { NavLink } from "react-router-dom";
-import { Home, Search, Folder, Mail, Settings, Bookmark } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Home, Search, Mail, Settings, Bookmark, LogOut } from "lucide-react";
 import { cn } from "../../libs/utils";
+import { useAuth } from "../../context/AuthContext";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const navigation = [
   { name: "Dashboard", href: "/investor/dashboard", icon: Home },
   { name: "Discover Startups", href: "/investor/discover", icon: Search },
   { name: "Saved Startups", href: "/investor/saved", icon: Bookmark },
-  { name: "Contact Requests", href: "/investor/contacts", icon: Mail },
+  { name: "Contact Interest", href: "/investor/contacts", icon: Mail },
   { name: "Settings", href: "/investor/settings", icon: Settings },
 ];
 
 export const InvestorSidebar = () => {
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
+    try {
+      await axiosInstance.post("/investor/logout");
+      localStorage.removeItem("authUser");
+      localStorage.removeItem('token');
+      navigate('/login');
+    } catch (err) {
+      console.error("Logout failed (client will still clear token):", err);
+      localStorage.removeItem("authUser");
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  };
+  const { investor } = useAuth();
   return (
     <div className="w-64 bg-slate-900 text-white flex flex-col">
       {/* Logo */}
@@ -21,7 +42,6 @@ export const InvestorSidebar = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold">UnstopGrow</h1>
-            <p className="text-sm text-slate-400">Investor Panel</p>
           </div>
         </div>
       </div>
@@ -49,13 +69,16 @@ export const InvestorSidebar = () => {
 
       {/* User Profile */}
       <div className="p-4 border-t border-slate-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-            <span className="text-white font-medium">JD</span>
-          </div>
+        <div className="flex items-center justify-start space-x-3">
           <div>
-            <p className="font-medium">John Doe</p>
-            <p className="text-sm text-slate-400">Verified Investor</p>
+            <p className="font-medium">{investor}</p>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 py-2 rounded-lg text-sm transition-all duration-200 w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ const JWT = require("jsonwebtoken");
 const Profile = require("../models/Global/FounderProfilemodel");
 const investorProfileInfo = require("../models/Investor/Setting");
 const investorDomain = require("../models/Investor/Domain");
+const SupporterProfileModel = require("../models/Supporter/SupporterProfileSchema");
 
 const loginUserController = async (req, res) => {
   try {
@@ -147,6 +148,12 @@ const SignupUserController = async (req, res) => {
       answer,
     });
     const savedSupporter = await newSupporter.save();
+    const profileSuppoter = new SupporterProfileModel({
+      SuppoterId: savedSupporter._id,
+      email,
+      username,
+    })
+    const savedProfileSuppoter = await profileSuppoter.save();
     const token = JWT.sign({ id: savedSupporter._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -159,6 +166,7 @@ const SignupUserController = async (req, res) => {
     res.status(201).json({
       message: "Founder registered successfully",
       userId: savedSupporter._id,
+      suppoter: savedProfileSuppoter,
       token,
     });
   } catch (error) {
@@ -311,7 +319,7 @@ const registerInvestorController = async (req, res) => {
       return res.status(400).json({ error: "Invalid PAN format" });
     }
 
-    const existingInvestor = await Founder.findOne({ email });
+    const existingInvestor = await Investor.findOne({ email });
     if (existingInvestor) {
       return res
         .status(409)
@@ -362,7 +370,7 @@ const registerInvestorController = async (req, res) => {
       domain: savedInvestorDomain,
     });
   } catch (error) {
-    console.error("Register Investor Error:", error.message);
+    console.error("Register Investor Error:", error);
     res.status(500).json({ error: "Server error while registering investor" });
   }
 };
@@ -499,6 +507,20 @@ const getFounderAuthenticate = async (req, res) => {
   }
 };
 
+const getSuppoterAuthenticate = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const founduser = await Supporter.findById(userId);
+    if (!founduser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json({ userName: founduser });
+  } catch (error) {
+    console.error("Error fetching Suppoter Authenticate:", error);
+    res.status(500).json({ error: "Server error while fetching Suppoter Authenticate" });
+  }
+}
+
 module.exports = {
   loginUserController,
   loginFounderController,
@@ -512,4 +534,5 @@ module.exports = {
   getFounderFileById,
   getFounderAuthenticate,
   getInvestorAuthenticate,
+  getSuppoterAuthenticate
 };

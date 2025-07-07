@@ -70,15 +70,6 @@ const Signup = () => {
     const role = selectedRole.toLowerCase();
     const data = formData[role];
 
-    const form = new FormData();
-    for (const key in data) {
-      if (key === "file" && data[key]) {
-        form.append("file", data[key]);
-      } else {
-        form.append(key, data[key]);
-      }
-    }
-
     // Validation
     if (!isStrongPassword(data.password)) {
       showMessage("Password must be 8+ characters, include uppercase, number, and symbol");
@@ -114,22 +105,51 @@ const Signup = () => {
     try {
       setLoading(true);
       let endpoint = "";
+      let requestData;
+      let headers = {};
+
       switch (role) {
         case "founder":
           endpoint = "/founder/register";
+          requestData = new FormData();
+          for (const key in data) {
+            if (key === "file" && data[key]) {
+              requestData.append("file", data[key]);
+            } else {
+              requestData.append(key, data[key]);
+            }
+          }
+          headers = { "Content-Type": "multipart/form-data" };
           break;
         case "investor":
           endpoint = "/investor/register";
+          requestData = new FormData();
+          for (const key in data) {
+            if (key === "file" && data[key]) {
+              requestData.append("file", data[key]);
+            } else {
+              requestData.append(key, data[key]);
+            }
+          }
+          headers = { "Content-Type": "multipart/form-data" };
           break;
         case "supporter":
           endpoint = "/supporter/register";
+          // Send as JSON for supporter (no file upload needed)
+          requestData = {
+            username: data.username,
+            email: data.email,
+            password: data.password,
+            answer: data.answer
+          };
+          headers = { "Content-Type": "application/json" };
           break;
         default:
           throw new Error("Invalid role selected");
       }
 
-      const res = await axiosInstance.post(endpoint, form, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await axiosInstance.post(endpoint, requestData, {
+        headers,
         withCredentials: true,
       });
 

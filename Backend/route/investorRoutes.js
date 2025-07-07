@@ -12,6 +12,9 @@ const {
   getInvestorViewPitchController,
   postInvestorInterestStartupsController,
   deleteInvestorInterestStartupsController,
+  logoutController,
+  changePasswordController,
+  getTrendingStartup,
   getInvestorSaveStartupsController,
   getInvestorInterestStartupsController,
 } = require("../controller/investorController");
@@ -109,6 +112,12 @@ router.delete(
   authMiddleware,
   deleteInvestorInterestStartupsController
 );
+
+router.get('/trending',authMiddleware,getTrendingStartup);
+
+router.post('/changePassword',authMiddleware,changePasswordController);
+
+router.post('/logout',logoutController);
 
 //router to get the saved startups in savedStartupCard components
 

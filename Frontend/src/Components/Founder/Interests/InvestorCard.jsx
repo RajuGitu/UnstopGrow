@@ -70,7 +70,7 @@ export default function InvestorCard({ investor }) {
     };
 
     return (
-        <div className="p-4 bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+        <div className="p-4 bg-white rounded-lg border m-2 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
                     <Avatar className="h-12 w-12 flex-shrink-0">

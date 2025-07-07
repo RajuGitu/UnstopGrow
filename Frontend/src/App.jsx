@@ -19,6 +19,8 @@ import FounderMerge from "./pages/Founder/FounderMerge";
 import FounderSearch from "./pages/Founder/FounderSearch";
 import FounderSettings from "./pages/Founder/FounderSettings";
 import FounderInvestor from "./pages/Founder/FounderInvestor";
+import FounderAllPost from "./pages/Founder/FounderAllPost";
+import FounderAllPitch from "./pages/Founder/FounderAllPitch";
 // Investor Pages
 import InvestDashboard from "./pages/Investor/InvestDashboard";
 import InvestorLayout from "./Components/Investor/InvestorLayout";
@@ -29,11 +31,12 @@ import InvestorSettings from "./pages/Investor/InvertorSettings";
 
 import { AuthProvider } from "./context/AuthContext";
 import { ProfileProvider } from "./context/ProfileContext";
-import FounderAllPost from "./pages/Founder/FounderAllPost";
-import FounderAllPitch from "./pages/Founder/FounderAllPitch";
 import { PitchPostProvider } from "./context/PitchPostContext";
 import { InterestProvider } from "./context/InterestContext";
 import { InvestorSavedStartupsProvider } from "./context/getinvestorSavedStartupsContext";
+import SuppoterLayout from "./Components/Suppoter/SupporterLayout";
+import SupporterDashboard from "./pages/Supporter/SupporterDashboard";
+import SupporterAllPitch from "./pages/Supporter/SupporterAllPitch";
 import { InvestorInterestedStartupsProvider } from "./context/getinvertorInterestedContexr";
 import { InvestorDiscoverStartupsProvider } from "./context/getinvestorDiscoverStartups";
 function App() {
@@ -87,6 +90,11 @@ function App() {
                 <Route path="saved" element={<InvestorSaved />} />
                 <Route path="contacts" element={<InvestorContacts />} />
                 <Route path="settings" element={<InvestorSettings />} />
+              </Route>
+              <Route path="/supporter" element={<SuppoterLayout />}>
+                <Route index element={<Navigate to="/supporter/dashboard" />} />
+                <Route path="dashboard" element={<SupporterDashboard />} />
+                <Route path="explore-pitch" element={<SupporterAllPitch />} />
               </Route>
             </Routes>
           </Router>

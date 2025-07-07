@@ -4,7 +4,9 @@ const foundermodel = require("../models/foundermodel");
 const investorSavedStartupsModel = require("../models/Investor/SavedStartups");
 const founderProfilemodel = require("../models/Global/FounderProfilemodel");
 const pitchModel = require("../models/Global/Pitchmodel");
+const PostModel = require("../models/Global/Postmodel");
 const investorInterestStartupsModel = require("../models/InvestorFounder/Interestmodel");
+const Investor = require('../models/investormodel');
 const path = require("path");
 const fs = require("fs").promises;
 const mongoose = require("mongoose");
@@ -153,9 +155,7 @@ const getInvestorDiscoverStartupsController = async (req, res) => {
     // 2. Fetch all saved startups for this investor
     const savedStartups = await investorSavedStartupsModel.find({ investorId });
 
-    const interestedStartup = await investorInterestStartupsModel.find({
-      investorId,
-    });
+    const interestedStartup = await investorInterestStartupsModel.find({investorId})
     // 3. Create a Set of saved startup IDs for faster lookup
     const savedIds = new Set(
       savedStartups.map((item) => item.startUpId.toString())
@@ -336,11 +336,9 @@ const getInvestorViewPitchController = async (req, res) => {
     const founderObjectId = new mongoose.Types.ObjectId(founderId);
 
     // Get startup info
-    const startup = await founderProfilemodel
-      .findOne({
-        startupId: founderObjectId,
-      })
-      .lean();
+    const startup = await founderProfilemodel.findOne({
+      startupId : founderObjectId,
+    }).lean();
 
     if (!startup) {
       return res.status(404).json({ error: "Startup not found" });
@@ -371,6 +369,7 @@ const getInvestorViewPitchController = async (req, res) => {
     };
 
     return res.status(200).json({
+      
       success: true,
       data: pitchData,
     });
@@ -512,6 +511,94 @@ const deleteInvestorInterestStartupsController = async (req, res) => {
   }
 };
 
+const logoutController = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return res.status(200).json({ success: true, message: "Logged out" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+const changePasswordController = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const investorId = req.user.id;
+
+    const investor = await Investor.findById(investorId);
+    if (!investor) {
+      return res.status(404).json({ error: "Investor not found" });
+    }
+
+    if (investor.password !== currentPassword) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    investor.password = newPassword;
+    await investor.save();
+
+    res.status(200).json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Password change error:", error.message);
+    res.status(500).json({ error: "Server error while changing password" });
+  }
+};
+
+const getTrendingStartup = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+
+    if (!investorId) {
+      return res.status(401).json({
+        success: false,
+        error: "Investor authentication required.",
+      });
+    }
+
+    const topPitchStartups = await pitchModel.aggregate([
+      {
+        $group: {
+          _id: "$startupId",
+          pitchCount: { $sum: 1 },
+          totalLikes: { $sum: { $size: "$likes" } }
+        }
+      },
+      { $sort: { totalLikes: -1, pitchCount: -1 } },
+      { $limit: 3 }
+    ]);
+
+    const topStartupIds = topPitchStartups.map(startup => startup._id);
+
+    const founderProfiles = await founderProfilemodel.find({
+      startupId: { $in: topStartupIds }
+    });
+
+    const trendingStartups = founderProfiles.map(profile => ({
+      startupId: profile.startupId,
+      founderProfile: profile
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Trending startups retrieved successfully",
+      data: trendingStartups,
+      totalCount: trendingStartups.length
+    });
+
+  } catch (error) {
+    console.error("Trending Startup error:", error.message);
+    res.status(500).json({
+      error: "Server error while fetching trending startups"
+    });
+  }
+};
+
 const getInvestorSaveStartupsController = async (req, res) => {
   try {
     const investorId = req.user.id;
@@ -603,6 +690,9 @@ module.exports = {
   getInvestorViewPitchController,
   postInvestorInterestStartupsController,
   deleteInvestorInterestStartupsController,
+  logoutController,
+  changePasswordController,
+  getTrendingStartup,
   getInvestorSaveStartupsController,
   getInvestorInterestStartupsController,
 };

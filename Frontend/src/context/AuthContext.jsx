@@ -1,125 +1,133 @@
-import { createContext, useState, useContext, useEffect, useCallback } from "react";
+import {
+    createContext,
+    useContext,
+    useState,
+    useCallback,
+    useEffect,
+} from "react";
 
 export const AuthContext = createContext(null);
-
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
+    /* ───────── state ───────── */
     const [founder, setFounder] = useState(null);
     const [investor, setInvestor] = useState(null);
-    const [loading, setLoading] = useState(true); // Start with true
+    const [supporter, setSupporter] = useState({});
+
+    const [loading, setLoading] = useState(true);
     const [initialized, setInitialized] = useState(false);
 
+    /* ───────── helpers ───────── */
+    const token = () => localStorage.getItem("token");
+
+    /* 1️⃣  Founder  */
     const getFounderName = useCallback(async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setFounder(null);
-            return false; // Return false if no token
-        }
-
+        if (!token()) return false;
         try {
-            const response = await fetch('http://localhost:5000/getfounderauthenticate', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                credentials:"include"
+            const res = await fetch("http://localhost:5000/getfounderauthenticate", {
+                headers: { Authorization: `Bearer ${token()}` },
+                credentials: "include",
             });
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch founder name");
-            }
-
-            const data = await response.json();
-            setFounder(data.userName ?? null);
-            return true; // Return true if successful
-        } catch (err) {
-            console.error("Server error while fetching founder:", err.message);
-            setFounder(null);
-            return false;
-        }
-    }, []);
-    
-    const getInvestorName = useCallback(async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setInvestor(null);
-            return false;
-        }
-
-        try {
-            const response = await fetch('http://localhost:5000/getinvestorauthenticate', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                credentials:"include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch investor name");
-            }
-
-            const data = await response.json();
-            setInvestor(data.userName ?? null);
+            if (!res.ok) throw new Error();
+            const { userName } = await res.json();
+            setFounder(userName ?? null);
             return true;
         } catch (err) {
-            console.error("Server error while fetching investor:", err.message);
+            setFounder(null);
+            return false;
+        }
+    }, []);
+
+    /* 2️⃣  Investor */
+    const getInvestorName = useCallback(async () => {
+        if (!token()) return false;
+        try {
+            const res = await fetch("http://localhost:5000/getinvestorauthenticate", {
+                headers: { Authorization: `Bearer ${token()}` },
+                credentials: "include",
+            });
+            if (!res.ok) throw new Error();
+            const { userName } = await res.json();
+            setInvestor(userName ?? null);
+            return true;
+        } catch (err) {
             setInvestor(null);
             return false;
         }
     }, []);
 
-    // Initialize authentication on mount
+    /* 3️⃣  Supporter */
+    const getSupporterName = useCallback(async () => {
+        if (!token()) return false;
+        try {
+            const res = await fetch(
+                "http://localhost:5000/getSupporterAuthenticate",
+                {
+                    headers: { Authorization: `Bearer ${token()}` },
+                    credentials: "include",
+                }
+            );
+            if (!res.ok) throw new Error();
+            const { userName } = await res.json();
+            setSupporter(userName)
+            return true;
+        } catch (err) {
+            setSupporter({});
+            return false;
+        }
+    }, []);
+
+    /* ───────── init once ───────── */
     useEffect(() => {
-        const initializeAuth = async () => {
-            setLoading(true);
-            const token = localStorage.getItem('token');
-            
-            if (!token) {
-                setFounder(null);
-                setInvestor(null);
+        const init = async () => {
+            if (!token()) {
                 setLoading(false);
                 setInitialized(true);
                 return;
             }
 
-            // Try to authenticate as founder first, then investor
-            const founderAuth = await getFounderName();
-            if (!founderAuth) {
-                await getInvestorName();
-            }
-            
+            setLoading(true);
+
+            // try founder → investor → supporter (stop at first success)
+            const okFounder = await getFounderName();
+            const okInvestor = okFounder ? false : await getInvestorName();
+            if (!okFounder && !okInvestor) await getSupporterName();
+
             setLoading(false);
             setInitialized(true);
         };
+        init();
+    }, [getFounderName, getInvestorName, getSupporterName]);
 
-        initializeAuth();
-    }, [getFounderName, getInvestorName]);
-
-    // Logout function
+    /* ───────── logout ───────── */
     const logout = useCallback(() => {
-        localStorage.removeItem('token');
+        localStorage.removeItem("token");
         setFounder(null);
         setInvestor(null);
+        setSupporter({});
     }, []);
 
-    // Check if user is authenticated (either founder or investor)
-    const isAuthenticated = founder !== null || investor !== null;
+    const isAuthenticated = Boolean(founder || investor || supporter);
 
+    /* ───────── provider ───────── */
     return (
-        <AuthContext.Provider value={{ 
-            founder, 
-            investor, 
-            getFounderName, 
-            getInvestorName, 
-            loading, 
-            initialized,
-            isAuthenticated,
-            logout 
-        }}>
+        <AuthContext.Provider
+            value={{
+                founder,
+                investor,
+                supporter,
+
+                getFounderName,
+                getInvestorName,
+                getSupporterName,
+
+                loading,
+                initialized,
+                isAuthenticated,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

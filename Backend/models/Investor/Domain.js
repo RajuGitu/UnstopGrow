@@ -6,8 +6,8 @@ const DomainInterest = new Schema({
         type: Schema.Types.ObjectId,
         ref:"Investor",
         required: true,
+        unique:true,
         index:true,
-        unique:true,      
     },
     interests: {
         type: [String],

@@ -11,7 +11,7 @@ const LoadingSpinner = () => (
     </div>
 );
 export default function InvestorList() {
-    const { intereseted, loading,getAllInterestedFounder } = useInterest();
+    const { intereseted, loading, getAllInterestedFounder } = useInterest();
     useEffect(() => {
         getAllInterestedFounder()
     }, [])

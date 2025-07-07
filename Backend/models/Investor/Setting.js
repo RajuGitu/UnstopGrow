@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
 const SettingProfileSchema = new Schema({
-    investorId:{
+    investorId: {
         type: Schema.Types.ObjectId,
-        ref:"Investor",
+        ref: "Investor",
         required: true,
-        index:true,
-        unique:true,      
+        unique: true,
+        index: true,
     },
     image: {
         type: String,
@@ -25,13 +25,13 @@ const SettingProfileSchema = new Schema({
     },
     linkedin: {
         type: String,
-        required:true,
+        required: true,
     },
     bio: {
         type: String,
     }
-},{
-    timestamps : true
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model("Setting", SettingProfileSchema);

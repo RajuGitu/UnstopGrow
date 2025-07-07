@@ -259,7 +259,7 @@ const deleteLogoController = async (req, res) => {
     const absolutePath = path.isAbsolute(profile.logo)
       ? profile.logo
       : path.join(__dirname, "..", profile.logo);
-    await fs.unlink(absolutePath).catch(() => {});
+    await fs.unlink(absolutePath).catch(() => { });
     profile.logo = null;
     await profile.save();
     res.status(200).json({ message: "Logo deleted" });
@@ -580,6 +580,21 @@ const getAllInterestedController = async (req, res) => {
   }
 }
 
+const logoutController = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return res.status(200).json({ success: true, message: "Logged out" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
 module.exports = {
   updateFormController,
   recentUpdatesController,
@@ -597,5 +612,6 @@ module.exports = {
   deleteSentRequest,
   getRequestController,
   updateStatusRequest,
-  getAllInterestedController
+  getAllInterestedController,
+  logoutController
 };

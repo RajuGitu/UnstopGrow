@@ -56,10 +56,18 @@ const PitchSchema = new Schema(
       type: String,
       required: true,
     },
+    likes: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Supporter'
+        },
+      }
+    ],
   },
   {
     timestamps: true, // adds createdAt and updatedAt
   }
 );
 
-module.exports = models.Pitch || model("Pitch", PitchSchema);
+module.exports = models.Pitch || model("Pitch", PitchSchema);
