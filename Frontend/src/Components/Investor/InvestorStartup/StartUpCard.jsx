@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Calendar,
   FileText,
+  Heart,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "../../UI/Avatar";
 import { useEffect, useState } from "react";
@@ -21,22 +22,130 @@ const StartupCard = ({ startup }) => {
   const [selectedPitchStartup, setSelectedPitchStartup] = useState(null);
   const [isPitchModalOpen, setIsPitchModalOpen] = useState(false);
   const [isUnsaving, setIsUnsaving] = useState(false); // Loading state
+  const [isInterestLoading, setIsInterestLoading] = useState(false);
+  const [interestedStartups, setInterestedStartups] = useState({});
+  useEffect(() => {
+    setInterestedStartups((prev) => {
+      // Only update if we don't already have a value for this startup
+      // This prevents overwriting user actions with stale prop data
+      if (prev[startup.savedstartupId] === undefined) {
+        return {
+          ...prev,
+          [startup.savedstartupId]: startup.isInterest || false,
+        };
+      }
+      return prev;
+    });
+  }, [startup.savedstartupId, startup.isInterest]);
+
+  const handleExpressInterest = async (startupId) => {
+    setIsInterestLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const currentlyInterested = interestedStartups[startupId];
+
+      let response;
+
+      if (currentlyInterested) {
+        // Remove interest
+        response = await axiosInstance.delete(
+          "/investor/investorInterestStartups",
+          {
+            data: {
+              startUpId: startupId,
+            },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            withCredentials: true,
+          }
+        );
+      } else {
+        // Express interest
+        response = await axiosInstance.post(
+          "/investor/investorInterestStartups",
+          {
+            startUpId: startupId,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            withCredentials: true,
+          }
+        );
+      }
+
+      if (response.data.success) {
+        // Update local state to reflect the interest/remove interest
+        setInterestedStartups((prev) => ({
+          ...prev,
+          [startupId]: !prev[startupId],
+        }));
+
+        // Debug logging
+        console.log("Express/Remove Interest successful:", {
+          startupId,
+          previousState: currentlyInterested,
+          newState: !currentlyInterested,
+          response: response.data,
+        });
+
+        // Show success message (consider using a proper toast notification)
+        console.log(
+          currentlyInterested
+            ? "Interest removed successfully"
+            : "Interest expressed successfully"
+        );
+      } else {
+        // Handle errors
+        console.error(
+          "Error with express/remove interest:",
+          response.data.error
+        );
+        alert(response.data.error || "Failed to express/remove interest");
+      }
+    } catch (error) {
+      console.error("API error:", error);
+
+      // Handle different types of errors
+      if (error.response?.data?.error) {
+        alert(error.response.data.error);
+      } else if (error.response?.status === 401) {
+        alert("Please log in to express interest");
+      } else if (error.response?.status === 400) {
+        alert("Invalid request. Please try again.");
+      } else if (error.response?.status === 404) {
+        alert("Startup not found or interest not previously expressed");
+      } else {
+        alert("Network error. Please try again.");
+      }
+    } finally {
+      setIsInterestLoading(false);
+    }
+  };
 
   const handleUnsave = async (startupId) => {
     try {
       setIsUnsaving(true); // Set loading state
       const token = localStorage.getItem("token");
-      
-      const response = await axiosInstance.delete("/investor/investorSaveStartups", {
-        data: {
-          startUpId: startupId,
-        },
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
+
+      const response = await axiosInstance.delete(
+        "/investor/investorSaveStartups",
+        {
+          data: {
+            startUpId: startupId,
+          },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
 
       // If successful, refresh the saved startups list
       if (response.status === 200 || response.status === 204) {
@@ -120,7 +229,7 @@ const StartupCard = ({ startup }) => {
       alert("Something went wrong while fetching the pitch. Please try again.");
     }
   };
-
+  const isInterested = interestedStartups[startup.savedstartupId] ?? startup.isInterest;
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardContent className="p-6">
@@ -170,9 +279,24 @@ const StartupCard = ({ startup }) => {
           </div>
 
           <div className="flex flex-col space-y-2 ml-4">
-            <Button size="sm">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Contact Founder
+            <Button
+              size="sm"
+              onClick={() => handleExpressInterest(startup.savedstartupId)}
+              disabled={isInterestLoading}
+              className={`flex transition-colors duration-200 cursor-pointer ${
+                isInterested
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "bg-red-700 hover:bg-red-800 text-white"
+              } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <Heart
+                className={`w-4 h-4 mr-3 ${isInterested ? "fill-current" : ""}`}
+              />
+              {isInterestLoading
+                ? "Processing..."
+                : isInterested
+                ? "Interested"
+                : "Interest"}
             </Button>
             <Button
               size="sm"

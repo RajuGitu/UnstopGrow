@@ -4,63 +4,18 @@ import { Input } from "../../Components/UI/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../Components/UI/Select";
 import { Checkbox } from "../../Components/UI/Checkbox";
 import { Button } from "../../Components/UI/Button";
-import axiosInstance from "../../../utils/axiosInstance";
 import StartupCard from "../../Components/Investor/InvertorDiscover/StartupCard";
+import { useInvestorDiscoverStartups } from "../../context/getinvestorDiscoverStartups";
 
 const InvestorDiscover = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("all");
   const [viewMode, setViewMode] = useState("list");
-  const [startups, setStartups] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  const fetchDiscoverStartups = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const token = localStorage.getItem("token");
-      const response = await axiosInstance.get("/investor/investorDiscoverStartups", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.data.success) {
-        const startupsData = Array.isArray(response.data.data) 
-          ? response.data.data 
-          : [response.data.data];
-
-        const transformedStartups = startupsData.map((startup, index) => ({
-          companyLogo: startup?.logo,
-          domain: startup?.domain || "General",
-          companyName: startup?.startUpName || startup?.name || "Unknown Company",
-          location: startup?.location || "Location not specified",
-          readyToMerge: startup?.readytomerge || false,
-          tagline: startup?.bio || startup?.tagline || "No description available",
-          website: startup?.website || "",
-          achievements: startup?.achievements || [],
-          startupId: startup?.startupId || startup?._id || index,
-          verified: startup?.verified || false,
-          isSaved: startup?.isSaved || false,
-          isInterest : startup?.isInterest || false,
-        }));
-
-        setStartups(transformedStartups);
-      } else {
-        setError("Failed to fetch startups");
-      }
-    } catch (error) {
-      console.error("Error fetching Startups:", error);
-      setError("Failed to load startup data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { startups, loading, error, getAllDiscoverStartups } = useInvestorDiscoverStartups();
 
   useEffect(() => {
-    fetchDiscoverStartups();
+    getAllDiscoverStartups();
   }, []);
 
   const filteredStartups = startups.filter((startup) => {
@@ -95,7 +50,7 @@ const InvestorDiscover = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-lg text-red-600 mb-2">{error}</div>
-            <Button onClick={fetchDiscoverStartups} variant="outline">
+            <Button onClick={getAllDiscoverStartups} variant="outline">
               Try Again
             </Button>
           </div>

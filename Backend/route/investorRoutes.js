@@ -13,6 +13,7 @@ const {
   postInvestorInterestStartupsController,
   deleteInvestorInterestStartupsController,
   getInvestorSaveStartupsController,
+  getInvestorInterestStartupsController,
 } = require("../controller/investorController");
 const createUploadMiddleware = require("../middleware/uploadImageMiddleware");
 const uploadInvestorProfileImg = createUploadMiddleware(
@@ -115,6 +116,12 @@ router.get(
   "/investorSaveStartups",
   authMiddleware,
   getInvestorSaveStartupsController
+);
+
+//router to get the interested startups in contactcard components
+
+router.get(
+  "/investorInterestStartups",authMiddleware,getInvestorInterestStartupsController
 );
 
 module.exports = router;

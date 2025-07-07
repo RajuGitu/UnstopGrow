@@ -34,6 +34,8 @@ import FounderAllPitch from "./pages/Founder/FounderAllPitch";
 import { PitchPostProvider } from "./context/PitchPostContext";
 import { InterestProvider } from "./context/InterestContext";
 import { InvestorSavedStartupsProvider } from "./context/getinvestorSavedStartupsContext";
+import { InvestorInterestedStartupsProvider } from "./context/getinvertorInterestedContexr";
+import { InvestorDiscoverStartupsProvider } from "./context/getinvestorDiscoverStartups";
 function App() {
   return (
     <>
@@ -70,9 +72,13 @@ function App() {
               <Route
                 path="/investor"
                 element={
-                  <InvestorSavedStartupsProvider>
-                    <InvestorLayout />
-                  </InvestorSavedStartupsProvider>
+                  <InvestorDiscoverStartupsProvider>
+                    <InvestorInterestedStartupsProvider>
+                      <InvestorSavedStartupsProvider>
+                        <InvestorLayout />
+                      </InvestorSavedStartupsProvider>
+                    </InvestorInterestedStartupsProvider>
+                  </InvestorDiscoverStartupsProvider>
                 }
               >
                 <Route index element={<Navigate to="/investor/dashboard" />} />

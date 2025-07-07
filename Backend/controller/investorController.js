@@ -523,22 +523,32 @@ const getInvestorSaveStartupsController = async (req, res) => {
 
     const savedIds = [...new Set(savedStartups.map((item) => item.startUpId))];
 
-    console.log("savedIds:", savedIds);
-
     const profiles = await founderProfilemodel
       .find({ startupId: { $in: savedIds } })
       .sort({ createdAt: -1 });
 
     const followers = await foundermodel.find({ _id: { $in: savedIds } });
 
+    const interestedStartups = await investorInterestStartupsModel
+      .find({ investorId: investorId })
+      .lean();
+
+    const interestedIds = new Set(
+      interestedStartups.map((item) => item.startUpId.toString())
+    );
+
     const savedStartupInfo = profiles.map((profile) => {
       const follow = followers.find(
         (f) => f._id.toString() === profile.startupId.toString()
       );
+
+      const isInterest = interestedIds.has(profile.startupId.toString());
+
       return {
         savedstartupId: profile.startupId,
         profile,
         follow,
+        isInterest,
       };
     });
 
@@ -547,11 +557,36 @@ const getInvestorSaveStartupsController = async (req, res) => {
       count: savedStartupInfo.length,
       data: savedStartupInfo,
     });
-
   } catch (error) {
     console.error("Fetching Saved Startups Error:", error.message);
     res.status(500).json({
       error: "Server error while Fetching Saved Startups",
+    });
+  }
+};
+
+const getInvestorInterestStartupsController = async (req, res) => {
+  try {
+    const investorId = req.user.id;
+    if (!investorId) {
+      return res.status(401).json({ error: "Unauthorized person" });
+    }
+
+    const interestedStartups = await investorInterestStartupsModel.find({ investorId });
+
+    const interestedStartupIds = [...new Set(interestedStartups.map((item) => item.startUpId))];
+
+    const profiles = await founderProfilemodel.find({
+      startupId: { $in: interestedStartupIds },
+    });
+    res.status(200).json({
+      success:true,
+      data:profiles,
+    })
+  } catch (error) {
+    console.error("Fetching Interested Startups Error:", error.message);
+    res.status(500).json({
+      error: "Server error while Fetching Interested Startups",
     });
   }
 };
@@ -569,4 +604,5 @@ module.exports = {
   postInvestorInterestStartupsController,
   deleteInvestorInterestStartupsController,
   getInvestorSaveStartupsController,
+  getInvestorInterestStartupsController,
 };
