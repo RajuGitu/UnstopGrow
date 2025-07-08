@@ -5,34 +5,43 @@ import { useEffect, useState } from "react";
 import { useInvestorSavedStartups } from "../../../context/getinvestorSavedStartupsContext";
 import SavedStartUp from "./SavedStartUp";
 import { Input } from "../../UI/Input";
-import { Select ,SelectTrigger,SelectContent, SelectItem, SelectValue } from "../../UI/Select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "../../UI/Select";
 
 const StartupList = () => {
   const { savedStartups, loading, getAllSavedStartups } =
     useInvestorSavedStartups();
   // Fetch saved startups when the component mounts
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedDomain, setSelectedDomain] = useState("all");
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDomain, setSelectedDomain] = useState("all");
 
   useEffect(() => {
     getAllSavedStartups();
   }, []);
 
   const filteredStartups = savedStartups.filter((startup) => {
-    const matchesSearch = 
-      startup.profile.startUpName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      startup.profile.startUpName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       startup.profile.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
       startup.profile.domain.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesDomain = 
+    const matchesDomain =
       selectedDomain === "all" || startup.profile.domain === selectedDomain;
 
     return matchesSearch && matchesDomain;
   });
 
-    const uniqueDomains = [...new Set(savedStartups.map(startup => startup.profile.domain))];
+  const uniqueDomains = [
+    ...new Set(savedStartups.map((startup) => startup.profile.domain)),
+  ];
 
   if (loading) {
     <SavedStartUp />;
@@ -53,10 +62,9 @@ const StartupList = () => {
   }
 
   return (
-<div className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <SavedStartUp />
-       
       </div>
 
       <Card>
@@ -77,10 +85,7 @@ const StartupList = () => {
 
             <div>
               <label className="text-sm font-medium mb-2 block">Domain</label>
-              <Select
-                value={selectedDomain}
-                onValueChange={setSelectedDomain}
-              >
+              <Select value={selectedDomain} onValueChange={setSelectedDomain}>
                 <SelectTrigger className="border-gray-300">
                   <SelectValue placeholder="All Domains" />
                 </SelectTrigger>
@@ -104,7 +109,9 @@ const StartupList = () => {
             Showing {filteredStartups.length} startup
             {filteredStartups.length !== 1 ? "s" : ""}
             {searchTerm && <span className="ml-1">for "{searchTerm}"</span>}
-            {selectedDomain !== "all" && <span className="ml-1">in {selectedDomain}</span>}
+            {selectedDomain !== "all" && (
+              <span className="ml-1">in {selectedDomain}</span>
+            )}
           </p>
 
           {(searchTerm || selectedDomain !== "all") && (
@@ -114,7 +121,6 @@ const StartupList = () => {
               onClick={() => {
                 setSearchTerm("");
                 setSelectedDomain("all");
-
               }}
             >
               Clear Filters
@@ -130,13 +136,7 @@ const StartupList = () => {
             </p>
           </div>
         ) : (
-          <div
-            className=
-              
-                
-               "space-y-4"
-            
-          >
+          <div className="space-y-4">
             {filteredStartups.map((startup) => (
               <StartupCard key={startup.savedstartupId} startup={startup} />
             ))}

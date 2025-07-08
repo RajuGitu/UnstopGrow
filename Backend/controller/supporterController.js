@@ -1,72 +1,567 @@
 const pitchModel = require("../models/Global/Pitchmodel");
 const founderProfilemodel = require("../models/Global/FounderProfilemodel");
+const postModel = require("../models/Global/Postmodel");
+const supporterLikesPostsModel = require("../models/Supporter/SupporterLikesPostSchema")
+const supporterFollowPostModel = require("../models/Supporter/SupporterFollowsSchema")
+const founderModel = require("../models/foundermodel")
+const mongoose = require('mongoose');
 
 const logoutController = async (req, res) => {
-    try {
-        res.clearCookie("token", {
-            httpOnly: true,
-            sameSite: "strict",
-            secure: process.env.NODE_ENV === "production",
-        });
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
 
-        return res.status(200).json({ success: true, message: "Logged out" });
-    } catch (err) {
-        console.error("Logout error:", err);
-        return res.status(500).json({ success: false, error: "Server error" });
-    }
-}
+    return res.status(200).json({ success: true, message: "Logged out" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+};
 
 const getTrendingStartup = async (req, res) => {
-    try {
-        const investorId = req.user.id;
+  try {
+    const investorId = req.user.id;
 
-        if (!investorId) {
-            return res.status(401).json({
+    if (!investorId) {
+      return res.status(401).json({
+        success: false,
+        error: "Investor authentication required.",
+      });
+    }
+
+    const topPitchStartups = await pitchModel.aggregate([
+      {
+        $group: {
+          _id: "$startupId",
+          pitchCount: { $sum: 1 },
+          totalLikes: { $sum: { $size: "$likes" } },
+        },
+      },
+      { $sort: { totalLikes: -1, pitchCount: -1 } },
+      { $limit: 3 },
+    ]);
+
+    const topStartupIds = topPitchStartups.map((startup) => startup._id);
+
+    const founderProfiles = await founderProfilemodel.find({
+      startupId: { $in: topStartupIds },
+    });
+
+    const trendingStartups = founderProfiles.map((profile) => ({
+      startupId: profile.startupId,
+      founderProfile: profile,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Trending startups retrieved successfully",
+      data: trendingStartups,
+      totalCount: trendingStartups.length,
+    });
+  } catch (error) {
+    console.error("Trending Startup error:", error.message);
+    res.status(500).json({
+      error: "Server error while fetching trending startups",
+    });
+  }
+};
+
+const getSupporterExploreAllPostController = async (req, res) => {
+  try {
+    const SupporterId = req.user.id;
+    if (!SupporterId) {
+      return res.status(401).json({ error: "Unauthorized person" });
+    }
+
+    // Get all posts sorted by creation date
+    const recentAllPosts = await postModel.find().sort({ createdAt: -1 });
+
+    // Check if posts exist
+    if (!recentAllPosts || recentAllPosts.length === 0) {
+      return res.status(404).json({
+        message: "No recent updates found for this startup",
+      });
+    }
+
+    // Get the supporter's liked posts
+    const supporterLikes = await supporterLikesPostsModel.findOne({
+      supporterId: SupporterId
+    });
+
+    // Get the supporter's followed startups
+    const supporterFollows = await supporterFollowPostModel.findOne({
+      supporterId: SupporterId
+    });
+
+    // Create a Set of liked post IDs for efficient lookup
+    const likedPostIds = new Set(
+      supporterLikes ? supporterLikes.postIds.map(id => id.toString()) : []
+    );
+
+    // Create a Set of followed startup IDs for efficient lookup
+    const followedStartupIds = new Set(
+      supporterFollows ? supporterFollows.startupIds.map(id => id.toString()) : []
+    );
+
+    // Add isLiked and isFollowed fields to each post
+    const postsWithLikeFollowStatus = recentAllPosts.map(post => {
+      const postObj = post.toObject();
+      postObj.isLiked = likedPostIds.has(post._id.toString());
+      postObj.isFollowed = followedStartupIds.has(post.startupId.toString());
+      return postObj;
+    });
+
+    // Return successful response
+    res.status(200).json({
+      success: true,
+      count: postsWithLikeFollowStatus.length,
+      data: postsWithLikeFollowStatus,
+    });
+  } catch (error) {
+    console.log("Recent Update Error:", error.message);
+    res.status(500).json({ error: "Server error while getting recent Update" });
+  }
+};
+
+const postSupporterLikesPostsController = async (req, res) => {
+    try {
+        const supporterId = req.user.id; // Fixed: should be supporterId, not SupportId
+        const { postId } = req.body;
+
+        // Validation
+        if (!postId) {
+            return res.status(400).json({
                 success: false,
-                error: "Investor authentication required.",
+                error: "Post ID is required.",
             });
         }
 
-        const topPitchStartups = await pitchModel.aggregate([
-            {
-                $group: {
-                    _id: "$startupId",
-                    pitchCount: { $sum: 1 },
-                    totalLikes: { $sum: { $size: "$likes" } }
-                }
-            },
-            { $sort: { totalLikes: -1, pitchCount: -1 } },
-            { $limit: 3 }
-        ]);
+        if (!supporterId) {
+            return res.status(401).json({
+                success: false,
+                error: "Supporter authentication required.",
+            });
+        }
 
-        const topStartupIds = topPitchStartups.map(startup => startup._id);
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid post ID format.",
+            });
+        }
 
-        const founderProfiles = await founderProfilemodel.find({
-            startupId: { $in: topStartupIds }
+        const postObjectId = new mongoose.Types.ObjectId(postId);
+
+        // Check if post exists
+        const post = await postModel.findById(postObjectId);
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                error: "Post not found",
+            });
+        }
+
+        // Find or create supporter's likes document
+        let supporterLikes = await supporterLikesPostsModel.findOne({
+            supporterId: supporterId // Fixed: should be supporterId
         });
 
-        const trendingStartups = founderProfiles.map(profile => ({
-            startupId: profile.startupId,
-            founderProfile: profile
-        }));
+        if (!supporterLikes) {
+            // Create new document if it doesn't exist
+            supporterLikes = new supporterLikesPostsModel({
+                supporterId: supporterId,
+                postIds: [postObjectId]
+            });
+        } else {
+            // Check if post is already liked
+            const isAlreadyLiked = supporterLikes.postIds.some(
+                id => id.toString() === postObjectId.toString()
+            );
 
-        res.status(200).json({
+            if (isAlreadyLiked) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Post already liked",
+                });
+            }
+
+            // Add postId to the array
+            supporterLikes.postIds.push(postObjectId);
+        }
+
+        // Save the document
+        await supporterLikes.save();
+
+        // Optional: Update the Post model's likes array as well
+        await postModel.findByIdAndUpdate(
+            postObjectId,
+            { 
+                $addToSet: { 
+                    likes: { userId: supporterId } 
+                } 
+            },
+            { new: true }
+        );
+
+        res.status(201).json({
             success: true,
-            message: "Trending startups retrieved successfully",
-            data: trendingStartups,
-            totalCount: trendingStartups.length
+            message: "Post liked successfully",
+            data: {
+                supporterId: supporterId,
+                postId: postObjectId,
+                totalLikedPosts: supporterLikes.postIds.length
+            },
         });
 
     } catch (error) {
-        console.error("Trending Startup error:", error.message);
+        console.error("Like Post Error:", error);
         res.status(500).json({
-            error: "Server error while fetching trending startups"
+            success: false,
+            error: "Server error while liking post",
+            details: process.env.NODE_ENV === "development" ? error.message : undefined,
         });
     }
 };
 
+const deleteSupporterlikesPostsController = async (req, res) => {
+    try {
+        const supporterId = req.user.id;
+        const { postId } = req.body;
+
+        if (!postId) {
+            return res.status(400).json({
+                success: false,
+                error: "Post ID is required.",
+            });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid post ID format.",
+            });
+        }
+
+        const postObjectId = new mongoose.Types.ObjectId(postId);
+
+        // Find supporter's likes document
+        const supporterLikes = await supporterLikesPostsModel.findOne({
+            supporterId: supporterId
+        });
+
+        if (!supporterLikes) {
+            return res.status(400).json({
+                success: false,
+                error: "Post not liked yet",
+            });
+        }
+
+        // Check if post is in the liked posts
+        const postIndex = supporterLikes.postIds.findIndex(
+            id => id.toString() === postObjectId.toString()
+        );
+
+        if (postIndex === -1) {
+            return res.status(400).json({
+                success: false,
+                error: "Post not liked yet",
+            });
+        }
+
+        // Remove the post from liked posts
+        supporterLikes.postIds.splice(postIndex, 1);
+        await supporterLikes.save();
+
+        // Update the Post model's likes array as well
+        await postModel.findByIdAndUpdate(
+            postObjectId,
+            { 
+                $pull: { 
+                    likes: { userId: supporterId } 
+                } 
+            }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Post unliked successfully",
+            data: {
+                supporterId: supporterId,
+                postId: postObjectId,
+                totalLikedPosts: supporterLikes.postIds.length
+            },
+        });
+
+    } catch (error) {
+        console.error("Unlike Post Error:", error);
+        res.status(500).json({
+            success: false,
+            error: "Server error while unliking post",
+            details: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+    }
+};
+
+const postSupporterFollowPostController = async (req, res) => {
+    try {
+        const SupporterId = req.user.id;
+        const { startupId } = req.body;
+
+        // Validation
+        if (!startupId) {
+            return res.status(400).json({
+                success: false,
+                error: "Startup ID is required.",
+            });
+        }
+
+        if (!SupporterId) {
+            return res.status(401).json({
+                success: false,
+                error: "Supporter authentication required.",
+            });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(startupId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid startup ID format.",
+            });
+        }
+
+        const startupObjectId = new mongoose.Types.ObjectId(startupId);
+
+        // Check if startup exists
+        const startup = await founderModel.findById(startupObjectId);
+        if (!startup) {
+            return res.status(404).json({
+                success: false,
+                error: "Startup not found",
+            });
+        }
+
+        // Find or create supporter's follows document
+        let supporterFollows = await supporterFollowPostModel.findOne({
+            supporterId: SupporterId
+        });
+
+        if (!supporterFollows) {
+            // Create new document if it doesn't exist
+            supporterFollows = new supporterFollowPostModel({
+                supporterId: SupporterId,
+                startupIds: [startupObjectId]
+            });
+        } else {
+            // Check if startup is already followed
+            const isAlreadyFollowed = supporterFollows.startupIds.some(
+                id => id.toString() === startupObjectId.toString()
+            );
+
+            if (isAlreadyFollowed) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Startup already followed",
+                });
+            }
+
+            // Add startupId to the array
+            supporterFollows.startupIds.push(startupObjectId);
+        }
+
+        // Save the document
+        await supporterFollows.save();
+
+        // Optional: Update the Founder model's followers array as well
+        await founderModel.findByIdAndUpdate(
+            startupObjectId,
+            { 
+                $addToSet: { 
+                    followers: { userId: SupporterId } 
+                } 
+            },
+            { new: true }
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "Startup followed successfully",
+            data: {
+                supporterId: SupporterId,
+                startupId: startupObjectId,
+                totalFollowedStartups: supporterFollows.startupIds.length
+            },
+        });
+
+    } catch (error) {
+        console.error("Follow Startup Error:", error);
+        res.status(500).json({
+            success: false,
+            error: "Server error while following startup",
+            details: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+    }
+};
+
+const deleteSupporterFollowPostController = async (req, res) => {
+    try {
+        const supporterId = req.user.id;
+        const { startupId } = req.body;
+
+        // Validation
+        if (!startupId) {
+            return res.status(400).json({
+                success: false,
+                error: "Startup ID is required.",
+            });
+        }
+
+        if (!supporterId) {
+            return res.status(401).json({
+                success: false,
+                error: "Supporter authentication required.",
+            });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(startupId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid startup ID format.",
+            });
+        }
+
+        const startupObjectId = new mongoose.Types.ObjectId(startupId);
+
+        // Check if startup exists
+        const startup = await founderModel.findById(startupObjectId);
+        if (!startup) {
+            return res.status(404).json({
+                success: false,
+                error: "Startup not found",
+            });
+        }
+
+        // Find supporter's follows document
+        const supporterFollows = await supporterFollowPostModel.findOne({
+            supporterId: supporterId
+        });
+
+        if (!supporterFollows) {
+            return res.status(400).json({
+                success: false,
+                error: "You are not following any startups",
+            });
+        }
+
+        // Check if startup is currently followed
+        const isCurrentlyFollowed = supporterFollows.startupIds.some(
+            id => id.toString() === startupObjectId.toString()
+        );
+
+        if (!isCurrentlyFollowed) {
+            return res.status(400).json({
+                success: false,
+                error: "You are not following this startup",
+            });
+        }
+
+        // Remove startupId from the array
+        supporterFollows.startupIds = supporterFollows.startupIds.filter(
+            id => id.toString() !== startupObjectId.toString()
+        );
+
+        // Save the document
+        await supporterFollows.save();
+
+        // Optional: Update the Founder model's followers array as well
+        await founderModel.findByIdAndUpdate(
+            startupObjectId,
+            { 
+                $pull: { 
+                    followers: { userId: supporterId } 
+                } 
+            },
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Startup unfollowed successfully",
+            data: {
+                supporterId: supporterId,
+                startupId: startupObjectId,
+                totalFollowedStartups: supporterFollows.startupIds.length
+            },
+        });
+
+    } catch (error) {
+        console.error("Unfollow Startup Error:", error);
+        res.status(500).json({
+            success: false,
+            error: "Server error while unfollowing startup",
+            details: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+    }
+};
+
+const getSupporterLikesPostsController = async (req, res) => {
+    try {
+        const supporterId  = req.user.id; // or req.user.id if from auth middleware
+        
+        // Validate supporterId
+        if (!supporterId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Supporter ID is required'
+            });
+        }
+
+        // Find the supporter's liked posts document
+        const supporterLikes = await supporterLikesPostsModel.findOne({ 
+            supporterId: supporterId 
+        });
+
+        // If no likes document exists or no posts liked
+        if (!supporterLikes || !supporterLikes.postIds || supporterLikes.postIds.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: 'No liked posts found',
+                data: []
+            });
+        }
+
+        // Get full post information for all liked posts
+        const likedPosts = await postModel.find({
+            _id: { $in: supporterLikes.postIds }
+        })
+        .sort({ createdAt: -1 }); // Sort by newest first
+
+        return res.status(200).json({
+            success: true,
+            message: 'Liked posts retrieved successfully',
+            data: likedPosts,
+            count: likedPosts.length
+        });
+
+    } catch (error) {
+        console.error('Error getting supporter liked posts:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
 
 module.exports = {
-    logoutController,
-    getTrendingStartup,
-}
+  logoutController,
+  getTrendingStartup,
+  getSupporterExploreAllPostController,
+  postSupporterLikesPostsController,
+  deleteSupporterlikesPostsController,
+  postSupporterFollowPostController,
+  deleteSupporterFollowPostController,
+  getSupporterLikesPostsController,
+};

@@ -17,7 +17,7 @@ import axiosInstance from "../../../../utils/axiosInstance";
 
 const imgPlaceholder = "https://via.placeholder.com/120x80?text=No+Image";
 
-const StartupCard = ({ startup }) => {
+const  StartupCard = ({ startup }) => {
 
   const [selectedPitchStartup, setSelectedPitchStartup] = useState(null);
   const [isPitchModalOpen, setIsPitchModalOpen] = useState(false);

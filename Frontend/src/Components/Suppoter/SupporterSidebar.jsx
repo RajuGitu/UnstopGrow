@@ -9,7 +9,7 @@ const navigation = [
     { name: "Explore Pitch", href: "/supporter/explore-pitch", icon: FileText },
     { name: "Explore Post", href: "/supporter/explore-post", icon: Image },
     { name: "Followings", href: "/supporter/followings", icon: Users },
-    { name: "Liked Posts", href: "/supporter/liked-posts", icon: Heart },
+    { name: "Liked Posts", href: "/supporter/liked-content", icon: Heart },
 ];
 export const SupporterSidebar = () => {
     const navigate = useNavigate();
