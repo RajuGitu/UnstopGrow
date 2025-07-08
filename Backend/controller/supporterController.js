@@ -109,12 +109,23 @@ const getSupporterExploreAllPostController = async (req, res) => {
         const followedStartupIds = new Set(
             supporterFollows ? supporterFollows.startupIds.map(id => id.toString()) : []
         );
+        const founder = await Founder.find({});
 
         // Add isLiked and isFollowed fields to each post
         const postsWithLikeFollowStatus = recentAllPosts.map(post => {
             const postObj = post.toObject();
+            const startupIdStr = post.startupId.toString();
             postObj.isLiked = likedPostIds.has(post._id.toString());
             postObj.isFollowed = followedStartupIds.has(post.startupId.toString());
+
+            const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
+            if (matchingFounder) {
+                postObj.companyName = matchingFounder.companyName;
+                postObj.ownerName = matchingFounder.ownerName;
+            } else {
+                postObj.companyName = "Unknown";
+                postObj.ownerName = "Unknown";
+            }
             return postObj;
         });
 
@@ -519,15 +530,30 @@ const getSupporterAllPitchesController = async (req, res) => {
 
         const likedPost = await SupporterLikesPitch.findOne({ supporterId });
         const likedPitches = likedPost?.pitchIds?.map(id => id.toString()) || [];
+
         const followPost = await SupporterFollows.findOne({ supporterId });
         const followedPostes = followPost?.startupIds?.map(id => id.toString()) || [];
+
+        const founder = await Founder.find({}); // all founders
 
         const allPitchDocs = await pitchModel.find({});
 
         const allPitches = allPitchDocs.map(pitch => {
             const plainPitch = pitch.toObject();
-            plainPitch.isSaved = likedPitches.includes(pitch._id.toString());
-            plainPitch.isFollow = followedPostes.includes(pitch.startupId.toString());
+            const startupIdStr = pitch.startupId.toString();
+
+            plainPitch.isSaved = likedPitches.includes(startupIdStr);
+            plainPitch.isFollow = followedPostes.includes(startupIdStr);
+
+            const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
+            if (matchingFounder) {
+                plainPitch.companyName = matchingFounder.companyName;
+                plainPitch.ownerName = matchingFounder.ownerName;
+            } else {
+                plainPitch.companyName = "Unknown";
+                plainPitch.ownerName = "Unknown";
+            }
+
             return plainPitch;
         });
 
@@ -762,6 +788,7 @@ const getSupporterCountLikes = async (req, res) => {
         });
     }
 };
+
 const getSupporterLikesPostsController = async (req, res) => {
     try {
         const supporterId = req.user.id; // or req.user.id if from auth middleware

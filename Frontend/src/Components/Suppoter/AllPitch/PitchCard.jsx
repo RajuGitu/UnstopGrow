@@ -201,12 +201,17 @@ const PitchCard = ({
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
-                        <CardTitle className="text-xl font-bold text-slate-900 mb-2">
-                            {pitchItem.title}
+                        <CardTitle className="text-xl font-bold text-slate-900 mb-1">
+                            {pitchItem.companyName || "Unnamed Startup"}
                         </CardTitle>
-                        <p className="text-sm text-indigo-600 font-medium mb-3">
-                            {pitchItem.tagline}
+                        <p className="text-xs text-gray-500 mb-3">
+                            Owner: {pitchItem.ownerName || "Unknown"}
                         </p>
+
+                        <div className="mb-3">
+                            <p className="text-base font-medium text-slate-800">{pitchItem.title}</p>
+                            <p className="text-sm text-indigo-600">{pitchItem.tagline}</p>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
                         {/* Like Button */}

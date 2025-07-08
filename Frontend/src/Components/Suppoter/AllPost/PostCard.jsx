@@ -35,13 +35,13 @@ const PostCard = ({ postItem, onComment }) => {
 
   const handleLike = async (postId) => {
     setIsLikeLoading(true);
-    
+
     try {
       const token = localStorage.getItem('token');
       const currentlyLiked = likedPosts[postId];
-      
+
       let response;
-      
+
       if (currentlyLiked) {
         // Unlike the post
         response = await axiosInstance.delete('/supporter/supporterLikesPosts', {
@@ -73,7 +73,7 @@ const PostCard = ({ postItem, onComment }) => {
           ...prev,
           [postId]: !prev[postId],
         }));
-        
+
         // Debug logging
         console.log('Like/Unlike successful:', {
           postId,
@@ -81,7 +81,7 @@ const PostCard = ({ postItem, onComment }) => {
           newState: !currentlyLiked,
           response: response.data
         });
-        
+
         // Show success message (consider using a proper toast notification)
         console.log(currentlyLiked ? 'Post unliked successfully' : 'Post liked successfully');
       } else {
@@ -91,7 +91,7 @@ const PostCard = ({ postItem, onComment }) => {
       }
     } catch (error) {
       console.error('API error:', error);
-      
+
       // Handle different types of errors
       if (error.response?.data?.error) {
         alert(error.response.data.error);
@@ -111,13 +111,13 @@ const PostCard = ({ postItem, onComment }) => {
 
   const handleFollow = async (startupId) => {
     setIsFollowLoading(true);
-    
+
     try {
       const token = localStorage.getItem('token');
       const currentlyFollowed = followedStartups[startupId];
-      
+
       let response;
-      
+
       if (currentlyFollowed) {
         // Unfollow the startup
         response = await axiosInstance.delete('/supporter/supporterFollowPosts', {
@@ -149,7 +149,7 @@ const PostCard = ({ postItem, onComment }) => {
           ...prev,
           [startupId]: !prev[startupId],
         }));
-        
+
         // Debug logging
         console.log('Follow/Unfollow successful:', {
           startupId,
@@ -157,7 +157,7 @@ const PostCard = ({ postItem, onComment }) => {
           newState: !currentlyFollowed,
           response: response.data
         });
-        
+
         // Show success message (consider using a proper toast notification)
         console.log(currentlyFollowed ? 'Startup unfollowed successfully' : 'Startup followed successfully');
       } else {
@@ -167,7 +167,7 @@ const PostCard = ({ postItem, onComment }) => {
       }
     } catch (error) {
       console.error('API error:', error);
-      
+
       // Handle different types of errors
       if (error.response?.data?.error) {
         alert(error.response.data.error);
@@ -211,9 +211,17 @@ const PostCard = ({ postItem, onComment }) => {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-xl font-bold text-slate-900 mb-2">
-              {postItem.title}
+            <CardTitle className="text-xl font-bold text-slate-900 mb-1">
+              {postItem.companyName || "Unnamed Startup"}
             </CardTitle>
+            <p className="text-xs text-gray-500 mb-3">
+              Owner: {postItem.ownerName || "Unknown"}
+            </p>
+
+            <div className="mb-3">
+              <p className="text-base font-medium text-slate-800">{postItem.title}</p>
+              <p className="text-sm text-indigo-600">{postItem.tagline}</p>
+            </div>
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <Calendar className="h-4 w-4" />
               <span>{formatDate(postItem.createdAt)}</span>
@@ -223,11 +231,10 @@ const PostCard = ({ postItem, onComment }) => {
           <Button
             variant="outline"
             size="sm"
-            className={`transition-colors duration-200 cursor-pointer ${
-              isFollowed
+            className={`transition-colors duration-200 cursor-pointer ${isFollowed
                 ? "text-green-600 border-green-300 hover:bg-green-50"
                 : "text-blue-600 border-blue-200 hover:bg-blue-50"
-            } ${isFollowLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${isFollowLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             onClick={() => handleFollow(postItem.startupId)}
             disabled={isFollowLoading}
           >
@@ -313,11 +320,10 @@ const PostCard = ({ postItem, onComment }) => {
           <Button
             variant="outline"
             size="sm"
-            className={`flex-1 transition-colors duration-200 cursor-pointer ${
-              isLiked
+            className={`flex-1 transition-colors duration-200 cursor-pointer ${isLiked
                 ? "text-red-500 border-red-300 hover:bg-red-50"
                 : "text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-            } ${isLikeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${isLikeLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             onClick={() => handleLike(postItem._id)}
             disabled={isLikeLoading}
           >
