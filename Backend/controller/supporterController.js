@@ -542,8 +542,8 @@ const getSupporterAllPitchesController = async (req, res) => {
             const plainPitch = pitch.toObject();
             const startupIdStr = pitch.startupId.toString();
 
-            plainPitch.isSaved = likedPitches.includes(startupIdStr);
-            plainPitch.isFollow = followedPostes.includes(startupIdStr);
+            plainPitch.isSaved = likedPitches.includes(pitch._id.toString());
+            plainPitch.isFollow = followedPostes.includes(pitch._id.toString());
 
             const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
             if (matchingFounder) {

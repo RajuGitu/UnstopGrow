@@ -90,11 +90,6 @@ function TrendingStartup() {
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>🔥 Trending Startups This Week</span>
-                        <Link to="/supporter/explore-pitch">
-                            <Button variant="" size="sm" className="border-gray-300">
-                                View All
-                            </Button>
-                        </Link>
                     </CardTitle>
                 </CardHeader>
 
