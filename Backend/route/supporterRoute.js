@@ -1,10 +1,18 @@
 const express = require('express');
 const authMiddleware = require("../middleware/authMiddleware");
-const { logoutController, getTrendingStartup, postSupporterLikesPostsController, getSupporterExploreAllPostController, deleteSupporterlikesPostsController, postSupporterFollowPostController, deleteSupporterFollowPostController, getSupporterLikesPostsController } = require('../controller/supporterController');
+const { logoutController, getTrendingStartup, getSupporterAllPitchesController, postSupporterPitchLikes, deleteSupporterPitchUnlikes, postSupporterPitchFollow, deleteSupporterPitchUnfollow, getSupporterCountFollow, getSupporterCountLikes , postSupporterLikesPostsController, getSupporterExploreAllPostController, deleteSupporterlikesPostsController, postSupporterFollowPostController, deleteSupporterFollowPostController, getSupporterLikesPostsController } = require('../controller/supporterController');
+
 const router = express.Router();
 
-router.get('/trending',authMiddleware,getTrendingStartup)
 router.post('/logout', logoutController);
+router.get('/trending', authMiddleware, getTrendingStartup);
+router.get('/supporterallPitches', authMiddleware, getSupporterAllPitchesController);
+router.post('/supporterpitchlikes/:id', authMiddleware, postSupporterPitchLikes);
+router.delete('/supporterpitchunlikes/:id', authMiddleware, deleteSupporterPitchUnlikes);
+router.post('/supporterpitchfollow/:id', authMiddleware, postSupporterPitchFollow);
+router.delete('/supporterpitchunfollow/:id', authMiddleware, deleteSupporterPitchUnfollow);
+router.get("/getcountfollow", authMiddleware, getSupporterCountFollow);
+router.get("/getCountLikes", authMiddleware, getSupporterCountLikes);
 
 // router to get the all the post in the using context in SupporterAllPost page.
 

@@ -136,7 +136,7 @@ const ChartsSection = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <TrendingUp className="h-5 w-5 text-indigo-600" />
-            <span>Post Reach Analytics</span>
+            <span>Pitch Reach Analytics</span>
           </CardTitle>
         </CardHeader>
         <CardContent>

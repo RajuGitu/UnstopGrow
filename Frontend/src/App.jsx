@@ -39,6 +39,7 @@ import SupporterDashboard from "./pages/Supporter/SupporterDashboard";
 import SupporterAllPitch from "./pages/Supporter/SupporterAllPitch";
 import { InvestorInterestedStartupsProvider } from "./context/getinvertorInterestedContexr";
 import { InvestorDiscoverStartupsProvider } from "./context/getinvestorDiscoverStartups";
+import { SupporterProvider } from "./context/SupporterpitchContext";
 import SupporterAllPost from "./pages/Supporter/SupporterAllPost";
 import { AllPostSupporterProvider } from "./context/getAllPostSupporterContext";
 import SupporterLikedContent from "./pages/Supporter/SupporterLikedContent";
@@ -95,14 +96,14 @@ function App() {
                 <Route path="contacts" element={<InvestorContacts />} />
                 <Route path="settings" element={<InvestorSettings />} />
               </Route>
-              <Route
-                path="/supporter"
-                element={
+              <Route path="/supporter" element={
+                <SupporterProvider>
                   <AllPostSupporterProvider>
-                    <SuppoterLayout />
+                  <SuppoterLayout />
                   </AllPostSupporterProvider>
-                }
-              >
+                </SupporterProvider>
+
+              }>
                 <Route index element={<Navigate to="/supporter/dashboard" />} />
                 <Route path="dashboard" element={<SupporterDashboard />} />
                 <Route path="explore-pitch" element={<SupporterAllPitch />} />

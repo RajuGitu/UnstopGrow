@@ -18,7 +18,7 @@ const FounderSchema = new mongoose.Schema({
   // 👇 Add these
   followers: [
     {
-      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // or 'Founder' if mutual follow
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supporter' }, // or 'Founder' if mutual follow
       followedAt: { type: Date, default: Date.now }
     }
   ],//

@@ -9,7 +9,7 @@ const Founder = () => {
 
   useEffect(() => {
     getFounderName();
-  }, [founder]);
+  }, []);
   // Show loading spinner while checking authentication
   if (!initialized || loading) {
     return (

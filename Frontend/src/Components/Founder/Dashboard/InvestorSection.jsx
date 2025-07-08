@@ -4,6 +4,18 @@ import { useInterest } from "../../../context/InterestContext";
 import { Link } from "react-router-dom";
 import { Button } from "../../UI/Button";
 
+const Avatar = ({ className, children }) => (
+  <div className={`relative inline-flex items-center justify-center rounded-full ${className}`}>
+    {children}
+  </div>
+);
+
+const AvatarFallback = ({ children }) => (
+  <span className="bg-slate-200 text-slate-700 font-medium text-sm w-full h-full flex items-center justify-center rounded-full">
+    {children}
+  </span>
+);
+
 const Badge = ({ className, variant = "default", children, ...props }) => {
   const variantStyles = {
     default: "border-transparent bg-slate-900 text-white hover:bg-slate-800",
@@ -22,7 +34,7 @@ const Badge = ({ className, variant = "default", children, ...props }) => {
   );
 };
 
-const imgPlaceholder = "https://via.placeholder.com/120x80?text=No+Image";
+const imgPlaceholder = "";
 
 const InvestorInterest = () => {
   const { intereseted } = useInterest();
@@ -75,14 +87,26 @@ const InvestorInterest = () => {
                   className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <img
-                      src={makeUrl(profile.image)}
-                      alt={profile.name || 'Investor'}
-                      className="w-10 h-10 rounded-full object-cover"
-                      onError={(e) => {
-                        e.target.src = imgPlaceholder;
-                      }}
-                    />
+                    <Avatar className="h-12 w-12 flex-shrink-0">
+                      <AvatarFallback>
+                        {profile.image ? (
+                          <img
+                            src={makeUrl(profile.image)}
+                            alt={profile.name || 'Investor'}
+                            className="w-full h-full object-cover rounded-full"
+                            onError={(e) => {
+                              e.target.src = imgPlaceholder;
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-slate-300 rounded-full flex items-center justify-center">
+                            <span className="text-slate-600 font-medium">
+                              {profile.name ? profile.name.charAt(0).toUpperCase() : 'I'}
+                            </span>
+                          </div>
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
                       <h3 className="font-semibold text-slate-900">
                         {profile.name || 'Unknown Investor'}
@@ -147,9 +171,10 @@ const InvestorInterest = () => {
               </div>
             )}
           </>
-        )}
-      </div>
-    </div>
+        )
+        }
+      </div >
+    </div >
   );
 };
 

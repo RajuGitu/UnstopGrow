@@ -499,8 +499,8 @@ const getFounderAuthenticate = async (req, res) => {
     const founduser = await Founder.findById(userId);
     if (!founduser) {
       return res.status(404).json({ error: "User not found" });
-    }
-    res.status(200).json({ userName: founduser.ownerName });
+    };
+    res.status(200).json({ userName: founduser });
   } catch (error) {
     console.error("Error fetching founder file:", error);
     res.status(500).json({ error: "Server error while fetching file" });

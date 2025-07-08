@@ -11,7 +11,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
     /* ───────── state ───────── */
-    const [founder, setFounder] = useState(null);
+    const [founder, setFounder] = useState({});
     const [investor, setInvestor] = useState(null);
     const [supporter, setSupporter] = useState({});
 
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             setFounder(userName ?? null);
             return true;
         } catch (err) {
-            setFounder(null);
+            setFounder({});
             return false;
         }
     }, []);
@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }) => {
     /* ───────── logout ───────── */
     const logout = useCallback(() => {
         localStorage.removeItem("token");
-        setFounder(null);
+        setFounder({});
         setInvestor(null);
         setSupporter({});
     }, []);

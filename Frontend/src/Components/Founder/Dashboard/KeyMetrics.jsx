@@ -1,20 +1,37 @@
 import MetricCard from "./MetricCard";
-import { Heart, MessageCircle, Star } from "lucide-react";
+import { Heart, Star, Users } from "lucide-react";
 import { usePitchPost } from "../../../context/PitchPostContext";
 import { useInterest } from "../../../context/InterestContext";
 import { useEffect } from "react";
+import { useAuth } from "../../../context/AuthContext";
 
 const KeyMetrics = () => {
-  const { post } = usePitchPost();
+  const { founder } = useAuth();
+  const { post, pitch, getAllPitches, } = usePitchPost();
 
-  const { getAllInterestedFounder,intereseted } = useInterest();
+  const { getAllInterestedFounder, intereseted } = useInterest();
   useEffect(() => {
-    getAllInterestedFounder()
+    getAllInterestedFounder(),
+      getAllPitches()
   }, []);
-  
-  const likesCount = (post.likes && typeof post.likes.length === 'number')
-    ? post.likes.length
-    : Object.keys(post.likes || {}).length;
+
+  const PostLikes = post.reduce((total, item) => {
+    if (Array.isArray(item.likes)) {
+      return total + item.likes.length;
+    } else if (item.likes && typeof item.likes === 'object') {
+      return total + Object.keys(item.likes).length;
+    }
+    return total;
+  }, 0);
+
+  const PitchLikes = pitch.reduce((total, item) => {
+    if (Array.isArray(item.likes)) {
+      return total + item.likes.length;
+    } else if (item.likes && typeof item.likes === 'object') {
+      return total + Object.keys(item.likes).length;
+    }
+    return total;
+  }, 0);
 
   function formatLikesCount(count) {
     if (count < 1000) return count.toString();
@@ -22,7 +39,8 @@ const KeyMetrics = () => {
     return (count / 1_000_000).toFixed(1).replace(/\.0$/, '') + "M";
   }
 
-  const totalLikes = formatLikesCount(likesCount);
+  const totalRawLikes = PostLikes + PitchLikes;
+  const totalLikes = formatLikesCount(totalRawLikes);
   const metrics = [
     {
       title: "Total Likes",
@@ -31,9 +49,9 @@ const KeyMetrics = () => {
       color: "blue",
     },
     {
-      title: "Total Feedback",
-      value: "186",
-      icon: <MessageCircle className="h-8 w-8" />,
+      title: "Total Followers",
+      value: `${founder.followers.length}`,
+      icon: <Users className="h-8 w-8" />,
       color: "green",
     },
     {
