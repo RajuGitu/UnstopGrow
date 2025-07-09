@@ -149,7 +149,7 @@ const SignupUserController = async (req, res) => {
     });
     const savedSupporter = await newSupporter.save();
     const profileSuppoter = new SupporterProfileModel({
-      SuppoterId: savedSupporter._id,
+      SupporterId: savedSupporter._id,
       email,
       username,
     })
