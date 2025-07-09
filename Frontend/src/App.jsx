@@ -96,14 +96,16 @@ function App() {
                 <Route path="contacts" element={<InvestorContacts />} />
                 <Route path="settings" element={<InvestorSettings />} />
               </Route>
-              <Route path="/supporter" element={
-                <SupporterProvider>
-                  <AllPostSupporterProvider>
-                  <SuppoterLayout />
-                  </AllPostSupporterProvider>
-                </SupporterProvider>
-
-              }>
+              <Route
+                path="/supporter"
+                element={
+                  <SupporterProvider>
+                    <AllPostSupporterProvider>
+                      <SuppoterLayout />
+                    </AllPostSupporterProvider>
+                  </SupporterProvider>
+                }
+              >
                 <Route index element={<Navigate to="/supporter/dashboard" />} />
                 <Route path="dashboard" element={<SupporterDashboard />} />
                 <Route path="explore-pitch" element={<SupporterAllPitch />} />

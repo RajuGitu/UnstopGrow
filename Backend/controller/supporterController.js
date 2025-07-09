@@ -7,7 +7,9 @@ const SupporterLikesPost = require('../models/Supporter/SupporterLikesPostSchema
 const postModel = require("../models/Global/Postmodel");
 const supporterLikesPostsModel = require("../models/Supporter/SupporterLikesPostSchema")
 const supporterFollowPostModel = require("../models/Supporter/SupporterFollowsSchema")
+const supporterCommentsPostsModel = require("../models/Supporter/SupporterPostComment")
 const founderModel = require("../models/foundermodel")
+const supporterModel = require("../models/supportermodel")
 const mongoose = require('mongoose');
 
 const logoutController = async (req, res) => {
@@ -791,14 +793,11 @@ const getSupporterCountLikes = async (req, res) => {
 
 const getSupporterLikesPostsController = async (req, res) => {
     try {
-        const supporterId = req.user.id; // or req.user.id if from auth middleware
+        const supporterId = req.user.id;
 
         // Validate supporterId
         if (!supporterId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Supporter ID is required'
-            });
+            return res.status(401).json({ error: "Unauthorized person" });
         }
 
         // Find the supporter's liked posts document
@@ -808,32 +807,288 @@ const getSupporterLikesPostsController = async (req, res) => {
 
         // If no likes document exists or no posts liked
         if (!supporterLikes || !supporterLikes.postIds || supporterLikes.postIds.length === 0) {
-            return res.status(200).json({
-                success: true,
-                message: 'No liked posts found',
-                data: []
+            return res.status(404).json({
+                message: "No liked posts found",
             });
         }
 
-        // Get full post information for all liked posts
+        // Get full post information for all liked posts sorted by creation date
         const likedPosts = await postModel.find({
             _id: { $in: supporterLikes.postIds }
-        })
-            .sort({ createdAt: -1 }); // Sort by newest first
+        }).sort({ createdAt: -1 });
 
-        return res.status(200).json({
+        // Get the supporter's followed startups
+        const supporterFollows = await supporterFollowPostModel.findOne({
+            supporterId: supporterId
+        });
+
+        // Create a Set of liked post IDs for efficient lookup (all posts are liked in this case)
+        const likedPostIds = new Set(
+            supporterLikes ? supporterLikes.postIds.map(id => id.toString()) : []
+        );
+
+        // Create a Set of followed startup IDs for efficient lookup
+        const followedStartupIds = new Set(
+            supporterFollows ? supporterFollows.startupIds.map(id => id.toString()) : []
+        );
+
+        const founder = await Founder.find({});
+
+        // Add isLiked and isFollowed fields to each post
+        const postsWithLikeFollowStatus = likedPosts.map(post => {
+            const postObj = post.toObject();
+            const startupIdStr = post.startupId.toString();
+            postObj.isLiked = likedPostIds.has(post._id.toString()); // Will always be true for liked posts
+            postObj.isFollowed = followedStartupIds.has(post.startupId.toString());
+
+            const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
+            if (matchingFounder) {
+                postObj.companyName = matchingFounder.companyName;
+                postObj.ownerName = matchingFounder.ownerName;
+            } else {
+                postObj.companyName = "Unknown";
+                postObj.ownerName = "Unknown";
+            }
+            return postObj;
+        });
+
+        // Return successful response
+        res.status(200).json({
             success: true,
-            message: 'Liked posts retrieved successfully',
-            data: likedPosts,
-            count: likedPosts.length
+            count: postsWithLikeFollowStatus.length,
+            data: postsWithLikeFollowStatus,
         });
 
     } catch (error) {
-        console.error('Error getting supporter liked posts:', error);
-        return res.status(500).json({
+        console.log("Liked Posts Error:", error.message);
+        res.status(500).json({ error: "Server error while getting liked posts" });
+    }
+};
+
+const postSupporterCommentsPostController = async (req, res) => {
+    try {
+        const supporterId = req.user.id;
+        const { postId, comment } = req.body;
+
+        // Validation
+        if (!postId) {
+            return res.status(400).json({
+                success: false,
+                error: "Post ID is required.",
+            });
+        }
+
+        if (!comment || comment.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                error: "Comment is required.",
+            });
+        }
+
+        if (!supporterId) {
+            return res.status(401).json({
+                success: false,
+                error: "Supporter authentication required.",
+            });
+        }
+
+        // Get supporter details
+        const supporter = await supporterModel.findById(supporterId);
+        if (!supporter) {
+            return res.status(404).json({
+                success: false,
+                error: "Supporter not found.",
+            });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid post ID format.",
+            });
+        }
+
+        const postObjectId = new mongoose.Types.ObjectId(postId);
+
+        // Check if post exists
+        const post = await postModel.findById(postObjectId);
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                error: "Post not found",
+            });
+        }
+
+        // Find or create supporter's comment tracking document
+        let supporterComments = await supporterCommentsPostsModel.findOne({
+            supporterId: supporterId
+        });
+
+        if (!supporterComments) {
+            // Create new document if it doesn't exist
+            supporterComments = new supporterCommentsPostsModel({
+                supporterId: supporterId,
+                postIds: [postObjectId]
+            });
+        } else {
+            // Check if post is already in the array to avoid duplicates
+            const isAlreadyInArray = supporterComments.postIds.some(
+                id => id.toString() === postObjectId.toString()
+            );
+
+            if (!isAlreadyInArray) {
+                // Add postId to the array only if it's not already there
+                supporterComments.postIds.push(postObjectId);
+            }
+        }
+
+        // Save the supporter comments tracking document
+        await supporterComments.save();
+
+        // Add comment to the post
+        const updatedPost = await postModel.findByIdAndUpdate(
+            postObjectId,
+            {
+                $push: {
+                    comments: { 
+                        userId: supporterId,
+                        comment: comment.trim(),
+                        username: supporter.username,
+                    }
+                }
+            },
+            { new: true }
+        );
+
+        // Get the newly added comment (last comment in the array)
+        const newComment = updatedPost.comments[updatedPost.comments.length - 1];
+
+        res.status(201).json({
+            success: true,
+            message: "Comment added successfully",
+            data: {
+                commentId: newComment._id,
+                supporterId: supporterId,
+                postId: postObjectId,
+                comment: comment.trim(),
+                username: supporter.username,
+                totalComments: updatedPost.comments.length,
+                totalCommentedPosts: supporterComments.postIds.length
+            },
+        });
+
+    } catch (error) {
+        console.error("Comment Post Error:", error);
+        res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            error: "Server error while adding comment",
+            details: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+    }
+};
+
+const deleteSupporterCommentsPostController = async (req, res) => {
+    try {
+        const supporterId = req.user.id;
+        const { postId, commentId } = req.body;
+
+        // Validation
+        if (!postId || !commentId) {
+            return res.status(400).json({
+                success: false,
+                error: "Post ID and Comment ID are required.",
+            });
+        }
+
+        if (!supporterId) {
+            return res.status(401).json({
+                success: false,
+                error: "Authentication required.",
+            });
+        }
+
+        // Validate ObjectIds
+        if (!mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(commentId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid post ID or comment ID format.",
+            });
+        }
+
+        const postObjectId = new mongoose.Types.ObjectId(postId);
+        const commentObjectId = new mongoose.Types.ObjectId(commentId);
+
+        // Check if post exists
+        const post = await postModel.findById(postObjectId);
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                error: "Post not found",
+            });
+        }
+
+        // Find the comment and verify ownership
+        const comment = post.comments.id(commentObjectId);
+        if (!comment) {
+            return res.status(404).json({
+                success: false,
+                error: "Comment not found",
+            });
+        }
+
+        // Check if the comment belongs to the requesting user
+        if (comment.userId.toString() !== supporterId.toString()) {
+            return res.status(403).json({
+                success: false,
+                error: "You can only delete your own comments",
+            });
+        }
+
+        // Remove the comment from the post
+        const updatedPost = await postModel.findByIdAndUpdate(
+            postObjectId,
+            {
+                $pull: {
+                    comments: { _id: commentObjectId }
+                }
+            },
+            { new: true }
+        );
+
+        // Check if user has any more comments on this post
+        const userHasMoreComments = updatedPost.comments.some(
+            comment => comment.userId.toString() === supporterId.toString()
+        );
+
+        // If user has no more comments on this post, remove postId from tracking
+        if (!userHasMoreComments) {
+            await supporterCommentsPostsModel.findOneAndUpdate(
+                { supporterId: supporterId },
+                {
+                    $pull: {
+                        postIds: postObjectId
+                    }
+                }
+            );
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Comment deleted successfully",
+            data: {
+                postId: postObjectId,
+                commentId: commentObjectId,
+                totalComments: updatedPost.comments.length,
+                userHasMoreComments: userHasMoreComments
+            },
+        });
+
+    } catch (error) {
+        console.error("Delete Comment Error:", error);
+        res.status(500).json({
+            success: false,
+            error: "Server error while deleting comment",
+            details: process.env.NODE_ENV === "development" ? error.message : undefined,
         });
     }
 };
@@ -854,4 +1109,6 @@ module.exports = {
     postSupporterFollowPostController,
     deleteSupporterFollowPostController,
     getSupporterLikesPostsController,
+    postSupporterCommentsPostController,
+    deleteSupporterCommentsPostController,
 };

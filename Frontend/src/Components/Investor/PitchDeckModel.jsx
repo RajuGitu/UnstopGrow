@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -31,9 +30,6 @@ const imgPlaceholder = "https://via.placeholder.com/120x80?text=No+Image";
 export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
   if (!startup) return null;
 
-
- 
-
   const getInitials = (name) => {
     const words = name.split(" ");
     if (words.length === 0) return "??";
@@ -51,7 +47,6 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
       : imgPlaceholder;
   };
 
-  
   const startupName = startup.title || "StartupPitch";
 
   return (
@@ -225,16 +220,22 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-300">
                   <div className="flex items-center space-x-3">
                     <FileText className="h-6 w-6 text-red-600" />
-        
                   </div>
                   <div className="flex gap-3">
-                    <a href={makeUrl(startup.pdf)} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={makeUrl(startup.pdf)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Button variant="outline" size="sm">
                         <Eye className="h-4 w-4 mr-1" />
                         View PDF
                       </Button>
                     </a>
-                    <a href={makeUrl(startup.pdf)} download={`${startupName}.pdf`}>
+                    <a
+                      href={makeUrl(startup.pdf)}
+                      download={`${startupName}.pdf`}
+                    >
                       <Button variant="outline" size="sm">
                         <Download className="h-4 w-4 mr-1" />
                         Download PDF
@@ -243,15 +244,12 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                   </div>
                 </div>
               )}
-
-            
             </div>
 
             <Separator />
           </div>
         </DialogContent>
       </Dialog>
-
     </>
   );
 };

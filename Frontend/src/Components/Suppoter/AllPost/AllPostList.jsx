@@ -20,6 +20,8 @@ const AllPostList = () => {
   const { allPostSupporter, loading, getAllPostSupporter } = useAllPostSupporter();
   const [search, setSearch] = useState("");
   const [filteredPosts, setFilteredPosts] = useState([]);
+  const [likesPosts, setLikesPosts] = useState({});
+  const [commentsPosts, setCommentsPosts] = useState({});
 
   useEffect(() => {
     getAllPostSupporter();
@@ -36,6 +38,18 @@ const AllPostList = () => {
           )
       );
       setFilteredPosts(filtered);
+
+      const likesCount = {};
+      filtered.forEach((post) => {
+        likesCount[post._id] = post.likes?.length || 0;
+      });
+      setLikesPosts(likesCount);
+
+      const commentsCount = {};
+      filtered.forEach((post) => {
+        commentsCount[post._id] = post.comments?.length || 0;
+      });
+      setCommentsPosts(commentsCount);
     }
   }, [allPostSupporter, search]);
 
@@ -90,6 +104,10 @@ const AllPostList = () => {
             <PostCard
               key={postItem._id}
               postItem={postItem}
+              likesPosts={likesPosts}
+              setLikesPosts={setLikesPosts}
+              commentsPosts={commentsPosts}
+              setCommentsPosts={setCommentsPosts}
             />
           ))
         ) : (

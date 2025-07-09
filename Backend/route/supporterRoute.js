@@ -1,6 +1,6 @@
 const express = require('express');
 const authMiddleware = require("../middleware/authMiddleware");
-const { logoutController, getTrendingStartup, getSupporterAllPitchesController, postSupporterPitchLikes, deleteSupporterPitchUnlikes, postSupporterPitchFollow, deleteSupporterPitchUnfollow, getSupporterCountFollow, getSupporterCountLikes , postSupporterLikesPostsController, getSupporterExploreAllPostController, deleteSupporterlikesPostsController, postSupporterFollowPostController, deleteSupporterFollowPostController, getSupporterLikesPostsController } = require('../controller/supporterController');
+const { logoutController, getTrendingStartup, getSupporterAllPitchesController, postSupporterPitchLikes, deleteSupporterPitchUnlikes, postSupporterPitchFollow, deleteSupporterPitchUnfollow, getSupporterCountFollow, getSupporterCountLikes , postSupporterLikesPostsController, getSupporterExploreAllPostController, deleteSupporterlikesPostsController, postSupporterFollowPostController, deleteSupporterFollowPostController, getSupporterLikesPostsController, postSupporterCommentsPostController, deleteSupporterCommentsPostController } = require('../controller/supporterController');
 
 const router = express.Router();
 
@@ -49,6 +49,19 @@ router.delete(
     authMiddleware,
     deleteSupporterFollowPostController
 )
+
+router.post(
+    "/supporterCommentsPosts",
+    authMiddleware,
+    postSupporterCommentsPostController
+)
+
+router.delete(
+    "/supporterCommentsPosts",
+    authMiddleware,
+    deleteSupporterCommentsPostController
+)
+
 
 
 
