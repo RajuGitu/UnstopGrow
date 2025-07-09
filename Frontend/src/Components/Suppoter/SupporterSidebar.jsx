@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Home, LogOut, FileText, Users, Heart, Image, Settings } from "lucide-react";
+import { Home, LogOut, FileText, Users, Heart, Image, Settings, Rocket } from "lucide-react";
 import { cn } from "../../libs/utils";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../../utils/axiosInstance";
@@ -38,7 +38,7 @@ export const SupporterSidebar = () => {
             <div className="p-6 border-b border-slate-700">
                 <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">U</span>
+                        <Rocket className="h-6 w-6 text-white" />
                     </div>
                     <div>
                         <h1 className="text-xl font-bold">UnstopGrow</h1>
