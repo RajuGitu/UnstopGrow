@@ -128,6 +128,7 @@ const PitchForm = () => {
         value={formData[key]}
         placeholder={placeholder}
         onChange={handleInputChange}
+        className="border-gray-300"
       />
     </div>
   );
@@ -143,7 +144,7 @@ const PitchForm = () => {
         value={formData[key]}
         placeholder={placeholder}
         onChange={handleInputChange}
-        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="flex min-h-[80px] w-full rounded-md border border-gray-300 border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       />
     </div>
   );
@@ -325,7 +326,7 @@ const PitchForm = () => {
           onClick={resetForm}
           variant="outline"
           disabled={isSubmitting}
-          className="px-6"
+          className="px-6 border-gray-300"
         >
           Clear Form
         </Button>

@@ -78,11 +78,11 @@ const AllPostList = () => {
                 placeholder="Search updates by title, description, or tags..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
+                className="pl-10 border-gray-300"
               />
             </div>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
+            <Button variant="outline" className="flex items-center gap-2 border-gray-300 text-gray-500">
+              <Filter className="h-4 w-4 " />
               <span>Filter</span>
             </Button>
           </div>

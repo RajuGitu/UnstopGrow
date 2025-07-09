@@ -111,15 +111,15 @@ export default function FounderResultCard({ founder }) {
                 )}
 
                 {/* actions */}
-                <div className="flex flex-wrap justify-between items-center gap-2 pt-4 border-t">
+                <div className="flex flex-wrap justify-between items-center gap-2 pt-4 border-t border-gray-300">
                     <div className="flex flex-wrap gap-2">
-                        <Button variant="outline">
+                        <Button variant="outline" className="border-gray-300 text-blue-600">
                             <Mail className="h-4 w-4 mr-1" />
                             Contact
                         </Button>
 
                         {founder.socials?.linkedin && (
-                            <Button variant="outline" asChild>
+                            <Button variant="outline" className="border-gray-300 text-blue-600" asChild>
                                 <a href={founder.socials.linkedin} target="_blank" rel="noopener noreferrer">
                                     <Linkedin className="h-4 w-4 mr-1" />
                                     LinkedIn
@@ -128,7 +128,7 @@ export default function FounderResultCard({ founder }) {
                         )}
 
                         {founder.socials?.github && (
-                            <Button variant="outline" asChild>
+                            <Button variant="outline" className="border-gray-300 text-blue-600" asChild>
                                 <a href={founder.socials.github} target="_blank" rel="noopener noreferrer">
                                     <Github className="h-4 w-4 mr-1" />
                                     GitHub
@@ -137,7 +137,7 @@ export default function FounderResultCard({ founder }) {
                         )}
 
                         {founder.socials?.twitter && (
-                            <Button variant="outline" asChild>
+                            <Button variant="outline" className="border-gray-300 text-blue-600" asChild>
                                 <a href={founder.socials.twitter} target="_blank" rel="noopener noreferrer">
                                     <Twitter className="h-4 w-4 mr-1" />
                                     Twitter
@@ -146,7 +146,7 @@ export default function FounderResultCard({ founder }) {
                         )}
 
                         {founder.website && (
-                            <Button variant="outline" asChild>
+                            <Button variant="outline" className="border-gray-300 text-blue-600" asChild>
                                 <a href={founder.website} target="_blank" rel="noopener noreferrer">
                                     <Globe className="h-4 w-4 mr-1" />
                                     Website

@@ -65,12 +65,12 @@ const AllPitchList = () => {
                                 placeholder="Search pitches by title, tagline, problem, or solution..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-10"
+                                className="pl-10 border-gray-300"
                             />
                         </div>
-                        <Button variant="outline" className="flex items-center gap-2">
-                            <Filter className="h-4 w-4" />
-                            <span>Filter</span>
+                        <Button variant="outline" className="flex items-center gap-2 border-gray-300">
+                            <Filter className="h-4 w-4 text-gray-500" />
+                            <span className="text-gray-500"> Filter</span>
                         </Button>
                     </div>
                 </CardContent>

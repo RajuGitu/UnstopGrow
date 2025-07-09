@@ -177,7 +177,7 @@ const UpdateForm = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Share an exciting milestone..."
-            className="text-lg font-medium"
+            className="text-lg font-medium border-gray-300"
             maxLength={80}
           />
           <p className="text-xs text-slate-500 mt-1">
@@ -256,7 +256,7 @@ const UpdateForm = () => {
               onChange={(e) => setCustomTag(e.target.value)}
               onKeyPress={handleCustomTagKeyPress}
               placeholder="Enter custom tag (e.g., success, breakthrough)"
-              className="flex-1"
+              className="flex-1 border-gray-300"
               maxLength={20}
             />
             <Button

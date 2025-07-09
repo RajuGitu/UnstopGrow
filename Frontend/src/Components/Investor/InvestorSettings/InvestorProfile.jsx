@@ -183,6 +183,7 @@ const InvestorProfile = () => {
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
+              className="border-gray-300"
             >
               Change Avatar
             </Button>

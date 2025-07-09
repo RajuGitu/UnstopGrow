@@ -124,6 +124,7 @@ const InvestorSecurity = () => {
                                 value={currentPassword}
                                 onChange={handleInputChange(setCurrentPassword)}
                                 disabled={isLoading}
+                                className="border-gray-300"
                             />
                             <Input
                                 type="password"
@@ -131,6 +132,7 @@ const InvestorSecurity = () => {
                                 value={newPassword}
                                 onChange={handleInputChange(setNewPassword)}
                                 disabled={isLoading}
+                                className="border-gray-300"
                             />
                             <Input
                                 type="password"
@@ -138,6 +140,7 @@ const InvestorSecurity = () => {
                                 value={confirmNewPassword}
                                 onChange={handleInputChange(setConfirmNewPassword)}
                                 disabled={isLoading}
+                                className="border-gray-300"
                             />
 
                             {/* Error message display */}

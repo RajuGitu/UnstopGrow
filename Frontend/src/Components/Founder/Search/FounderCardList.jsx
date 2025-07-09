@@ -89,29 +89,29 @@ export default function FounderCardList() {
                                 placeholder="Search founders, companies, or keywords..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-10"
+                                className="pl-10 border-gray-300"
                             />
                         </div>
 
                         <Button
                             variant="outline"
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 border-gray-300"
                             onClick={handleSearch}
                         >
-                            <Filter className="h-4 w-4" />
-                            <span>Search</span>
+                            <Filter className="h-4 w-4 text-gray-500" />
+                            <span className="text-gray-500">Search</span>
                         </Button>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="mt-6 pt-6 border-t border-gray-300 grid grid-cols-1 md:grid-cols-3 gap-6 ">
                         {/* Merge readiness ───────────────────────── */}
                         <div className="space-y-3">
-                            <Label className="text-sm font-medium">Merge Readiness</Label>
+                            <Label className="text-sm font-semibold text-gray-700">Merge Readiness</Label>
 
                             <RadioGroup
                                 value={mergeReady}
                                 onValueChange={setMergeReady}
-                                className="grid-cols-1 lg:grid-cols-3 gap-2"
+                                className="grid-cols-1 lg:grid-cols-3 gap-2 text-gray-600 text-sm font-light"
                             >
                                 {[
                                     { id: "all", label: "All" },

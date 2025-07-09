@@ -113,7 +113,7 @@ export default function SettingsForm() {
                             onChange={(e) => updateForm("startUpName", e.target.value)}
                             required
                             disabled={lockedFields.startUpName}
-                            className={`${errors.startUpName ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.startUpName ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                            className={`${errors.startUpName ? "border-red-500 focus:ring-red-500" : "border-gray-300"} ${lockedFields.startUpName ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
                         />
                         {lockedFields.startUpName && (
                             <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
@@ -131,7 +131,7 @@ export default function SettingsForm() {
                             value={form.bio}
                             maxLength={MAX_BIO}
                             onChange={(e) => updateForm("bio", e.target.value)}
-                            className={`h-24 resize-none ${errors.bio ? "border-red-500 focus:ring-red-500" : ""}`}
+                            className={`h-24 resize-none ${errors.bio ? "border-red-500 focus:ring-red-500" : "border-gray-300"}`}
                             required
                         />
                         {errors.bio && (
@@ -153,7 +153,7 @@ export default function SettingsForm() {
                                 onChange={(e) => updateForm("location", e.target.value)}
                                 required
                                 disabled={lockedFields.location}
-                                className={`${errors.location ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.location ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                                className={`${errors.location ? "border-red-500 focus:ring-red-500" : "border-gray-300"} ${lockedFields.location ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
                             />
                             {lockedFields.location && (
                                 <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
@@ -173,7 +173,7 @@ export default function SettingsForm() {
                                 onChange={(e) => updateForm("domain", e.target.value)}
                                 placeholder="e.g., AI & Machine Learning, FinTech, HealthTech"
                                 required
-                                className={`${errors.domain ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.domain ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                                className={`${errors.domain ? "border-red-500 focus:ring-red-500" : "border-gray-300"} ${lockedFields.domain ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
                             />
                             {errors.domain && (
                                 <p className="text-xs text-red-600 mt-1">{errors.domain}</p>
@@ -191,7 +191,7 @@ export default function SettingsForm() {
                             value={form.website}
                             onChange={(e) => updateForm("website", e.target.value)}
                             disabled={lockedFields.website}
-                            className={`${errors.website ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.website ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                            className={`${errors.website ? "border-red-500 focus:ring-red-500" : "border-gray-300"} ${lockedFields.website ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
                         />
                         {lockedFields.website && (
                             <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
@@ -211,7 +211,7 @@ export default function SettingsForm() {
                             onChange={(e) => updateForm("email", e.target.value)}
                             required
                             disabled={lockedFields.email}
-                            className={`${errors.email ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.email ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                            className={`${errors.email ? "border-red-500 focus:ring-red-500" : "border-gray-300"} ${lockedFields.email ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
                         />
                         {lockedFields.email && (
                             <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>
@@ -241,7 +241,7 @@ export default function SettingsForm() {
                             value={form.achievements}
                             maxLength={MAX_ACH}
                             onChange={(e) => updateForm("achievements", e.target.value)}
-                            className={`h-32 resize-none ${errors.achievements ? "border-red-500 focus:ring-red-500" : ""}`}
+                            className={`h-32 resize-none ${errors.achievements ? "border-red-500 focus:ring-red-500" : "border-gray-300"}`}
                         />
                         {errors.achievements && (
                             <p className="text-xs text-red-600 mt-1">{errors.achievements}</p>
@@ -291,7 +291,7 @@ export default function SettingsForm() {
                                 placeholder={placeholder}
                                 onChange={(e) => updateSocial(key, e.target.value)}
                                 disabled={lockedFields.socials[key]}
-                                className={`${errors[`socials.${key}`] ? "border-red-500 focus:ring-red-500" : ""} ${lockedFields.socials[key] ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                                className={`${errors[`socials.${key}`] ? "border-red-500 focus:ring-red-500" : "border-gray-300"} ${lockedFields.socials[key] ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
                             />
                             {lockedFields.socials[key] && (
                                 <p className="text-xs text-gray-500 mt-1">✓ This field cannot be changed once set</p>

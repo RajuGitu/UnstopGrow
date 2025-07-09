@@ -322,6 +322,7 @@ const SupporterProfileCard = () => {
                             size="sm"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={saving}
+                            className="border-gray-300"
                         >
                             {profile.image ? "Replace Avatar" : "Change Avatar"}
                         </Button>

@@ -72,9 +72,9 @@ export const FounderExpressInterest = ({ isOpen, onClose, startup }) => {
         <>
 
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-md border-gray-300">
                     <DialogHeader>
-                        <DialogTitle>Express Interest in {startup.startUpName}</DialogTitle>
+                        <DialogTitle >Express Interest in {startup.startUpName}</DialogTitle>
                         <DialogDescription>
                             Send a message to {startup.startUpName} expressing your interest
                             in their startup.
@@ -95,6 +95,7 @@ export const FounderExpressInterest = ({ isOpen, onClose, startup }) => {
                                         setFormData({ ...formData, name: e.target.value })
                                     }
                                     required
+                                    className="border-gray-400"
                                 />
                             </div>
                             <div>
@@ -107,6 +108,7 @@ export const FounderExpressInterest = ({ isOpen, onClose, startup }) => {
                                         setFormData({ ...formData, email: e.target.value })
                                     }
                                     required
+                                    className="border-gray-400"
                                 />
                             </div>
                         </div>
@@ -120,11 +122,12 @@ export const FounderExpressInterest = ({ isOpen, onClose, startup }) => {
                                     setFormData({ ...formData, message: e.target.value })
                                 }
                                 rows={4}
+                                className="border-gray-400"
                             />
                         </div>
 
                         <div className="flex justify-end space-x-2">
-                            <Button type="button" variant="outline" onClick={onClose}>
+                            <Button type="button" variant="outline" onClick={onClose} className="border-gray-400">
                                 Cancel
                             </Button>
                             <Button type="submit"
