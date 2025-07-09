@@ -82,7 +82,7 @@ const FounderAllPitch = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-screen">
             {/* Search Section */}
             <Card className="bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-6">

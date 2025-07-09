@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from '../../UI/Card';
 import { TrendingUp } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { usePitchPost } from '../../../context/PitchPostContext';
 import { useEffect } from 'react';
 
@@ -60,12 +60,10 @@ const ChartsSection = () => {
         monthlyData[monthKey] = {
           month: monthKey,
           likes: 0,
-          comments: 0,
           pitchs: 0,
         };
       }
       monthlyData[monthKey].likes += pitch.likes?.length || 0;
-      monthlyData[monthKey].comments += pitch.comments?.length || 0;
       monthlyData[monthKey].pitchs += 1;
     });
     return Object.values(monthlyData).sort((a, b) => {
@@ -149,7 +147,6 @@ const ChartsSection = () => {
                 <Tooltip
                   formatter={(value, name) => {
                     if (name === 'likes') return [value, 'Likes'];
-                    if (name === 'comments') return [value, 'Comments'];
                     if (name === 'pitchs') return [value, 'Pitchs'];
                     return [value, name];
                   }}
@@ -160,13 +157,6 @@ const ChartsSection = () => {
                   stroke="#10B981"
                   strokeWidth={2}
                   name="likes"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="comments"
-                  stroke="#F59E0B"
-                  strokeWidth={2}
-                  name="comments"
                 />
                 <Line
                   type="monotone"

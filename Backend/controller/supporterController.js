@@ -9,8 +9,11 @@ const supporterLikesPostsModel = require("../models/Supporter/SupporterLikesPost
 const supporterFollowPostModel = require("../models/Supporter/SupporterFollowsSchema")
 const supporterCommentsPostsModel = require("../models/Supporter/SupporterPostComment")
 const founderModel = require("../models/foundermodel")
-const supporterModel = require("../models/supportermodel")
+const supporterModel = require('../models/supportermodel');
+const SupporterProfileModel = require('../models/Supporter/SupporterProfileSchema');
 const mongoose = require('mongoose');
+const path = require("path");
+const fs = require("fs").promises;
 
 const logoutController = async (req, res) => {
     try {
@@ -545,7 +548,7 @@ const getSupporterAllPitchesController = async (req, res) => {
             const startupIdStr = pitch.startupId.toString();
 
             plainPitch.isSaved = likedPitches.includes(pitch._id.toString());
-            plainPitch.isFollow = followedPostes.includes(pitch._id.toString());
+            plainPitch.isFollow = followedPostes.includes(startupIdStr);
 
             const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
             if (matchingFounder) {
@@ -627,6 +630,18 @@ const postSupporterPitchFollow = async (req, res) => {
             return res.status(400).json({ error: "Missing startup id" });
         }
 
+        // Check if the supporter is already following this founder
+        const existingFollow = await Founder.findOne({
+            _id: followId,
+            "followers.userId": supporterId
+        });
+
+        if (existingFollow) {
+            return res.status(400).json({
+                error: "You are already following this startup"
+            });
+        }
+
         const ans = await Founder.findByIdAndUpdate(
             followId,
             {
@@ -637,17 +652,18 @@ const postSupporterPitchFollow = async (req, res) => {
                     },
                 },
             },
-            { new: true }
+            { new: true, upsert: true }
         );
+
         const result = await SupporterFollows.findOneAndUpdate(
             { supporterId },                         // match this supporter
             { $addToSet: { startupIds: followId } },    // add only if not present
             { new: true, upsert: true }              // create doc if it doesn't exist
         );
+
         res.status(200).json({
             success: true,
             message: "Supporter Followed successfully",
-
         });
     } catch (error) {
         console.error("Supporter Pitch Follow error:", error.message);
@@ -1093,6 +1109,237 @@ const deleteSupporterCommentsPostController = async (req, res) => {
     }
 };
 
+const getSupporterAllLikedPitchController = async (req, res) => {
+    try {
+        const supporterId = req.user.id; // or req.user.id if from auth middleware
+
+        if (!supporterId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Supporter ID is required'
+            });
+        }
+        const supporterLikes = await SupporterLikesPitch.findOne({
+            supporterId: supporterId
+        });
+
+        if (!supporterLikes || !supporterLikes.pitchIds || supporterLikes.pitchIds.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: 'No liked Pitch found',
+                data: []
+            });
+        }
+        const likedPitchDoc = await pitchModel.find({
+            _id: { $in: supporterLikes.pitchIds }
+        }).sort({ createdAt: -1 });
+
+        const followPost = await SupporterFollows.findOne({ supporterId });
+        const followedPostes = followPost?.startupIds?.map(id => id.toString()) || [];
+        const founder = await Founder.find({});
+        const allPitches = likedPitchDoc.map(pitch => {
+            const plainPitch = pitch.toObject();
+            plainPitch.isSaved = true;
+            plainPitch.isFollow = followedPostes.includes(pitch.startupId.toString());
+            const startupIdStr = pitch.startupId.toString();
+
+            const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
+            if (matchingFounder) {
+                plainPitch.companyName = matchingFounder.companyName;
+                plainPitch.ownerName = matchingFounder.ownerName;
+            } else {
+                plainPitch.companyName = "Unknown";
+                plainPitch.ownerName = "Unknown";
+            }
+            return plainPitch;
+        });
+        res.status(200).json({
+            success: true,
+            allPitches
+        });
+
+    } catch (error) {
+        console.error('Error getting supporter liked pitch:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
+
+const getSupporterCountComments = async (req, res) => {
+    try {
+        const supporterId = req.user.id;
+
+        const postCount = await supporterCommentsPostsModel.findOne({ supporterId });
+
+        const commentsCount = postCount ? postCount.postIds.length : 0;
+
+        res.status(200).json({
+            success: true,
+            data: { commentsCount }
+        });
+    } catch (error) {
+        console.error("Error fetching Comments count:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch Comments count",
+            error: error.message
+        });
+    }
+}
+
+const getSupporterFollowStartup = async (req, res) => {
+    try {
+        const supporterId = req.user.id;
+
+        const followData = await SupporterFollows.findOne({ supporterId });
+
+        if (!followData || !followData.startupIds || followData.startupIds.length === 0) {
+            return res.status(200).json({ success: true, message: "No followed startups", founder: [] });
+        }
+
+        const followIds = followData.startupIds;
+
+        const founders = await Founder.find({ _id: { $in: followIds } });
+        const foundersProfile = await founderProfilemodel.find({ startupId: { $in: followIds } });
+
+        // Map profile logos for quick access
+        const profileMap = {};
+        foundersProfile.forEach(profile => {
+            profileMap[profile.startupId.toString()] = profile.logo;
+        });
+
+        const modifiedFounders = founders.map(founder => {
+            const plainFounder = founder.toObject();
+            plainFounder.isFollow = true;
+            plainFounder.logo = profileMap[founder._id.toString()] || null;
+            return plainFounder;
+        });
+
+        res.status(200).json({
+            success: true,
+            founder: modifiedFounders
+        });
+    } catch (error) {
+        console.error("Error fetching followed startups:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch followed startups",
+            error: error.message
+        });
+    }
+};
+
+const getSupporterProfile = async (req, res) => {
+    try {
+        const supporterId = req.user.id;
+
+        const profile = await SupporterProfileModel.findOne({ SupporterId: supporterId });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: "Supporter profile not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: profile,
+        });
+    } catch (error) {
+        console.error("Error fetching supporter profile:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while fetching profile",
+        });
+    }
+};
+
+const updateProfileSupporterController = async (req, res) => {
+    try {
+        const { username, location } = req.body;
+        const SupporterId = req.user.id;
+        const image = req.file?.path;
+
+        // If new image is uploaded, delete the old one
+        if (image) {
+            const existingProfile = await SupporterProfileModel.findOne({ SupporterId });
+            if (existingProfile && existingProfile.image) {
+                const absolutePath = path.isAbsolute(existingProfile.image)
+                    ? existingProfile.image
+                    : path.resolve(__dirname, "..", existingProfile.image);
+
+                await fs.unlink(absolutePath).catch((err) => {
+                    console.warn("Old image deletion skipped:", err.message);
+                });
+            }
+        }
+
+        const updateData = { username, location };
+        if (image) {
+            updateData.image = image;
+        }
+
+        const updated = await SupporterProfileModel.findOneAndUpdate(
+            { SupporterId },
+            { $set: updateData },
+            { upsert: true, new: true }
+        );
+
+        res.status(200).json({
+            message: "Profile information updated successfully",
+            data: updated,
+            success: true,
+        });
+    } catch (error) {
+        console.log("Profile information save Error:", error.message);
+        res.status(500).json({
+            error: "Server error while saving profile information",
+            success: false,
+        });
+    }
+};
+
+const deleteSupporterProfileImgController = async (req, res) => {
+    try {
+        const SupporterId = req.user.id;
+
+        const supporterProfile = await SupporterProfileModel.findOne({ SupporterId });
+        if (!supporterProfile) {
+            return res.status(404).json({ error: "Supporter profile not found" }); // Fixed: was "Investor"
+        }
+
+        if (!supporterProfile.image) {
+            return res
+                .status(400)
+                .json({ error: "No Supporter Profile Image to delete" }); // Fixed: was "Investor"
+        }
+
+        const absolutePath = path.isAbsolute(supporterProfile.image)
+            ? supporterProfile.image
+            : path.resolve(__dirname, "..", supporterProfile.image);
+
+        await fs.unlink(absolutePath).catch((err) => {
+            console.warn("Image deletion skipped:", err.message);
+        });
+
+        supporterProfile.image = null;
+        await supporterProfile.save();
+
+        res.status(200).json({
+            message: "Supporter profile image deleted successfully", // Fixed: was "Investor"
+            success: true // Added for consistency
+        });
+    } catch (error) {
+        console.error("Supporter Profile Img Error:", error.message); // Fixed: was "Investor"
+        res.status(500).json({
+            error: "Server error while deleting the supporter profile image", // Fixed: was "investor"
+        });
+    }
+};
 module.exports = {
     logoutController,
     getTrendingStartup,
@@ -1109,6 +1356,12 @@ module.exports = {
     postSupporterFollowPostController,
     deleteSupporterFollowPostController,
     getSupporterLikesPostsController,
-    postSupporterCommentsPostController,
+     postSupporterCommentsPostController,
     deleteSupporterCommentsPostController,
+    getSupporterAllLikedPitchController,
+    getSupporterCountComments,
+    getSupporterFollowStartup,
+    getSupporterProfile,
+    updateProfileSupporterController,
+    deleteSupporterProfileImgController,
 };

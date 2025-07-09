@@ -12,7 +12,7 @@ const SupporterPostCommentSchema = new Schema(
         postIds: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "Pitch",
+                ref: "Post",
             },
         ],
     },

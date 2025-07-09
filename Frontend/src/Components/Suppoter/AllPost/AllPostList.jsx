@@ -35,7 +35,9 @@ const AllPostList = () => {
           p.description?.toLowerCase().includes(search.toLowerCase()) ||
           p.tags?.some((tag) =>
             tag.toLowerCase().includes(search.toLowerCase())
-          )
+          ) ||
+          p.companyName?.toLowerCase().includes(search.toLowerCase()) ||
+          p.ownerName?.toLowerCase().includes(search.toLowerCase())
       );
       setFilteredPosts(filtered);
 

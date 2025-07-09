@@ -19,17 +19,21 @@ const SupporterKeyMetrics = () => {
                     return;
                 }
 
-                const [likesRes, followRes] = await Promise.all([
+                const [likesRes, followRes, commentsRes] = await Promise.all([
                     axiosInstance.get("/supporter/getCountLikes", {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
                     axiosInstance.get("/supporter/getcountfollow", {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
+                    axiosInstance.get("/supporter/getcountcomments", {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
                 ]);
 
                 setLikes(likesRes.data?.data?.totalLikesCount ?? 0);
                 setFollow(followRes.data?.data?.followCount ?? 0);
+                setComments(commentsRes.data?.data?.commentsCount ?? 0);
             } catch (err) {
                 console.error("Error fetching supporter metrics:", err);
                 setError("Failed to load metrics");

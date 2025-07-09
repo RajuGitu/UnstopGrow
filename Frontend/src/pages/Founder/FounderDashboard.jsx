@@ -14,7 +14,7 @@ const FounderDashboard = () => {
   }
 
   return (
-    <div className="flex-1 p-6 overflow-auto">
+    <div className="flex-1 p-6 overflow-auto ">
       <div className="space-y-8 p-5 max-h-screen bg-white">
         <HeaderSection />
         <KeyMetrics />

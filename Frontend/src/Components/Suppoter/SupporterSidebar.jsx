@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Home, LogOut, FileText, Users, Heart, Image } from "lucide-react";
+import { Home, LogOut, FileText, Users, Heart, Image, Settings } from "lucide-react";
 import { cn } from "../../libs/utils";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../../utils/axiosInstance";
@@ -10,6 +10,7 @@ const navigation = [
     { name: "Explore Post", href: "/supporter/explore-post", icon: Image },
     { name: "Followings", href: "/supporter/followings", icon: Users },
     { name: "Liked Posts", href: "/supporter/liked-content", icon: Heart },
+    { name: "Profile", href: '/supporter/profile', icon: Settings },
 ];
 export const SupporterSidebar = () => {
     const navigate = useNavigate();

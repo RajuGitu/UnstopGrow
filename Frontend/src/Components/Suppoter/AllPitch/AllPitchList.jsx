@@ -28,7 +28,9 @@ const AllPitchList = () => {
                 p.title?.toLowerCase().includes(search.toLowerCase()) ||
                 p.tagline?.toLowerCase().includes(search.toLowerCase()) ||
                 p.problem?.toLowerCase().includes(search.toLowerCase()) ||
-                p.solution?.toLowerCase().includes(search.toLowerCase())
+                p.solution?.toLowerCase().includes(search.toLowerCase()) ||
+                p.companyName?.toLowerCase().includes(search.toLowerCase()) ||
+                p.ownerName?.toLowerCase().includes(search.toLowerCase())
             );
             setFilteredPitches(filtered);
 

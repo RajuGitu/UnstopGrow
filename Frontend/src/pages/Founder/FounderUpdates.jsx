@@ -5,7 +5,7 @@ import ExpandPost from "../../Components/Founder/Updates/ExpandPost";
 
 const FounderUpdates = () => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 ">
       <div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
           Share Your Journey 📝

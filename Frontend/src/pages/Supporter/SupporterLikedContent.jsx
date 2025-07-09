@@ -7,8 +7,8 @@ const SupporterLikedContent = () => {
 
     return (
         <>
-            <div className="flex-1 p-6 overflow-auto">
-                <div className="space-y-8 p-5 max-h-screen bg-white">
+            <div className="flex-1 p-6 overflow-auto max-h-screen">
+                <div className="space-y-8 p-5 bg-white">
                     <div className="flex justify-between items-start">
                         <div>
                             <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">

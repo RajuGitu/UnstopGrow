@@ -43,6 +43,8 @@ import { SupporterProvider } from "./context/SupporterpitchContext";
 import SupporterAllPost from "./pages/Supporter/SupporterAllPost";
 import { AllPostSupporterProvider } from "./context/getAllPostSupporterContext";
 import SupporterLikedContent from "./pages/Supporter/SupporterLikedContent";
+import SupporterFollowings from "./pages/Supporter/SupporterFollowings";
+import SupporterProfile from "./pages/Supporter/SupporterProfile";
 
 function App() {
   return (
@@ -96,24 +98,24 @@ function App() {
                 <Route path="contacts" element={<InvestorContacts />} />
                 <Route path="settings" element={<InvestorSettings />} />
               </Route>
-              <Route
-                path="/supporter"
-                element={
-                  <SupporterProvider>
-                    <AllPostSupporterProvider>
-                      <SuppoterLayout />
-                    </AllPostSupporterProvider>
-                  </SupporterProvider>
-                }
-              >
+              <Route path="/supporter" element={
+                <SupporterProvider>
+                  <AllPostSupporterProvider>
+                  <SuppoterLayout />
+                  </AllPostSupporterProvider>
+                </SupporterProvider>
+
+              }>
                 <Route index element={<Navigate to="/supporter/dashboard" />} />
                 <Route path="dashboard" element={<SupporterDashboard />} />
                 <Route path="explore-pitch" element={<SupporterAllPitch />} />
                 <Route path="explore-post" element={<SupporterAllPost />} />
+                <Route path="followings" element={<SupporterFollowings />} />
                 <Route
                   path="liked-content"
                   element={<SupporterLikedContent />}
                 />
+                <Route path="profile" element={<SupporterProfile />} />
               </Route>
             </Routes>
           </Router>

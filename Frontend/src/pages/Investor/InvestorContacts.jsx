@@ -12,7 +12,7 @@ const InvestorContacts = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 ">
         <div className="flex items-center justify-center h-64">
           <div className="text-lg text-gray-600">Loading startups...</div>
         </div>
@@ -36,7 +36,7 @@ const InvestorContacts = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-h-screen">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
           Contact Interested Startups
