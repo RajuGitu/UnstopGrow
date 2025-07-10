@@ -5,6 +5,7 @@ import { Button } from "../../UI/Button";
 import { Badge } from "../../UI/Badge";
 import { PenTool, Send, Upload, X, Image, Plus } from "lucide-react";
 import axiosInstance from "../../../../utils/axiosInstance";
+import { usePitchPost } from "../../../context/PitchPostContext";
 
 const availableTags = [
   "#growth",
@@ -26,6 +27,7 @@ const UpdateForm = () => {
   const [customTag, setCustomTag] = useState("");
   const [selectedImage, setSelectedImage] = useState(null); // Single image to match schema
   const [loading, setLoading] = useState(false);
+  const { getAllPost } = usePitchPost();
 
   const handleTagToggle = (tag) => {
     setSelectedTags((prev) =>
@@ -137,6 +139,7 @@ const UpdateForm = () => {
         setDescriptions("");
         setSelectedTags([]);
         setSelectedImage(null);
+        getAllPost();
 
         alert("Update published successfully!");
       } else {
@@ -248,7 +251,7 @@ const UpdateForm = () => {
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Add Tags
           </label>
-          
+
           {/* Custom Tag Input */}
           <div className="flex items-center space-x-2 mb-3">
             <Input
@@ -277,11 +280,10 @@ const UpdateForm = () => {
                 <Badge
                   key={tag}
                   variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  className={`cursor-pointer transition-all ${
-                    selectedTags.includes(tag)
-                      ? "bg-indigo-500 text-white"
-                      : "hover:bg-indigo-50"
-                  }`}
+                  className={`cursor-pointer transition-all ${selectedTags.includes(tag)
+                    ? "bg-indigo-500 text-white"
+                    : "hover:bg-indigo-50"
+                    }`}
                   onClick={() => handleTagToggle(tag)}
                 >
                   {tag}

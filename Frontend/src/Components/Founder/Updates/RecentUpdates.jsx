@@ -12,6 +12,7 @@ export default function RecentUpdates() {
   const { post, getAllPost, loading } = usePitchPost();
 
   useEffect(() => { getAllPost(); }, [getAllPost]);
+
   const makeUrl = (absolute) => {
     const rel = absolute.split("uploads")[1];
     return rel
@@ -25,6 +26,9 @@ export default function RecentUpdates() {
     );
   }
 
+  // Limit to only 3 posts
+  const limitedPosts = post.slice(0, 3);
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm">
       <CardHeader>
@@ -33,15 +37,15 @@ export default function RecentUpdates() {
             <Calendar className="h-5 w-5 text-slate-600" />
             <span>Your Recent Updates</span>
           </div>
-          <Badge variant="outline">{post.length} published</Badge>
+          <Badge variant="outline">{limitedPosts.length} of {post.length} shown</Badge>
         </CardTitle>
       </CardHeader>
 
       <CardContent>
         <div className="space-y-6">
-          {post.length === 0 && <p className="text-sm text-slate-500">No updates yet.</p>}
+          {limitedPosts.length === 0 && <p className="text-sm text-slate-500">No updates yet.</p>}
 
-          {post.map((u) => (
+          {limitedPosts.map((u) => (
             <div key={u._id} className="flex space-x-4 p-4 bg-slate-50 rounded-lg">
               <img
                 src={makeUrl(u.media)}

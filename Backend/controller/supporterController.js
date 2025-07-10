@@ -625,50 +625,91 @@ const postSupporterPitchFollow = async (req, res) => {
         if (!supporterId) {
             return res.status(401).json({ error: "Unauthorized person" });
         }
-        const followId = req.params.id;
-        if (!followId) {
-            return res.status(400).json({ error: "Missing startup id" });
+
+        const founderId = req.params.id;
+        if (!founderId) {
+            return res.status(400).json({ error: "Missing founder id" });
         }
 
-        // Check if the supporter is already following this founder
-        const existingFollow = await Founder.findOne({
-            _id: followId,
-            "followers.userId": supporterId
-        });
+        // Validate ObjectId format
+        if (!mongoose.Types.ObjectId.isValid(founderId)) {
+            return res.status(400).json({ error: "Invalid founder id format" });
+        }
 
-        if (existingFollow) {
+        // Check if founder exists
+        const founder = await Founder.findById(founderId);
+        if (!founder) {
+            return res.status(404).json({ error: "Founder not found" });
+        }
+
+        // METHOD 1: Check using the founder document we already have
+        const isAlreadyFollowing = founder.followers.some(
+            follower => follower.userId.toString() === supporterId.toString()
+        );
+
+        if (isAlreadyFollowing) {
             return res.status(400).json({
-                error: "You are already following this startup"
+                error: "You are already following this founder"
             });
         }
 
-        const ans = await Founder.findByIdAndUpdate(
-            followId,
+        // Alternative METHOD 2: Using aggregation (more reliable)
+        const existingFollow = await Founder.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(founderId) } },
+            { $unwind: "$followers" },
+            { $match: { "followers.userId": new mongoose.Types.ObjectId(supporterId) } },
+            { $limit: 1 }
+        ]);
+
+        if (existingFollow.length > 0) {
+            return res.status(400).json({
+                error: "You are already following this founder"
+            });
+        }
+
+        // Alternative METHOD 3: Using findOne with proper ObjectId conversion
+        const existingFollowQuery = await Founder.findOne({
+            _id: new mongoose.Types.ObjectId(founderId),
+            "followers.userId": new mongoose.Types.ObjectId(supporterId)
+        });
+
+        if (existingFollowQuery) {
+            return res.status(400).json({
+                error: "You are already following this founder"
+            });
+        }
+
+        // Add follower to founder's followers array
+        await Founder.findByIdAndUpdate(
+            founderId,
             {
                 $addToSet: {
                     followers: {
-                        userId: supporterId,
+                        userId: new mongoose.Types.ObjectId(supporterId),
                         followedAt: new Date(),
                     },
                 },
             },
-            { new: true, upsert: true }
+            { new: true }
         );
 
-        const result = await SupporterFollows.findOneAndUpdate(
-            { supporterId },                         // match this supporter
-            { $addToSet: { startupIds: followId } },    // add only if not present
-            { new: true, upsert: true }              // create doc if it doesn't exist
+        // Add founder to supporter's following list
+        await SupporterFollows.findOneAndUpdate(
+            { supporterId: new mongoose.Types.ObjectId(supporterId) },
+            { $addToSet: { startupIds: new mongoose.Types.ObjectId(founderId) } },
+            { new: true, upsert: true }
         );
 
         res.status(200).json({
             success: true,
-            message: "Supporter Followed successfully",
+            message: "Founder followed successfully",
         });
+
     } catch (error) {
         console.error("Supporter Pitch Follow error:", error.message);
+        console.error("Full error:", error);
         res.status(500).json({
-            error: "Server error while Follow the pitch"
+            error: "Server error while following the founder"
         });
     }
 }
@@ -966,7 +1007,7 @@ const postSupporterCommentsPostController = async (req, res) => {
             postObjectId,
             {
                 $push: {
-                    comments: { 
+                    comments: {
                         userId: supporterId,
                         comment: comment.trim(),
                         username: supporter.username,
@@ -1356,7 +1397,7 @@ module.exports = {
     postSupporterFollowPostController,
     deleteSupporterFollowPostController,
     getSupporterLikesPostsController,
-     postSupporterCommentsPostController,
+    postSupporterCommentsPostController,
     deleteSupporterCommentsPostController,
     getSupporterAllLikedPitchController,
     getSupporterCountComments,
