@@ -17,7 +17,7 @@ const fs = require("fs").promises;
 
 const logoutController = async (req, res) => {
     try {
-        res.clearCookie("token", {
+        res.clearCookie("token", { 
             httpOnly: true,
             sameSite: "strict",
             secure: process.env.NODE_ENV === "production",
