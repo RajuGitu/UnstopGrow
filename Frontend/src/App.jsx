@@ -101,7 +101,7 @@ function App() {
               <Route path="/supporter" element={
                 <SupporterProvider>
                   <AllPostSupporterProvider>
-                  <SuppoterLayout />
+                    <SuppoterLayout />
                   </AllPostSupporterProvider>
                 </SupporterProvider>
 

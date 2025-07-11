@@ -9,15 +9,14 @@ const supporterLikesPostsModel = require("../models/Supporter/SupporterLikesPost
 const supporterFollowPostModel = require("../models/Supporter/SupporterFollowsSchema")
 const supporterCommentsPostsModel = require("../models/Supporter/SupporterPostComment")
 const founderModel = require("../models/foundermodel")
-const supporterModel = require('../models/supportermodel');
 const SupporterProfileModel = require('../models/Supporter/SupporterProfileSchema');
+const supporterModel = require('../models/supportermodel');
 const mongoose = require('mongoose');
 const path = require("path");
-const fs = require("fs").promises;
 
 const logoutController = async (req, res) => {
     try {
-        res.clearCookie("token", { 
+        res.clearCookie("token", {
             httpOnly: true,
             sameSite: "strict",
             secure: process.env.NODE_ENV === "production",
@@ -549,6 +548,7 @@ const getSupporterAllPitchesController = async (req, res) => {
 
             plainPitch.isSaved = likedPitches.includes(pitch._id.toString());
             plainPitch.isFollow = followedPostes.includes(startupIdStr);
+            plainPitch.isFollow = followedPostes.includes(startupIdStr);
 
             const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
             if (matchingFounder) {
@@ -625,7 +625,6 @@ const postSupporterPitchFollow = async (req, res) => {
         if (!supporterId) {
             return res.status(401).json({ error: "Unauthorized person" });
         }
-
         const founderId = req.params.id;
         if (!founderId) {
             return res.status(400).json({ error: "Missing founder id" });
@@ -679,12 +678,21 @@ const postSupporterPitchFollow = async (req, res) => {
             });
         }
 
+
+
+        if (existingFollowQuery) {
+            return res.status(400).json({
+                error: "You are already following this founder"
+            });
+        }
+
         // Add follower to founder's followers array
         await Founder.findByIdAndUpdate(
             founderId,
             {
                 $addToSet: {
                     followers: {
+                        userId: new mongoose.Types.ObjectId(supporterId),
                         userId: new mongoose.Types.ObjectId(supporterId),
                         followedAt: new Date(),
                     },
@@ -698,15 +706,18 @@ const postSupporterPitchFollow = async (req, res) => {
             { supporterId: new mongoose.Types.ObjectId(supporterId) },
             { $addToSet: { startupIds: new mongoose.Types.ObjectId(founderId) } },
             { new: true, upsert: true }
-        );
+
+        )
+
 
         res.status(200).json({
             success: true,
             message: "Founder followed successfully",
+            message: "Founder followed successfully",
         });
 
+
     } catch (error) {
-        console.error("Supporter Pitch Follow error:", error.message);
         console.error("Full error:", error);
         res.status(500).json({
             error: "Server error while following the founder"
@@ -855,6 +866,7 @@ const getSupporterLikesPostsController = async (req, res) => {
         // Validate supporterId
         if (!supporterId) {
             return res.status(401).json({ error: "Unauthorized person" });
+            return res.status(401).json({ error: "Unauthorized person" });
         }
 
         // Find the supporter's liked posts document
@@ -866,9 +878,10 @@ const getSupporterLikesPostsController = async (req, res) => {
         if (!supporterLikes || !supporterLikes.postIds || supporterLikes.postIds.length === 0) {
             return res.status(404).json({
                 message: "No liked posts found",
-            });
+            })
         }
 
+        // Get full post information for all liked posts sorted by creation date
         // Get full post information for all liked posts sorted by creation date
         const likedPosts = await postModel.find({
             _id: { $in: supporterLikes.postIds }
@@ -921,6 +934,331 @@ const getSupporterLikesPostsController = async (req, res) => {
         res.status(500).json({ error: "Server error while getting liked posts" });
     }
 };
+
+// const postSupporterCommentsPostController = async (req, res) => {
+//     try {
+//         const supporterId = req.user.id;
+//         const { postId, comment } = req.body;
+
+//         // Validation
+//         if (!postId) {
+//             return res.status(400).json({
+//                 success: false,
+//                 error: "Post ID is required.",
+//             });
+//         }
+
+//         if (!comment || comment.trim() === '') {
+//             return res.status(400).json({
+//                 success: false,
+//                 error: "Comment is required.",
+//             });
+//         }
+
+//         if (!supporterId) {
+//             return res.status(401).json({
+//                 success: false,
+//                 error: "Supporter authentication required.",
+//             });
+//         }
+
+//         // Get supporter details
+//         const supporter = await supporterModel.findById(supporterId);
+//         if (!supporter) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: "Supporter not found.",
+//             });
+//         }
+
+//         if (!mongoose.Types.ObjectId.isValid(postId)) {
+//             return res.status(400).json({
+//                 success: false,
+//                 error: "Invalid post ID format.",
+//             });
+//         }
+
+//         const postObjectId = new mongoose.Types.ObjectId(postId);
+
+//         // Check if post exists
+//         const post = await postModel.findById(postObjectId);
+//         if (!post) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: "Post not found",
+//             });
+//         }
+
+//         // Find or create supporter's comment tracking document
+//         let supporterComments = await supporterCommentsPostsModel.findOne({
+//             supporterId: supporterId
+//         });
+
+//         if (!supporterComments) {
+//             // Create new document if it doesn't exist
+//             supporterComments = new supporterCommentsPostsModel({
+//                 supporterId: supporterId,
+//                 postIds: [postObjectId]
+//             });
+//         } else {
+//             // Check if post is already in the array to avoid duplicates
+//             const isAlreadyInArray = supporterComments.postIds.some(
+//                 id => id.toString() === postObjectId.toString()
+//             );
+
+//             if (!isAlreadyInArray) {
+//                 // Add postId to the array only if it's not already there
+//                 supporterComments.postIds.push(postObjectId);
+//             }
+//         }
+
+//         // Save the supporter comments tracking document
+//         await supporterComments.save();
+
+//         // Add comment to the post
+//         const updatedPost = await postModel.findByIdAndUpdate(
+//             postObjectId,
+//             {
+//                 $push: {
+//                     comments: {
+//                         userId: supporterId,
+//                         comment: comment.trim(),
+//                         username: supporter.username,
+//                     }
+//                 }
+//             },
+//             { new: true }
+//         );
+
+//         // Get the newly added comment (last comment in the array)
+//         const newComment = updatedPost.comments[updatedPost.comments.length - 1];
+
+//         res.status(201).json({
+//             success: true,
+//             message: "Comment added successfully",
+//             data: {
+//                 commentId: newComment._id,
+//                 supporterId: supporterId,
+//                 postId: postObjectId,
+//                 comment: comment.trim(),
+//                 username: supporter.username,
+//                 totalComments: updatedPost.comments.length,
+//                 totalCommentedPosts: supporterComments.postIds.length
+//             },
+//         });
+
+//     } catch (error) {
+//         console.error("Comment Post Error:", error);
+//         res.status(500).json({
+//             success: false,
+//             error: "Server error while adding comment",
+//             details: process.env.NODE_ENV === "development" ? error.message : undefined,
+//         });
+//     }
+// };
+
+// const deleteSupporterCommentsPostController = async (req, res) => {
+//     try {
+//         const supporterId = req.user.id;
+//         const { postId, commentId } = req.body;
+
+//         // Validation
+//         if (!postId || !commentId) {
+//             return res.status(400).json({
+//                 success: false,
+//                 error: "Post ID and Comment ID are required.",
+//             });
+//         }
+
+//         if (!supporterId) {
+//             return res.status(401).json({
+//                 success: false,
+//                 error: "Authentication required.",
+//             });
+//         }
+
+//         // Validate ObjectIds
+//         if (!mongoose.Types.ObjectId.isValid(postId) || !mongoose.Types.ObjectId.isValid(commentId)) {
+//             return res.status(400).json({
+//                 success: false,
+//                 error: "Invalid post ID or comment ID format.",
+//             });
+//         }
+
+//         const postObjectId = new mongoose.Types.ObjectId(postId);
+//         const commentObjectId = new mongoose.Types.ObjectId(commentId);
+
+//         // Check if post exists
+//         const post = await postModel.findById(postObjectId);
+//         if (!post) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: "Post not found",
+//             });
+//         }
+
+//         // Find the comment and verify ownership
+//         const comment = post.comments.id(commentObjectId);
+//         if (!comment) {
+//             return res.status(404).json({
+//                 success: false,
+//                 error: "Comment not found",
+//             });
+//         }
+
+//         // Check if the comment belongs to the requesting user
+//         if (comment.userId.toString() !== supporterId.toString()) {
+//             return res.status(403).json({
+//                 success: false,
+//                 error: "You can only delete your own comments",
+//             });
+//         }
+
+//         // Remove the comment from the post
+//         const updatedPost = await postModel.findByIdAndUpdate(
+//             postObjectId,
+//             {
+//                 $pull: {
+//                     comments: { _id: commentObjectId }
+//                 }
+//             },
+//             { new: true }
+//         );
+
+//         // Check if user has any more comments on this post
+//         const userHasMoreComments = updatedPost.comments.some(
+//             comment => comment.userId.toString() === supporterId.toString()
+//         );
+
+//         // If user has no more comments on this post, remove postId from tracking
+//         if (!userHasMoreComments) {
+//             await supporterCommentsPostsModel.findOneAndUpdate(
+//                 { supporterId: supporterId },
+//                 {
+//                     $pull: {
+//                         postIds: postObjectId
+//                     }
+//                 }
+//             );
+//         }
+
+//         res.status(200).json({
+//             success: true,
+//             message: "Comment deleted successfully",
+//             data: {
+//                 postId: postObjectId,
+//                 commentId: commentObjectId,
+//                 totalComments: updatedPost.comments.length,
+//                 userHasMoreComments: userHasMoreComments
+//             },
+//         });
+
+//     } catch (error) {
+//         console.error("Delete Comment Error:", error);
+//         res.status(500).json({
+//             success: false,
+//             error: "Server error while deleting comment",
+//             details: process.env.NODE_ENV === "development" ? error.message : undefined,
+//         });
+//     }
+// };
+
+// const getSupporterAllLikedPitchController = async (req, res) => {
+//     try {
+//         const supporterId = req.user.id; // or req.user.id if from auth middleware
+
+//         if (!supporterId) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: 'Supporter ID is required'
+//             });
+//         }
+//         const supporterLikes = await SupporterLikesPitch.findOne({
+//             supporterId: supporterId
+//         });
+
+//         if (!supporterLikes || !supporterLikes.pitchIds || supporterLikes.pitchIds.length === 0) {
+//             return res.status(200).json({
+//                 success: true,
+//                 message: 'No liked Pitch found',
+//                 data: []
+//             });
+//         }
+//         const likedPitchDoc = await pitchModel.find({
+//             _id: { $in: supporterLikes.pitchIds }
+//         }).sort({ createdAt: -1 });
+
+//         const followPost = await SupporterFollows.findOne({ supporterId });
+//         const followedPostes = followPost?.startupIds?.map(id => id.toString()) || [];
+//         const founder = await Founder.find({});
+//         const allPitches = likedPitchDoc.map(pitch => {
+//             const plainPitch = pitch.toObject();
+//             plainPitch.isSaved = true;
+//             plainPitch.isFollow = followedPostes.includes(pitch.startupId.toString());
+//             const startupIdStr = pitch.startupId.toString();
+
+//             const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
+//             if (matchingFounder) {
+//                 plainPitch.companyName = matchingFounder.companyName;
+//                 plainPitch.ownerName = matchingFounder.ownerName;
+//             } else {
+//                 plainPitch.companyName = "Unknown";
+//                 plainPitch.ownerName = "Unknown";
+//             }
+//             return plainPitch;
+//         });
+//         res.status(200).json({
+//             success: true,
+//             allPitches
+//         }).sort({ createdAt: -1 });
+
+//         // Get the supporter's followed startups
+//         const supporterFollows = await supporterFollowPostModel.findOne({
+//             supporterId: supporterId
+//         });
+
+//         // Create a Set of liked post IDs for efficient lookup (all posts are liked in this case)
+//         const likedPostIds = new Set(
+//             supporterLikes ? supporterLikes.postIds.map(id => id.toString()) : []
+//         );
+
+//         // Create a Set of followed startup IDs for efficient lookup
+//         const followedStartupIds = new Set(
+//             supporterFollows ? supporterFollows.startupIds.map(id => id.toString()) : []
+//         );
+
+//         const founder = await Founder.find({});
+
+//         // Add isLiked and isFollowed fields to each post
+//         const postsWithLikeFollowStatus = likedPosts.map(post => {
+//             const postObj = post.toObject();
+//             const startupIdStr = post.startupId.toString();
+//             postObj.isLiked = likedPostIds.has(post._id.toString()); // Will always be true for liked posts
+//             postObj.isFollowed = followedStartupIds.has(post.startupId.toString());
+
+//             const matchingFounder = founder.find(f => f._id.toString() === startupIdStr);
+//             if (matchingFounder) {
+//                 postObj.companyName = matchingFounder.companyName;
+//                 postObj.ownerName = matchingFounder.ownerName;
+//             } else {
+//                 postObj.companyName = "Unknown";
+//                 postObj.ownerName = "Unknown";
+//             }
+//             return postObj;
+//         });
+
+//         // Return successful response
+//         res.status(200).json({
+//             success: true,
+//             count: postsWithLikeFollowStatus.length,
+//             data: postsWithLikeFollowStatus,
+//         });
+
+//     } catch (error) {
+//         console.log("Liked Posts Error:", error.message);
+//         res.status(500).json({ error: "Server error while getting liked posts" });
+//     }
+// };
 
 const postSupporterCommentsPostController = async (req, res) => {
     try {
@@ -1201,6 +1539,7 @@ const getSupporterAllLikedPitchController = async (req, res) => {
 
     } catch (error) {
         console.error('Error getting supporter liked pitch:', error);
+        console.error('Error getting supporter liked pitch:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error',
@@ -1381,6 +1720,179 @@ const deleteSupporterProfileImgController = async (req, res) => {
         });
     }
 };
+
+// const getSupporterCountComments = async (req, res) => {
+//     try {
+//         const supporterId = req.user.id;
+
+//         const postCount = await supporterCommentsPostsModel.findOne({ supporterId });
+
+//         const commentsCount = postCount ? postCount.postIds.length : 0;
+
+//         res.status(200).json({
+//             success: true,
+//             data: { commentsCount }
+//         });
+//     } catch (error) {
+//         console.error("Error fetching Comments count:", error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Failed to fetch Comments count",
+//             error: error.message
+//         });
+//     }
+// }
+
+// const getSupporterFollowStartup = async (req, res) => {
+//     try {
+//         const supporterId = req.user.id;
+
+//         const followData = await SupporterFollows.findOne({ supporterId });
+
+//         if (!followData || !followData.startupIds || followData.startupIds.length === 0) {
+//             return res.status(200).json({ success: true, message: "No followed startups", founder: [] });
+//         }
+
+//         const followIds = followData.startupIds;
+
+//         const founders = await Founder.find({ _id: { $in: followIds } });
+//         const foundersProfile = await founderProfilemodel.find({ startupId: { $in: followIds } });
+
+//         // Map profile logos for quick access
+//         const profileMap = {};
+//         foundersProfile.forEach(profile => {
+//             profileMap[profile.startupId.toString()] = profile.logo;
+//         });
+
+//         const modifiedFounders = founders.map(founder => {
+//             const plainFounder = founder.toObject();
+//             plainFounder.isFollow = true;
+//             plainFounder.logo = profileMap[founder._id.toString()] || null;
+//             return plainFounder;
+//         });
+
+//         res.status(200).json({
+//             success: true,
+//             founder: modifiedFounders
+//         });
+//     } catch (error) {
+//         console.error("Error fetching followed startups:", error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Failed to fetch followed startups",
+//             error: error.message
+//         });
+//     }
+// };
+
+// const getSupporterProfile = async (req, res) => {
+//     try {
+//         const supporterId = req.user.id;
+
+//         const profile = await SupporterProfileModel.findOne({ SupporterId: supporterId });
+
+//         if (!profile) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "Supporter profile not found",
+//             });
+//         }
+
+//         return res.status(200).json({
+//             success: true,
+//             data: profile,
+//         });
+//     } catch (error) {
+//         console.error("Error fetching supporter profile:", error);
+//         return res.status(500).json({
+//             success: false,
+//             message: "Server error while fetching profile",
+//         });
+//     }
+// };
+
+// const updateProfileSupporterController = async (req, res) => {
+//     try {
+//         const { username, location } = req.body;
+//         const SupporterId = req.user.id;
+//         const image = req.file?.path;
+
+//         // If new image is uploaded, delete the old one
+//         if (image) {
+//             const existingProfile = await SupporterProfileModel.findOne({ SupporterId });
+//             if (existingProfile && existingProfile.image) {
+//                 const absolutePath = path.isAbsolute(existingProfile.image)
+//                     ? existingProfile.image
+//                     : path.resolve(__dirname, "..", existingProfile.image);
+
+//                 await fs.unlink(absolutePath).catch((err) => {
+//                     console.warn("Old image deletion skipped:", err.message);
+//                 });
+//             }
+//         }
+
+//         const updateData = { username, location };
+//         if (image) {
+//             updateData.image = image;
+//         }
+
+//         const updated = await SupporterProfileModel.findOneAndUpdate(
+//             { SupporterId },
+//             { $set: updateData },
+//             { upsert: true, new: true }
+//         );
+
+//         res.status(200).json({
+//             message: "Profile information updated successfully",
+//             data: updated,
+//             success: true,
+//         });
+//     } catch (error) {
+//         console.log("Profile information save Error:", error.message);
+//         res.status(500).json({
+//             error: "Server error while saving profile information",
+//             success: false,
+//         });
+//     }
+// };
+
+// const deleteSupporterProfileImgController = async (req, res) => {
+//     try {
+//         const SupporterId = req.user.id;
+
+//         const supporterProfile = await SupporterProfileModel.findOne({ SupporterId });
+//         if (!supporterProfile) {
+//             return res.status(404).json({ error: "Supporter profile not found" }); // Fixed: was "Investor"
+//         }
+
+//         if (!supporterProfile.image) {
+//             return res
+//                 .status(400)
+//                 .json({ error: "No Supporter Profile Image to delete" }); // Fixed: was "Investor"
+//         }
+
+//         const absolutePath = path.isAbsolute(supporterProfile.image)
+//             ? supporterProfile.image
+//             : path.resolve(__dirname, "..", supporterProfile.image);
+
+//         await fs.unlink(absolutePath).catch((err) => {
+//             console.warn("Image deletion skipped:", err.message);
+//         });
+
+//         supporterProfile.image = null;
+//         await supporterProfile.save();
+
+//         res.status(200).json({
+//             message: "Supporter profile image deleted successfully", // Fixed: was "Investor"
+//             success: true // Added for consistency
+//         });
+//     } catch (error) {
+//         console.error("Supporter Profile Img Error:", error.message); // Fixed: was "Investor"
+//         res.status(500).json({
+//             error: "Server error while deleting the supporter profile image", // Fixed: was "investor"
+//         });
+//     }
+// };
 module.exports = {
     logoutController,
     getTrendingStartup,
