@@ -253,7 +253,7 @@ const PostCard = ({
     if (uploadsIndex === -1)
       return "https://via.placeholder.com/400x200?text=No+Image";
     const relativePath = normalizedPath.substring(uploadsIndex);
-    return `http://localhost:5000/${relativePath}`;
+    return `https://unstopgrowb.onrender.com/${relativePath}`;
   };
 
   const isLiked = likedPosts[postItem._id] ?? postItem.isLiked;
