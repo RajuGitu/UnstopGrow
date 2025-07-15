@@ -21,6 +21,7 @@ import {
   Video,
   Eye,
   MapPin,
+  X,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "../../Components/UI/Avatar";
@@ -47,57 +48,128 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
       : imgPlaceholder;
   };
 
-  const startupName = startup.title || "StartupPitch";
+  const startupName = startup.title || startup.startUpName || "StartupPitch";
+
+  const pitchSections = [
+    {
+      icon: <Target className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 mr-2" />,
+      title: "Problem",
+      content: startup.problem,
+      bg: "bg-red-50",
+      border: "border-red-200",
+      text: "text-red-700",
+    },
+    {
+      icon: <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 mr-2" />,
+      title: "Solution",
+      content: startup.solution,
+      bg: "bg-green-50",
+      border: "border-green-200",
+      text: "text-green-700",
+    },
+    {
+      icon: <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mr-2" />,
+      title: "Market Opportunity",
+      content: startup.market,
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+      text: "text-blue-700",
+    },
+    {
+      icon: <Star className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 mr-2" />,
+      title: "Traction",
+      content: startup.traction,
+      bg: "bg-purple-50",
+      border: "border-purple-200",
+      text: "text-purple-700",
+    },
+    {
+      icon: <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 mr-2" />,
+      title: "Funding Ask",
+      content: startup.funding,
+      bg: "bg-emerald-50",
+      border: "border-emerald-200",
+      text: "text-emerald-700",
+    },
+    {
+      icon: <Users className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 mr-2" />,
+      title: "Team",
+      content: startup.team,
+      bg: "bg-indigo-50",
+      border: "border-indigo-200",
+      text: "text-indigo-700",
+    },
+  ];
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center space-x-3">
-              <Avatar className="w-12 h-12 rounded-lg shadow-md">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] overflow-y-auto p-0">
+        {/* Header */}
+        <DialogHeader className="sticky top-0 z-10 bg-white border-b px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center space-x-3 min-w-0 flex-1">
+              <Avatar className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shadow-md flex-shrink-0">
                 {startup.logo ? (
                   <img
                     src={makeUrl(startup.logo)}
                     alt={startup.startUpName}
-                    className="w-12 h-12 rounded-lg object-cover shadow-md"
+                    className="w-full h-full rounded-lg object-cover shadow-md"
                   />
                 ) : (
-                  <AvatarFallback>
+                  <AvatarFallback className="text-xs sm:text-sm">
                     {getInitials(startup.startUpName || "Unknown")}
                   </AvatarFallback>
                 )}
               </Avatar>
 
-              <div>
-                <h2 className="text-2xl font-bold">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-2xl font-bold truncate">
                   {startup.startUpName} Pitch Deck
                 </h2>
-                <p className="text-sm text-gray-600 flex items-center">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {startup.location} • {startup.domain}
+                <p className="text-xs sm:text-sm text-gray-600 flex items-center">
+                  <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">{startup.location}</span>
+                  {startup.domain && (
+                    <>
+                      <span className="mx-1 hidden sm:inline">•</span>
+                      <span className="truncate hidden sm:inline">{startup.domain}</span>
+                    </>
+                  )}
                 </p>
               </div>
             </DialogTitle>
-          </DialogHeader>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="flex-shrink-0 ml-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogHeader>
 
-          <div className="space-y-6">
-            <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-l-4 border-indigo-500">
-              <h3 className="font-bold text-lg text-indigo-900 mb-1">
-                {startup.title}
-              </h3>
-              <p className="text-indigo-700 italic">{startup.tagline}</p>
-            </div>
+        {/* Content */}
+        <div className="px-4 sm:px-6 pb-6 space-y-6">
+          {/* Title and Tagline */}
+          <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-l-4 border-indigo-500">
+            <h3 className="font-bold text-base sm:text-lg text-indigo-900 mb-1">
+              {startup.title}
+            </h3>
+            <p className="text-sm sm:text-base text-indigo-700 italic">{startup.tagline}</p>
+          </div>
 
-            {/* Pitch Video Section */}
+          {/* Pitch Video Section */}
+          {startup.youtube && (
             <div className="relative">
               <div className="aspect-video bg-slate-900 rounded-lg flex items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-red-800/20"></div>
-                <div className="text-center z-10">
-                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Play className="h-8 w-8 text-white ml-1" />
+                <div className="text-center z-10 px-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Play className="h-6 w-6 sm:h-8 sm:w-8 text-white ml-1" />
                   </div>
-                  <h4 className="text-white font-semibold mb-2">
+                  <h4 className="text-white font-semibold mb-2 text-sm sm:text-base">
                     Watch Pitch Video
                   </h4>
                   <Button
@@ -112,144 +184,125 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                       rel="noopener noreferrer"
                     >
                       <Youtube className="h-4 w-4 mr-2 text-red-600" />
-                      Play on YouTube
+                      <span className="hidden sm:inline">Play on YouTube</span>
+                      <span className="sm:hidden">Play Video</span>
                     </a>
                   </Button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                {
-                  icon: <Target className="h-5 w-5 text-red-600 mr-2" />,
-                  title: "Problem",
-                  content: startup.problem,
-                  bg: "bg-red-50",
-                  border: "border-red-200",
-                  text: "text-red-700",
-                },
-                {
-                  icon: <Lightbulb className="h-5 w-5 text-green-600 mr-2" />,
-                  title: "Solution",
-                  content: startup.solution,
-                  bg: "bg-green-50",
-                  border: "border-green-200",
-                  text: "text-green-700",
-                },
-                {
-                  icon: <TrendingUp className="h-5 w-5 text-blue-600 mr-2" />,
-                  title: "Market Opportunity",
-                  content: startup.market,
-                  bg: "bg-blue-50",
-                  border: "border-blue-200",
-                  text: "text-blue-700",
-                },
-                {
-                  icon: <Star className="h-5 w-5 text-purple-600 mr-2" />,
-                  title: "Traction",
-                  content: startup.traction,
-                  bg: "bg-purple-50",
-                  border: "border-purple-200",
-                  text: "text-purple-700",
-                },
-                {
-                  icon: (
-                    <DollarSign className="h-5 w-5 text-emerald-600 mr-2" />
-                  ),
-                  title: "Funding Ask",
-                  content: startup.funding,
-                  bg: "bg-emerald-50",
-                  border: "border-emerald-200",
-                  text: "text-emerald-700",
-                },
-                {
-                  icon: <Users className="h-5 w-5 text-indigo-600 mr-2" />,
-                  title: "Team",
-                  content: startup.team,
-                  bg: "bg-indigo-50",
-                  border: "border-indigo-200",
-                  text: "text-indigo-700",
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className={`p-4 rounded-lg border ${item.bg} ${item.border}`}
-                >
-                  <div className="flex items-center mb-2">
-                    {item.icon}
-                    <h5 className={`font-semibold ${item.text}`}>
-                      {item.title}
-                    </h5>
-                  </div>
-                  <p className={`text-sm ${item.text}`}>{item.content}</p>
+          {/* Details Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {pitchSections.map((item, idx) => (
+              <div
+                key={idx}
+                className={`p-4 rounded-lg border ${item.bg} ${item.border}`}
+              >
+                <div className="flex items-center mb-2">
+                  {item.icon}
+                  <h5 className={`font-semibold text-sm sm:text-base ${item.text}`}>
+                    {item.title}
+                  </h5>
                 </div>
-              ))}
-            </div>
+                <p className={`text-xs sm:text-sm ${item.text} leading-relaxed`}>
+                  {item.content || "No information provided"}
+                </p>
+              </div>
+            ))}
+          </div>
 
-            {/* Metrics */}
+          {/* Metrics */}
+          {(startup.activeUser || startup.raised) && (
             <div className="p-4 bg-slate-50 rounded-lg">
-              <h5 className="font-semibold text-slate-800 mb-3">
+              <h5 className="font-semibold text-slate-800 mb-3 text-sm sm:text-base">
                 Current Metrics
               </h5>
               <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <p className="text-sm font-semibold text-emerald-600">
-                    {startup.activeUser}
-                  </p>
-                  <p className="text-sm text-slate-600">Active Users</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-indigo-600">
-                    {startup.raised}
-                  </p>
-                  <p className="text-sm text-slate-600">Already Raised</p>
-                </div>
+                {startup.activeUser && (
+                  <div className="p-3 bg-white rounded-lg border">
+                    <p className="text-sm sm:text-base font-semibold text-emerald-600">
+                      {startup.activeUser}
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-600">Active Users</p>
+                  </div>
+                )}
+                {startup.raised && (
+                  <div className="p-3 bg-white rounded-lg border">
+                    <p className="text-sm sm:text-base font-semibold text-indigo-600">
+                      {startup.raised}
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-600">Already Raised</p>
+                  </div>
+                )}
               </div>
             </div>
+          )}
 
-            {/* Download Section */}
+          {/* Download Section */}
+          {startup.pdf && (
             <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
-              <h5 className="font-semibold text-slate-700">
+              <h5 className="font-semibold text-slate-700 text-sm sm:text-base">
                 Download Resources
               </h5>
 
-              {/* PDF */}
-              {startup.pdf && (
-                <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-300">
-                  <div className="flex items-center space-x-3">
-                    <FileText className="h-6 w-6 text-red-600" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-white rounded border border-gray-300 gap-3">
+                <div className="flex items-center space-x-3">
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm sm:text-base">Pitch Deck PDF</p>
+                    <p className="text-xs text-gray-500">{startupName}.pdf</p>
                   </div>
-                  <div className="flex gap-3">
+                </div>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 sm:flex-none"
+                    asChild
+                  >
                     <a
                       href={makeUrl(startup.pdf)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View PDF
-                      </Button>
+                      <Eye className="h-4 w-4 mr-1" />
+                      <span className="hidden sm:inline">View PDF</span>
+                      <span className="sm:hidden">View</span>
                     </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 sm:flex-none"
+                    asChild
+                  >
                     <a
                       href={makeUrl(startup.pdf)}
                       download={`${startupName}.pdf`}
                     >
-                      <Button variant="outline" size="sm">
-                        <Download className="h-4 w-4 mr-1" />
-                        Download PDF
-                      </Button>
+                      <Download className="h-4 w-4 mr-1" />
+                      <span className="hidden sm:inline">Download PDF</span>
+                      <span className="sm:hidden">Download</span>
                     </a>
-                  </div>
+                  </Button>
                 </div>
-              )}
+              </div>
             </div>
+          )}
 
-            <Separator />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+          {/* Additional Information */}
+          {startup.domain && (
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h5 className="font-semibold text-blue-800 mb-2 text-sm sm:text-base">
+                Domain & Industry
+              </h5>
+              <p className="text-xs sm:text-sm text-blue-700">{startup.domain}</p>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

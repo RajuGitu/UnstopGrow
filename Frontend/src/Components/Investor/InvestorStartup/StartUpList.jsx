@@ -1,9 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../../UI/Card";
-import StartupCard from "./StartUpCard";
-import { Button } from "../../UI/Button";
 import { useEffect, useState } from "react";
-import { useInvestorSavedStartups } from "../../../context/getinvestorSavedStartupsContext";
-import SavedStartUp from "./SavedStartUp";
+import { Card, CardContent, CardHeader, CardTitle } from "../../UI/Card";
+import { Button } from "../../UI/Button";
 import { Input } from "../../UI/Input";
 import {
   Select,
@@ -13,10 +10,13 @@ import {
   SelectValue,
 } from "../../UI/Select";
 
+import StartupCard from "./StartUpCard";
+import SavedStartUp from "./SavedStartUp";
+import { useInvestorSavedStartups } from "../../../context/getinvestorSavedStartupsContext";
+
 const StartupList = () => {
   const { savedStartups, loading, getAllSavedStartups } =
     useInvestorSavedStartups();
-  // Fetch saved startups when the component mounts
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("all");
@@ -26,15 +26,14 @@ const StartupList = () => {
   }, []);
 
   const filteredStartups = savedStartups.filter((startup) => {
+    const profile = startup.profile;
     const matchesSearch =
-      startup.profile.startUpName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      startup.profile.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      startup.profile.domain.toLowerCase().includes(searchTerm.toLowerCase());
+      profile.startUpName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      profile.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      profile.domain.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesDomain =
-      selectedDomain === "all" || startup.profile.domain === selectedDomain;
+      selectedDomain === "all" || profile.domain === selectedDomain;
 
     return matchesSearch && matchesDomain;
   });
@@ -44,7 +43,7 @@ const StartupList = () => {
   ];
 
   if (loading) {
-    <SavedStartUp />;
+    return <SavedStartUp />;
   }
 
   if (savedStartups.length === 0) {

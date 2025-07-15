@@ -10,7 +10,6 @@ import { useInvestorDiscoverStartups } from "../../context/getinvestorDiscoverSt
 const InvestorDiscover = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("all");
-  const [viewMode, setViewMode] = useState("list");
 
   const { startups, loading, error, getAllDiscoverStartups } = useInvestorDiscoverStartups();
 
@@ -27,8 +26,6 @@ const InvestorDiscover = () => {
     const matchesDomain = 
       selectedDomain === "all" || startup.domain === selectedDomain;
 
-
-
     return matchesSearch && matchesDomain
   });
 
@@ -36,7 +33,7 @@ const InvestorDiscover = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-lg text-gray-600">Loading startups...</div>
         </div>
@@ -46,7 +43,7 @@ const InvestorDiscover = () => {
 
   if (error) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-lg text-red-600 mb-2">{error}</div>
@@ -60,38 +57,20 @@ const InvestorDiscover = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 max-h-screen">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-h-screen">
+      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Discover Startups</h1>
-          <p className="text-gray-600">Find your next investment opportunity</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            variant={viewMode === "grid" ? "outline" : "default"}
-            size="sm"
-            onClick={() => setViewMode("grid")}
-            className="border-gray-300"
-          >
-            Grid
-          </Button>
-          <Button
-            variant={viewMode === "list" ? "outline" : "default"}
-            size="sm"
-            onClick={() => setViewMode("list")}
-            className="border-gray-300"
-          >
-            List
-          </Button>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Discover Startups</h1>
+          <p className="text-gray-600 text-sm md:text-base">Find your next investment opportunity</p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Filters</CardTitle>
+          <CardTitle className="text-base md:text-lg">Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Search</label>
               <Input
@@ -126,8 +105,8 @@ const InvestorDiscover = () => {
       </Card>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-gray-600">
+        <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
+          <p className="text-gray-600 text-sm md:text-base">
             Showing {filteredStartups.length} startup
             {filteredStartups.length !== 1 ? "s" : ""}
             {searchTerm && <span className="ml-1">for "{searchTerm}"</span>}
@@ -141,7 +120,6 @@ const InvestorDiscover = () => {
               onClick={() => {
                 setSearchTerm("");
                 setSelectedDomain("all");
-
               }}
             >
               Clear Filters
@@ -150,20 +128,14 @@ const InvestorDiscover = () => {
         </div>
 
         {filteredStartups.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500 text-lg mb-2">No startups found</div>
-            <p className="text-gray-400">
+          <div className="text-center py-8 md:py-12">
+            <div className="text-gray-500 text-base md:text-lg mb-2">No startups found</div>
+            <p className="text-gray-400 text-sm md:text-base">
               Try adjusting your search criteria or clearing filters
             </p>
           </div>
         ) : (
-          <div
-            className={
-              viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6"
-                : "space-y-4"
-            }
-          >
+          <div className="space-y-4">
             {filteredStartups.map((startup) => (
               <StartupCard key={startup.startupId} startup={startup} />
             ))}

@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 /**
- * Startup Contact Card for Interested Startups
+ * Startup Contact Card for Interested Startups - Responsive Version
  */
 const imgPlaceholder = "https://via.placeholder.com/120x80?text=No+Image";
 const ContactCard = ({ startup }) => {
@@ -77,14 +77,14 @@ Best regards,
 
   /* Render --------------------------------------------------------------- */
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-start justify-between">
-        {/* ── left column ── */}
-        <div className="flex-1">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 lg:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between space-y-4 lg:space-y-0">
+        {/* ── main content ── */}
+        <div className="flex-1 lg:mr-6">
           {/* Company Header */}
-          <div className="flex items-center space-x-3 mb-3">
+          <div className="flex items-center space-x-3 mb-3 sm:mb-4">
             <div className="relative">
-              <Avatar className="h-10 w-10 flex-shrink-0">
+              <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                 <AvatarFallback>
                   {startup.companyLogo ? (
                     <img
@@ -107,57 +107,57 @@ Best regards,
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg text-gray-900 mb-1">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-lg sm:text-xl text-gray-900 mb-1 truncate">
                 {startup.companyName}
               </h3>
-              <div className="flex items-center space-x-3 text-sm text-gray-600">
-                <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-1 sm:space-y-0 text-sm text-gray-600">
+                <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium inline-block w-fit">
                   {startup.domain}
                 </span>
                 <div className="flex items-center space-x-1">
-                  <MapPin className="w-3 h-3" />
-                  <span>{startup.location}</span>
+                  <MapPin className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{startup.location}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Tagline */}
-          <div className="mb-3">
-            <p className="text-gray-700 text-sm bg-gray-50 p-3 rounded border-l-4 border-gray-300">
+          <div className="mb-3 sm:mb-4">
+            <p className="text-gray-700 text-sm sm:text-base bg-gray-50 p-3 sm:p-4 rounded border-l-4 border-gray-300 leading-relaxed">
               {startup.tagline}
             </p>
           </div>
 
           {/* Achievements */}
           {startup.achievements && (
-            <div className="mb-3">
+            <div className="mb-3 sm:mb-4">
               <div className="flex items-center space-x-2 mb-2">
-                <Trophy className="w-4 h-4 text-gray-600" />
+                <Trophy className="w-4 h-4 text-gray-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-gray-800">
                   Achievements
                 </span>
               </div>
-              <div className="bg-gray-50 border border-gray-200 p-3 rounded text-sm">
-                <p className="text-gray-700">{startup.achievements}</p>
+              <div className="bg-gray-50 border border-gray-200 p-3 sm:p-4 rounded text-sm sm:text-base">
+                <p className="text-gray-700 leading-relaxed">{startup.achievements}</p>
               </div>
             </div>
           )}
 
           {/* Contact Information */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center space-x-2 text-sm text-gray-700">
-              <Mail className="w-4 h-4 text-gray-500" />
-              <span>{startup.email}</span>
+              <Mail className="w-4 h-4 text-gray-500 flex-shrink-0" />
+              <span className="truncate">{startup.email}</span>
             </div>
 
             {/* Social Links */}
-            <div className="flex items-center space-x-2 flex-wrap">
+            <div className="flex items-center space-x-2 flex-wrap gap-2">
               {startup.website && (
                 <button
                   onClick={handleVisitWebsite}
-                  className="flex items-center space-x-1 px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm"
+                  className="flex items-center space-x-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm whitespace-nowrap"
                 >
                   <Globe className="w-3 h-3" />
                   <span>Website</span>
@@ -169,7 +169,7 @@ Best regards,
                 startup.linkedIn !== "No LinkedIn provided" && (
                   <button
                     onClick={() => handleSocialClick(startup.linkedIn)}
-                    className="flex items-center space-x-1 px-3 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors text-sm"
+                    className="flex items-center space-x-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors text-sm whitespace-nowrap"
                   >
                     <Linkedin className="w-3 h-3" />
                     <span>LinkedIn</span>
@@ -179,7 +179,7 @@ Best regards,
               {startup.gitHub && startup.gitHub !== "No GitHub provided" && (
                 <button
                   onClick={() => handleSocialClick(startup.gitHub)}
-                  className="flex items-center space-x-1 px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm"
+                  className="flex items-center space-x-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm whitespace-nowrap"
                 >
                   <Github className="w-3 h-3" />
                   <span>GitHub</span>
@@ -190,7 +190,7 @@ Best regards,
                 startup.twitter !== "No Twitter provided" && (
                   <button
                     onClick={() => handleSocialClick(startup.twitter)}
-                    className="flex items-center space-x-1 px-3 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors text-sm"
+                    className="flex items-center space-x-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors text-sm whitespace-nowrap"
                   >
                     <Twitter className="w-3 h-3" />
                     <span>Twitter</span>
@@ -200,8 +200,8 @@ Best regards,
           </div>
         </div>
 
-        {/* ── right column (action) ── */}
-        <div className="flex flex-col space-y-3 ml-6">
+        {/* ── action column ── */}
+        <div className="flex flex-col space-y-3 lg:flex-shrink-0 lg:w-48">
           <div className="flex items-center space-x-1 justify-center mb-1">
             <Star className="w-4 h-4 text-yellow-500 fill-current" />
             <span className="text-xs font-medium text-gray-600">
@@ -211,17 +211,17 @@ Best regards,
 
           <Button
             onClick={handleEmailClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded transition-colors w-full"
             disabled={!startup.email || startup.email === "No email provided"}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center space-x-2">
               <Mail className="w-4 h-4" />
               <span>Send Email</span>
             </div>
           </Button>
 
           <div className="text-center">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full text-xs">
+            <div className="inline-flex items-center space-x-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span className="text-green-700 font-medium">
                 Ready to Connect

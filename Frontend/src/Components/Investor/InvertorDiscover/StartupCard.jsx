@@ -17,8 +17,7 @@ import axiosInstance from "../../../../utils/axiosInstance";
 
 const imgPlaceholder = "https://via.placeholder.com/120x80?text=No+Image";
 
-const  StartupCard = ({ startup }) => {
-
+const StartupCard = ({ startup }) => {
   const [selectedPitchStartup, setSelectedPitchStartup] = useState(null);
   const [isPitchModalOpen, setIsPitchModalOpen] = useState(false);
   const [savedStartups, setSavedStartups] = useState({});
@@ -125,39 +124,39 @@ const  StartupCard = ({ startup }) => {
     }
   };
 
- const handleViewPitch = async (startup) => {
-  try {
-    const token = localStorage.getItem("token");
+  const handleViewPitch = async (startup) => {
+    try {
+      const token = localStorage.getItem("token");
 
-    if (!token) {
-      alert("You are not logged in!");
-      return;
+      if (!token) {
+        alert("You are not logged in!");
+        return;
+      }
+
+      const response = await axiosInstance.get(`/investor/investorViewPitch/${startup.startupId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const pitchData = response.data.data;
+
+      if (!pitchData) {
+        console.warn("No pitch data found for this startup.");
+        alert("No pitch data available for this startup.");
+        return;
+      }
+
+      console.log("Pitch Data:", pitchData);
+
+      // Open the modal with pitch data
+      setSelectedPitchStartup(pitchData);
+      setIsPitchModalOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch pitch:", error);
+      alert("Something went wrong while fetching the pitch. Please try again.");
     }
-
-    const response = await axiosInstance.get(`/investor/investorViewPitch/${startup.startupId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const pitchData = response.data.data;
-
-    if (!pitchData) {
-      console.warn("No pitch data found for this startup.");
-      alert("No pitch data available for this startup.");
-      return;
-    }
-
-    console.log("Pitch Data:", pitchData);
-
-    // Open the modal with pitch data
-    setSelectedPitchStartup(pitchData);
-    setIsPitchModalOpen(true);
-  } catch (error) {
-    console.error("Failed to fetch pitch:", error);
-    alert("Something went wrong while fetching the pitch. Please try again.");
-  }
-};
+  };
 
   const handleSaveForLater = async (startupId) => {
     setIsLoading(true);
@@ -247,7 +246,7 @@ const  StartupCard = ({ startup }) => {
     const rel = absolute.split("uploads")[1];
     console.log("Relative Path:", rel);
     // Consider making this configurable via environment variables
-    const baseUrl =  "http://localhost:5000";
+    const baseUrl = "https://unstopgrowb.onrender.com";
     return rel
       ? `${baseUrl}/uploads${rel.replace(/\\/g, "/")}`
       : imgPlaceholder;
@@ -257,29 +256,29 @@ const  StartupCard = ({ startup }) => {
   const isInterested = interestedStartups[startup.startupId] ?? startup.isInterest;
 
   return (
-    <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+    <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 h-full flex flex-col">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Avatar className="w-16 h-16 rounded-xl shadow-md">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center space-x-3 min-w-0 flex-1">
+            <Avatar className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl shadow-md flex-shrink-0">
               {startup.companyLogo && (
                 <img
                   src={makeUrl(startup.companyLogo)}
                   alt={`${startup.companyName} logo`}
-                  className="w-16 h-16 rounded-xl object-cover shadow-md"
+                  className="w-full h-full rounded-xl object-cover shadow-md"
                 />
               )}
               {!startup.companyLogo && (
-                <AvatarFallback>
+                <AvatarFallback className="text-xs sm:text-sm">
                   {getInitials(startup.companyName || "Unknown")}
                 </AvatarFallback>
               )}
             </Avatar>
-            <div>
-              <h3 className="font-bold text-lg">{startup.companyName}</h3>
-              <p className="text-sm text-gray-600 flex items-center">
-                <MapPin className="w-3 h-3 mr-1" />
-                {startup.location}
+            <div className="min-w-0 flex-1">
+              <h3 className="font-bold text-sm sm:text-lg truncate">{startup.companyName}</h3>
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center">
+                <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                <span className="truncate">{startup.location}</span>
               </p>
               {startup.verified && (
                 <Badge variant="secondary" className="mt-1 text-xs">
@@ -293,53 +292,55 @@ const  StartupCard = ({ startup }) => {
             size="sm"
             onClick={() => handleSaveForLater(startup.startupId)}
             disabled={isLoading}
-            className={
-              isSaved ? "text-red-500" : "text-gray-400 cursor-pointer"
-            }
+            className={`flex-shrink-0 transition-colors duration-200 ${
+              isSaved 
+                ? "text-red-500 hover:text-red-600 hover:bg-red-50" 
+                : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+            }`}
             title={isSaved ? "Unsave startup" : "Save startup for later"}
           >
-            <Bookmark className="w-4 h-4" />
+            <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
           </Button>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <p className="text-gray-700 text-sm leading-relaxed">
+      <CardContent className="space-y-4 flex-1 flex flex-col">
+        <div className="space-y-2 flex-1">
+          <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
             {startup.tagline}
           </p>
 
-          {startup.domain && (
-            <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {startup.domain && (
               <Badge
                 variant="outline"
                 className="text-xs border-blue-300 text-blue-600"
               >
                 {startup.domain}
               </Badge>
-              {startup.website && (
-                <a
-                  href={
-                    startup.website.startsWith("http")
-                      ? startup.website
-                      : `https://${startup.website}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-500 hover:text-blue-700 underline"
-                >
-                  Visit Website
-                </a>
-              )}
-            </div>
-          )}
+            )}
+            {startup.website && (
+              <a
+                href={
+                  startup.website.startsWith("http")
+                    ? startup.website
+                    : `https://${startup.website}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-500 hover:text-blue-700 underline"
+              >
+                Visit Website
+              </a>
+            )}
+          </div>
 
           {startup.achievements && (
             <div className="bg-yellow-50 p-2 rounded-lg">
               <p className="text-xs text-yellow-800 font-medium">
                 🏆 Achievements:
               </p>
-              <p className="text-xs text-yellow-700">{startup.achievements}</p>
+              <p className="text-xs text-yellow-700 line-clamp-2">{startup.achievements}</p>
             </div>
           )}
         </div>
@@ -348,7 +349,7 @@ const  StartupCard = ({ startup }) => {
           <div>
             <p className="text-sm font-semibold flex items-center justify-center">
               <TrendingUp className="w-3 h-3 mr-1 text-green-500" />
-              {startup.domain || "General"}
+              <span className="truncate">{startup.domain || "General"}</span>
             </p>
             <p className="text-xs text-gray-600">Domain</p>
           </div>
@@ -361,46 +362,91 @@ const  StartupCard = ({ startup }) => {
           </div>
         </div>
 
-        <div className="flex space-x-2">
-          <Button
-            size="sm"
-            onClick={() => handleExpressInterest(startup.startupId)}
-            disabled={isInterestLoading}
-            className={`flex transition-colors duration-200 cursor-pointer ${
-              isInterested
-                ? "bg-red-500 hover:bg-red-600 text-white"
-                : "bg-red-700 hover:bg-red-800 text-white"
-            } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            <Heart className={`w-4 h-4 mr-3 ${isInterested ? "fill-current" : ""}`} />
-            {isInterestLoading ? "Processing..." : isInterested ? "Interested" : "Interest"}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handleViewPitch(startup)}
-            className="ml-3.5 border-gray-300 cursor-pointer"
-          >
-            <FileText className="w-3 h-3 mr-2" />
-            View Pitch
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handleSaveForLater(startup.startupId)}
-            disabled={isLoading}
-            className={`ml-3.5 flex items-center transition-colors duration-200 cursor-pointer ${
-              isSaved
-                ? "text-red-500 border-red-300 hover:bg-red-50"
-                : "text-gray-600 hover:bg-gray-100"
-            } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            <Bookmark className="w-4 h-4 mr-2" />
-            {isLoading ? "Processing..." : isSaved ? "Unsave" : "Save for Later"}
-          </Button>
+        {/* Button Container - Mobile: Icons only, Desktop: Text + Icons */}
+        <div className="flex  gap-4 mt-auto  sm:flex sm:gap-2">
+          {/* Mobile: Icon-only buttons in a row */}
+          <div className="flex gap-4 sm:hidden ">
+            <Button
+              size="sm"
+              onClick={() => handleExpressInterest(startup.startupId)}
+              disabled={isInterestLoading}
+              className={`w-2 h-2 p-0 rounded-full border-none transition-colors duration-200 ${
+                isInterested
+                  ? "text-red-500 hover:text-red-600 "
+                  : "text-blue-600 hover:text-blue-700 "
+              } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              title={isInterested ? "Remove Interest" : "Express Interest"}
+            >
+              <Heart className={`w-2 h-2 ${isInterested ? "fill-current" : ""}`} />
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={() => handleViewPitch(startup)}
+              className="w-2 h-2 p-0 rounded-full border-none text-gray-600 hover:text-gray-700 "
+              title="View Pitch"
+            >
+              <FileText className="w-2 h-2" />
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={() => handleSaveForLater(startup.startupId)}
+              disabled={isLoading}
+              className={`w-2 h-2 p-0 rounded-full border-none transition-colors duration-200 ${
+                isSaved
+                  ? "text-red-500 hover:text-red-600 "
+                  : "text-gray-600 hover:text-gray-700 "
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              title={isSaved ? "Unsave" : "Save"}
+            >
+              <Bookmark className={`w-2 h-2 ${isSaved ? "fill-current" : ""}`} />
+            </Button>
+          </div>
+
+          {/* Desktop: Text + Icons buttons */}
+          <div className="hidden sm:flex   sm:gap-2">
+            <Button
+              size="sm"
+              onClick={() => handleExpressInterest(startup.startupId)}
+              disabled={isInterestLoading}
+              className={`flex sm:flex-none transition-colors duration-200  ${
+                isInterested
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <Heart className={`w-4 h-4 mr-2 ${isInterested ? "fill-current" : ""}`} />
+              {isInterestLoading ? "Loading..." : isInterested ? "Interested" : "Express Interest"}
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleViewPitch(startup)}
+              className="flex sm:flex-none border-gray-300 hover:bg-gray-50"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              View Pitch
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleSaveForLater(startup.startupId)}
+              disabled={isLoading}
+              className={`flex sm:flex-none transition-colors duration-200 ${
+                isSaved
+                  ? "text-red-500 border-red-300 hover:bg-red-50"
+                  : "text-gray-600 border-gray-300 hover:bg-gray-50"
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <Bookmark className={`w-4 h-4 mr-2 ${isSaved ? "fill-current" : ""}`} />
+              {isLoading ? "Loading..." : isSaved ? "Unsave" : "Save"}
+            </Button>
+          </div>
         </div>
       </CardContent>
-
 
       <PitchDeckModal
         isOpen={isPitchModalOpen}

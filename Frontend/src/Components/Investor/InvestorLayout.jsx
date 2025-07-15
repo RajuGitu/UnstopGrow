@@ -18,11 +18,13 @@ const InvestorLayout = () => {
   if (initialized && !investor) {
     return <Navigate to="/login" replace />;
   }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50">
       <InvestorSidebar />
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 overflow-auto">
+      {/* Main content area with proper spacing */}
+      <div className="lg:ml-64 pt-16 lg:pt-0 min-h-screen">
+        <main className="h-full">
           <Outlet />
         </main>
       </div>
