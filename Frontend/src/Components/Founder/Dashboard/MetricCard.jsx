@@ -15,20 +15,24 @@ const MetricCard = ({ title, value, icon, color }) => {
 
   return (
     <div
-      className="rounded-lg shadow-sm p-6 border"
+      className="rounded-lg shadow-sm p-4 md:p-6 border transition-all duration-200 hover:shadow-md"
       style={{
         background: `linear-gradient(to bottom right, ${selected.from}, ${selected.to})`,
         borderColor: selected.border,
       }}
     >
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium" style={{ color: selected.text }}>{title}</p>
-          <p className="text-3xl font-bold mt-1" style={{ color: selected.dark }}>{value}</p>
-          <p className="text-xs flex items-center mt-1" style={{ color: selected.text }}>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs md:text-sm font-medium truncate" style={{ color: selected.text }}>
+            {title}
+          </p>
+          <p className="text-2xl md:text-3xl font-bold mt-1 truncate" style={{ color: selected.dark }}>
+            {value}
           </p>
         </div>
-        <div className="h-8 w-8" style={{ color: selected.text }}>{icon}</div>
+        <div className="flex-shrink-0 ml-3" style={{ color: selected.text }}>
+          {icon}
+        </div>
       </div>
     </div>
   );

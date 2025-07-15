@@ -1,3 +1,4 @@
+// UpdateForm.jsx
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../UI/Card";
 import { Input } from "../../UI/Input";
@@ -162,15 +163,15 @@ const UpdateForm = () => {
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <PenTool className="h-5 w-5 text-indigo-600" />
+    <Card className="bg-white/80 backdrop-blur-sm w-full">
+      <CardHeader className="px-4 sm:px-6">
+        <CardTitle className="flex items-center space-x-2 text-lg sm:text-xl">
+          <PenTool className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
           <span>Create New Update</span>
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
         {/* Title Input */}
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -180,7 +181,7 @@ const UpdateForm = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Share an exciting milestone..."
-            className="text-lg font-medium border-gray-300"
+            className="text-base sm:text-lg font-medium border-gray-300 w-full"
             maxLength={80}
           />
           <p className="text-xs text-slate-500 mt-1">
@@ -197,7 +198,7 @@ const UpdateForm = () => {
             value={descriptions}
             onChange={(e) => setDescriptions(e.target.value)}
             placeholder="Tell your story in detail..."
-            className="w-full h-32 p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full h-24 sm:h-32 p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base"
             maxLength={500}
           />
           <p className="text-xs text-slate-500 mt-1">
@@ -213,9 +214,9 @@ const UpdateForm = () => {
 
           {!selectedImage ? (
             <label className="cursor-pointer block">
-              <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
-                <Upload className="h-8 w-8 text-slate-400 mb-2" />
-                <span className="text-sm text-slate-600">
+              <div className="flex flex-col items-center justify-center w-full h-24 sm:h-32 border-2 border-dashed border-slate-300 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+                <Upload className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400 mb-2" />
+                <span className="text-xs sm:text-sm text-slate-600 text-center px-2">
                   Click to upload image
                 </span>
                 <span className="text-xs text-slate-500 mt-1">
@@ -230,17 +231,17 @@ const UpdateForm = () => {
               />
             </label>
           ) : (
-            <div className="relative w-full max-w-md">
+            <div className="relative w-full max-w-sm sm:max-w-md">
               <img
                 src={selectedImage.preview}
                 alt="Preview"
-                className="w-full h-48 object-cover rounded-lg border border-slate-200"
+                className="w-full h-32 sm:h-48 object-cover rounded-lg border border-slate-200"
               />
               <button
                 onClick={removeImage}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 sm:p-2 hover:bg-red-600 transition-colors"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3 sm:h-4 sm:w-4" />
               </button>
             </div>
           )}
@@ -253,34 +254,35 @@ const UpdateForm = () => {
           </label>
 
           {/* Custom Tag Input */}
-          <div className="flex items-center space-x-2 mb-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-3">
             <Input
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
               onKeyPress={handleCustomTagKeyPress}
               placeholder="Enter custom tag (e.g., success, breakthrough)"
-              className="flex-1 border-gray-300"
+              className="flex-1 border-gray-300 text-sm sm:text-base"
               maxLength={20}
             />
             <Button
               type="button"
               onClick={handleCustomTagAdd}
               disabled={!customTag.trim()}
-              className="bg-green-500 hover:bg-green-600 text-white px-3 py-2"
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 w-full sm:w-auto"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-0 sm:mr-1" />
+              <span className="sm:inline">Add</span>
             </Button>
           </div>
 
           {/* Predefined Tags */}
           <div className="mb-3">
             <p className="text-xs text-slate-600 mb-2">Suggested tags:</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {availableTags.map((tag) => (
                 <Badge
                   key={tag}
                   variant={selectedTags.includes(tag) ? "default" : "outline"}
-                  className={`cursor-pointer transition-all ${selectedTags.includes(tag)
+                  className={`cursor-pointer transition-all text-xs sm:text-sm px-2 py-1 ${selectedTags.includes(tag)
                     ? "bg-indigo-500 text-white"
                     : "hover:bg-indigo-50"
                     }`}
@@ -296,18 +298,18 @@ const UpdateForm = () => {
           {selectedTags.length > 0 && (
             <div>
               <p className="text-xs text-slate-600 mb-2">Selected tags:</p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {selectedTags.map((tag) => (
                   <Badge
                     key={tag}
-                    className="bg-indigo-500 text-white relative pr-8"
+                    className="bg-indigo-500 text-white relative pr-6 sm:pr-8 text-xs sm:text-sm"
                   >
                     {tag}
                     <button
                       onClick={() => removeTag(tag)}
                       className="absolute right-1 top-1/2 transform -translate-y-1/2 hover:bg-indigo-600 rounded-full p-0.5"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                     </button>
                   </Badge>
                 ))}
@@ -320,10 +322,11 @@ const UpdateForm = () => {
         <div className="flex justify-end pt-4 border-t">
           <Button
             onClick={handlePublish}
-            className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
+            className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white w-full sm:w-auto"
             disabled={loading || !title || !descriptions || !selectedImage}
           >
-            <Send className="h-4 w-4 mr-2" /> Publish Update
+            <Send className="h-4 w-4 mr-2" />
+            {loading ? "Publishing..." : "Publish Update"}
           </Button>
         </div>
       </CardContent>

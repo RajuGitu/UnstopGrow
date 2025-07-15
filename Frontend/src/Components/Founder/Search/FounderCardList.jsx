@@ -81,8 +81,8 @@ export default function FounderCardList() {
     return (
         <>
             <Card className="bg-white/80 backdrop-blur-sm">
-                <CardContent className="p-6">
-                    <div className="flex gap-4 items-center">
+                <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input
@@ -95,7 +95,7 @@ export default function FounderCardList() {
 
                         <Button
                             variant="outline"
-                            className="flex items-center gap-2 border-gray-300"
+                            className="flex items-center gap-2 border-gray-300 w-full sm:w-auto"
                             onClick={handleSearch}
                         >
                             <Filter className="h-4 w-4 text-gray-500" />
@@ -103,15 +103,15 @@ export default function FounderCardList() {
                         </Button>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-gray-300 grid grid-cols-1 md:grid-cols-3 gap-6 ">
+                    <div className="mt-6 pt-6 border-t border-gray-300 grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Merge readiness ───────────────────────── */}
-                        <div className="space-y-3">
+                        <div className="space-y-3 lg:col-span-2">
                             <Label className="text-sm font-semibold text-gray-700">Merge Readiness</Label>
 
                             <RadioGroup
                                 value={mergeReady}
                                 onValueChange={setMergeReady}
-                                className="grid-cols-1 lg:grid-cols-3 gap-2 text-gray-600 text-sm font-light"
+                                className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-gray-600 text-sm font-light"
                             >
                                 {[
                                     { id: "all", label: "All" },
@@ -120,7 +120,7 @@ export default function FounderCardList() {
                                 ].map(({ id, label }) => (
                                     <div className="flex items-center space-x-2" key={id}>
                                         <RadioGroupItem id={id} value={id} />
-                                        <Label htmlFor={id} className="text-sm">
+                                        <Label htmlFor={id} className="text-sm cursor-pointer">
                                             {label}
                                         </Label>
                                     </div>
@@ -129,7 +129,7 @@ export default function FounderCardList() {
                         </div>
 
                         {/* Results count */}
-                        <div className="flex items-end">
+                        <div className="flex items-center lg:items-end lg:justify-end">
                             <p className="text-sm text-slate-600">
                                 Showing {filteredFounders.length} of {founders.length} founders
                             </p>
@@ -146,7 +146,7 @@ export default function FounderCardList() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
                     {filteredFounders.map((founder, idx) => (
                         <FounderResultCard key={founder._id || idx} founder={founder} />
                     ))}

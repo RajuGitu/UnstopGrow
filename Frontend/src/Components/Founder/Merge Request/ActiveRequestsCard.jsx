@@ -1,3 +1,4 @@
+// ActiveRequestsCard.js
 import { Card, CardContent, CardHeader, CardTitle } from "../../UI/Card";
 import { Badge } from "../../UI/Badge";
 import { GitMerge, Mail, MapPin, Globe, Linkedin, Calendar, Star } from "lucide-react";
@@ -31,7 +32,7 @@ const Button = ({ variant = "default", className, children, isActive = false, di
 
     return (
         <button
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors border ${getVariantClasses()} ${className || ''}`}
+            className={`px-3 py-2 md:px-4 md:py-2 rounded-md text-sm font-medium transition-colors border ${getVariantClasses()} ${className || ''}`}
             disabled={disabled}
             {...props}
         >
@@ -151,17 +152,17 @@ export default function ActiveRequestsCard() {
 
     return (
         <Card className="bg-white/80 backdrop-blur-sm">
-            <CardHeader className="flex flex-col space-y-1.5 p-6">
-                <CardTitle className="flex items-center justify-between text-2xl font-semibold">
+            <CardHeader className="flex flex-col space-y-1.5 p-4 md:p-6">
+                <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xl md:text-2xl font-semibold">
                     <div className="flex items-center space-x-2">
                         <GitMerge className="h-5 w-5 text-green-600" />
                         <span>Active Requests</span>
                     </div>
-                    <Badge className="bg-secondary text-secondary-foreground">{requests?.length}</Badge>
+                    <Badge className="bg-secondary text-secondary-foreground w-fit">{requests?.length}</Badge>
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="p-6 pt-0 space-y-4">
+            <CardContent className="p-4 md:p-6 pt-0 space-y-4">
                 {requests.length === 0 ? (
                     <div className="text-center py-8 text-slate-500">
                         <GitMerge className="h-12 w-12 mx-auto mb-4 text-slate-300" />
@@ -177,38 +178,38 @@ export default function ActiveRequestsCard() {
                         const isRejected = requestData.status === "rejected";
 
                         return (
-                            <div key={requestData._id} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div key={requestData._id} className="border border-slate-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-shadow">
                                 {/* Header with startup info */}
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <h4 className="font-semibold text-lg">{founderData?.startUpName || 'Unknown Startup'}</h4>
-                                            <Badge className={getDomainColor(founderData?.domain)}>
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-2">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                            <h4 className="font-semibold text-lg truncate">{founderData?.startUpName || 'Unknown Startup'}</h4>
+                                            <Badge className={`${getDomainColor(founderData?.domain)} w-fit`}>
                                                 {founderData?.domain || 'General'}
                                             </Badge>
                                         </div>
-                                        <div className="flex items-center gap-4 text-sm text-slate-600">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-slate-600">
                                             <div className="flex items-center gap-1">
-                                                <MapPin className="h-4 w-4" />
-                                                <span>{founderData?.location || 'Location not specified'}</span>
+                                                <MapPin className="h-4 w-4 flex-shrink-0" />
+                                                <span className="truncate">{founderData?.location || 'Location not specified'}</span>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <Calendar className="h-4 w-4" />
-                                                <span>{formatDate(requestData.createdAt)}</span>
+                                                <Calendar className="h-4 w-4 flex-shrink-0" />
+                                                <span className="text-xs sm:text-sm">{formatDate(requestData.createdAt)}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <Badge className={statusDisplay.badgeColor}>
+                                    <Badge className={`${statusDisplay.badgeColor} w-fit mt-2 sm:mt-0`}>
                                         {statusDisplay.text}
                                     </Badge>
                                 </div>
 
                                 {/* Bio and message */}
                                 <div className="mb-4">
-                                    <p className="text-sm text-slate-700 mb-2">{founderData?.bio || 'No bio available'}</p>
+                                    <p className="text-sm text-slate-700 mb-2 line-clamp-2">{founderData?.bio || 'No bio available'}</p>
                                     <div className="bg-slate-50 p-3 rounded-md">
                                         <p className="text-sm font-medium text-slate-600 mb-1">Their Message:</p>
-                                        <p className="text-sm text-slate-700">{requestData.describe}</p>
+                                        <p className="text-sm text-slate-700 break-words">{requestData.describe}</p>
                                     </div>
                                 </div>
 
@@ -216,16 +217,16 @@ export default function ActiveRequestsCard() {
                                 {founderData?.achievements && (
                                     <div className="mb-4">
                                         <div className="flex items-center gap-1 mb-1">
-                                            <Star className="h-4 w-4 text-yellow-500" />
+                                            <Star className="h-4 w-4 text-yellow-500 flex-shrink-0" />
                                             <p className="text-sm font-medium text-slate-600">Achievements:</p>
                                         </div>
-                                        <p className="text-sm text-slate-700">{founderData.achievements}</p>
+                                        <p className="text-sm text-slate-700 line-clamp-3">{founderData.achievements}</p>
                                     </div>
                                 )}
 
                                 {/* Links and contact */}
-                                <div className="flex justify-between items-center mb-4">
-                                    <div className="flex items-center gap-3">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+                                    <div className="flex flex-wrap items-center gap-3">
                                         {founderData?.socials?.linkedin && (
                                             <a
                                                 href={founderData.socials.linkedin}
@@ -252,11 +253,11 @@ export default function ActiveRequestsCard() {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="flex items-center gap-1"
+                                        className="flex items-center gap-1 w-fit"
                                         onClick={() => window.open(`mailto:${founderData?.email}`, '_blank')}
                                     >
                                         <Mail className="h-4 w-4" />
-                                        Contact
+                                        <span className="hidden sm:inline">Contact</span>
                                     </Button>
                                 </div>
 
@@ -265,23 +266,24 @@ export default function ActiveRequestsCard() {
                                     <p className="text-sm font-medium text-slate-700">
                                         Status: <span className="capitalize font-semibold">{statusDisplay.text}</span>
                                         {isPending && (
-                                            <span className="ml-2 text-xs text-slate-500">• Awaiting your response</span>
+                                            <span className="ml-2 text-xs text-slate-500 block sm:inline">• Awaiting your response</span>
                                         )}
                                     </p>
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="flex justify-end space-x-2">
+                                <div className="flex flex-col sm:flex-row justify-end gap-2">
                                     <Button
                                         variant="success"
                                         isActive={isAccepted}
                                         onClick={() => handleStatusUpdate(requestData._id, "accepted")}
                                         disabled={isLoading || !isPending}
+                                        className="w-full sm:w-auto"
                                     >
                                         {isLoading && !isAccepted ? (
-                                            <span className="flex items-center gap-2">
+                                            <span className="flex items-center justify-center gap-2">
                                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                Processing...
+                                                <span className="hidden sm:inline">Processing...</span>
                                             </span>
                                         ) : isAccepted ? (
                                             "Accepted ✓"
@@ -294,11 +296,12 @@ export default function ActiveRequestsCard() {
                                         isActive={isRejected}
                                         onClick={() => handleStatusUpdate(requestData._id, "rejected")}
                                         disabled={isLoading || !isPending}
+                                        className="w-full sm:w-auto"
                                     >
                                         {isLoading && !isRejected ? (
-                                            <span className="flex items-center gap-2">
+                                            <span className="flex items-center justify-center gap-2">
                                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                Processing...
+                                                <span className="hidden sm:inline">Processing...</span>
                                             </span>
                                         ) : isRejected ? (
                                             "Rejected ✗"
@@ -314,4 +317,4 @@ export default function ActiveRequestsCard() {
             </CardContent>
         </Card>
     );
-};
+}

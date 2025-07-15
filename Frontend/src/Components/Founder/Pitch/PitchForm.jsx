@@ -13,9 +13,9 @@ const BLANK_FORM = {
   solution: "",
   market: "",
   traction: "",
-  funding: "",   // string
+  funding: "",
   team: "",
-  raised: "",    // string
+  raised: "",
   activeUser: "",
 };
 
@@ -39,7 +39,6 @@ const PitchForm = () => {
 
   const removePdfFile = () => {
     setPdfFile(null);
-    // Reset the file input
     const fileInput = document.getElementById('pdf-upload');
     if (fileInput) {
       fileInput.value = '';
@@ -49,7 +48,6 @@ const PitchForm = () => {
   const resetForm = () => {
     setFormData(BLANK_FORM);
     setPdfFile(null);
-    // Reset all form inputs
     const form = document.querySelector('form') || document;
     const inputs = form.querySelectorAll('input, textarea');
     inputs.forEach(input => {
@@ -107,7 +105,6 @@ const PitchForm = () => {
         },
       });
 
-      // Reset form after successful submission
       resetForm();
       alert("Pitch uploaded successfully!");
     } catch (err) {
@@ -119,8 +116,8 @@ const PitchForm = () => {
   };
 
   const renderTextInput = (key, label, placeholder) => (
-    <div key={key}>
-      <label className="block text-sm font-medium text-slate-700 mb-2">
+    <div key={key} className="space-y-2">
+      <label className="block text-sm font-medium text-slate-700">
         {label}
       </label>
       <Input
@@ -128,14 +125,14 @@ const PitchForm = () => {
         value={formData[key]}
         placeholder={placeholder}
         onChange={handleInputChange}
-        className="border-gray-300"
+        className="border-gray-300 w-full"
       />
     </div>
   );
 
   const renderTextarea = (key, label, placeholder) => (
-    <div key={key}>
-      <label className="block text-sm font-medium text-slate-700 mb-2">
+    <div key={key} className="space-y-2">
+      <label className="block text-sm font-medium text-slate-700">
         {label}
       </label>
       <textarea
@@ -144,17 +141,17 @@ const PitchForm = () => {
         value={formData[key]}
         placeholder={placeholder}
         onChange={handleInputChange}
-        className="flex min-h-[80px] w-full rounded-md border border-gray-300 border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="flex min-h-[80px] w-full rounded-md border border-gray-300 border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
       />
     </div>
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Basic Info */}
       <Card className="bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Basic Information</CardTitle>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl sm:text-2xl">Basic Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {renderTextInput(
@@ -172,22 +169,22 @@ const PitchForm = () => {
 
       {/* Media */}
       <Card className="bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl flex items-center">
-            <Video className="h-5 w-5 mr-2" />
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl sm:text-2xl flex items-center">
+            <Video className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             Pitch Media
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* PDF Upload */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-700">
               <FileText className="h-4 w-4 inline mr-1" />
               Pitch Deck PDF
             </label>
 
             {!pdfFile ? (
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors">
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 sm:p-6 text-center hover:border-slate-400 transition-colors">
                 <input
                   type="file"
                   accept=".pdf"
@@ -196,24 +193,24 @@ const PitchForm = () => {
                   onChange={handlePdfChange}
                 />
                 <label htmlFor="pdf-upload" className="cursor-pointer">
-                  <FileText className="h-8 w-8 mx-auto mb-2 text-slate-400" />
-                  <p className="text-slate-600">
+                  <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-slate-400" />
+                  <p className="text-slate-600 text-sm sm:text-base">
                     Click to upload your pitch deck PDF
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
                     Supports PDF files up to 10MB
                   </p>
                 </label>
               </div>
             ) : (
-              <div className="border-2 border-green-300 bg-green-50 rounded-lg p-4">
+              <div className="border-2 border-green-300 bg-green-50 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-green-100 rounded-full">
-                      <Check className="h-4 w-4 text-green-600" />
+                  <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                    <div className="p-1.5 sm:p-2 bg-green-100 rounded-full flex-shrink-0">
+                      <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-green-800">
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-green-800 truncate">
                         {pdfFile.name}
                       </p>
                       <p className="text-xs text-green-600">
@@ -224,7 +221,7 @@ const PitchForm = () => {
                   <button
                     type="button"
                     onClick={removePdfFile}
-                    className="p-1 hover:bg-red-100 rounded-full transition-colors"
+                    className="p-1 hover:bg-red-100 rounded-full transition-colors flex-shrink-0"
                     title="Remove file"
                   >
                     <X className="h-4 w-4 text-red-500" />
@@ -245,8 +242,8 @@ const PitchForm = () => {
 
       {/* Problem & Solution */}
       <Card className="bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Problem & Solution</CardTitle>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl sm:text-2xl">Problem & Solution</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {renderTextarea(
@@ -264,8 +261,8 @@ const PitchForm = () => {
 
       {/* Market & Traction */}
       <Card className="bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Market & Traction</CardTitle>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl sm:text-2xl">Market & Traction</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {renderTextarea(
@@ -283,8 +280,8 @@ const PitchForm = () => {
 
       {/* Funding & Team */}
       <Card className="bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Funding & Team</CardTitle>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl sm:text-2xl">Funding & Team</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {renderTextarea(
@@ -302,21 +299,23 @@ const PitchForm = () => {
 
       {/* Metrics */}
       <Card className="bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Business Metrics</CardTitle>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl sm:text-2xl">Business Metrics</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {renderTextInput("raised", "Already Raised", "e.g. 50 lakhs")}
-          {renderTextInput("activeUser", "Active Users", "e.g. 5000")}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderTextInput("raised", "Already Raised", "e.g. 50 lakhs")}
+            {renderTextInput("activeUser", "Active Users", "e.g. 5000")}
+          </div>
         </CardContent>
       </Card>
 
       {/* Submit */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white disabled:opacity-50"
+          className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white disabled:opacity-50 h-10 sm:h-11"
         >
           <Upload className="h-4 w-4 mr-2" />
           {isSubmitting ? "Publishing..." : "Publish Pitch"}
@@ -326,7 +325,7 @@ const PitchForm = () => {
           onClick={resetForm}
           variant="outline"
           disabled={isSubmitting}
-          className="px-6 border-gray-300"
+          className="sm:px-6 border-gray-300 h-10 sm:h-11"
         >
           Clear Form
         </Button>

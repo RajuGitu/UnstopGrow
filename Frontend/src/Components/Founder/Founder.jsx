@@ -10,6 +10,7 @@ const Founder = () => {
   useEffect(() => {
     getFounderName();
   }, []);
+
   // Show loading spinner while checking authentication
   if (!initialized || loading) {
     return (
@@ -27,11 +28,22 @@ const Founder = () => {
 
   return (
     <div className="flex min-h-screen">
-      <div className="w-1/5 bg-gray-800 text-white">
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden lg:block w-1/5 bg-gray-800 text-white">
         <Sidebar />
       </div>
-      <div className="w-4/5 bg-gray-100 p-6">
-        <Outlet />
+
+      {/* Main Content Area */}
+      <div className="flex-1 lg:w-4/5 bg-gray-100">
+        {/* Mobile Sidebar - Only visible on mobile */}
+        <div className="lg:hidden">
+          <Sidebar />
+        </div>
+
+        {/* Content */}
+        <div className="p-4 lg:p-6">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

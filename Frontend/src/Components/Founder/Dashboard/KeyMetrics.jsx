@@ -6,20 +6,21 @@ import { useEffect } from "react";
 import { useAuth } from "../../../context/AuthContext";
 
 const KeyMetrics = () => {
-  const { founder } = useAuth();
-  const { post, pitch, getAllPitches, } = usePitchPost();
-
+  const { founder, getFounderName } = useAuth();
+  const { post, pitch, getAllPitches } = usePitchPost();
   const { getAllInterestedFounder, intereseted } = useInterest();
+
   useEffect(() => {
-    getAllInterestedFounder(),
-      getAllPitches()
+    getAllInterestedFounder();
+    getAllPitches();
+    getFounderName();
   }, []);
 
   const PostLikes = post.reduce((total, item) => {
     if (Array.isArray(item.likes)) {
       return total + item.likes.length;
     } else if (item.likes && typeof item.likes === 'object') {
-      return total + Object.keys(item.likes).length;
+      return total + Object.keys(item.likes)?.length;
     }
     return total;
   }, 0);
@@ -41,30 +42,31 @@ const KeyMetrics = () => {
 
   const totalRawLikes = PostLikes + PitchLikes;
   const totalLikes = formatLikesCount(totalRawLikes);
+
   const metrics = [
     {
       title: "Total Likes",
       value: `${totalLikes}`,
-      icon: <Heart className="h-8 w-8 text-blue-500" />,
+      icon: <Heart className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />,
       color: "blue",
     },
     {
       title: "Total Followers",
-      value: `${founder.followers.length}`,
-      icon: <Users className="h-8 w-8" />,
+      value: `${founder.followers?.length || 0}`,
+      icon: <Users className="h-6 w-6 md:h-8 md:w-8" />,
       color: "green",
     },
     {
       title: "Investor Interest",
-      value: `${intereseted.length}`,
-      icon: <Star className="h-8 w-8" />,
+      value: `${intereseted?.length || 0}`,
+      icon: <Star className="h-6 w-6 md:h-8 md:w-8" />,
       color: "purple",
     },
   ];
 
   return (
-    <div className="max-h-screen px-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="w-full px-2 md:px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {metrics.map((metric, index) => (
           <MetricCard key={index} {...metric} />
         ))}

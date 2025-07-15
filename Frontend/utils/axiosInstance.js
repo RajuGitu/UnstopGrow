@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'https://unstopgrowb.onrender.com/',
+    baseURL: 'https://unstopgrowb.onrender.com',
     withCredentials: true,
 });
 

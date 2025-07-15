@@ -3,8 +3,6 @@ import { Badge } from "../../UI/Badge";
 import { Button } from "../../UI/Button";
 import {
   BookmarkX,
-  MessageSquare,
-  ExternalLink,
   Calendar,
   FileText,
   Heart,
@@ -189,7 +187,7 @@ const StartupCard = ({ startup }) => {
 
     const rel = imagePath.split("uploads")[1];
     return rel
-      ? `http://localhost:5000/uploads${rel.replace(/\\/g, "/")}`
+      ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
       : imgPlaceholder;
   };
 
@@ -283,11 +281,10 @@ const StartupCard = ({ startup }) => {
               size="sm"
               onClick={() => handleExpressInterest(startup.savedstartupId)}
               disabled={isInterestLoading}
-              className={`flex transition-colors duration-200 cursor-pointer ${
-                isInterested
-                  ? "bg-red-500 hover:bg-red-600 text-white"
-                  : "bg-red-700 hover:bg-red-800 text-white"
-              } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`flex transition-colors duration-200 cursor-pointer ${isInterested
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-red-700 hover:bg-red-800 text-white"
+                } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <Heart
                 className={`w-4 h-4 mr-3 ${isInterested ? "fill-current" : ""}`}
@@ -295,8 +292,8 @@ const StartupCard = ({ startup }) => {
               {isInterestLoading
                 ? "Processing..."
                 : isInterested
-                ? "Interested"
-                : "Interest"}
+                  ? "Interested"
+                  : "Interest"}
             </Button>
             <Button
               size="sm"

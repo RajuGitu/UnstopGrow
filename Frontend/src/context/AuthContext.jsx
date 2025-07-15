@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     const getFounderName = useCallback(async () => {
         if (!token()) return false;
         try {
-            const res = await fetch("http://localhost:5000/getfounderauthenticate", {
+            const res = await fetch("https://unstopgrowb.onrender.com/getfounderauthenticate", {
                 headers: { Authorization: `Bearer ${token()}` },
                 credentials: "include",
             });
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     const getInvestorName = useCallback(async () => {
         if (!token()) return false;
         try {
-            const res = await fetch("http://localhost:5000/getinvestorauthenticate", {
+            const res = await fetch("https://unstopgrowb.onrender.com/getinvestorauthenticate", {
                 headers: { Authorization: `Bearer ${token()}` },
                 credentials: "include",
             });
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         if (!token()) return false;
         try {
             const res = await fetch(
-                "http://localhost:5000/getSupporterAuthenticate",
+                "https://unstopgrowb.onrender.com/getSupporterAuthenticate",
                 {
                     headers: { Authorization: `Bearer ${token()}` },
                     credentials: "include",

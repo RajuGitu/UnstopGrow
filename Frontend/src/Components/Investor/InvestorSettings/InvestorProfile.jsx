@@ -26,7 +26,7 @@ const InvestorProfile = () => {
     if (!imagePath) return null;
     const relativePath = imagePath?.split("uploads")[1];
     return relativePath
-      ? `http://localhost:5000/uploads${relativePath.replace(/\\/g, "/")}`
+      ? `https://unstopgrowb.onrender.com/uploads${relativePath.replace(/\\/g, "/")}`
       : "https://via.placeholder.com/150";
   };
 

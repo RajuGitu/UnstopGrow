@@ -78,7 +78,7 @@ function TrendingStartups() {
   const makeUrl = (absolute) => {
     const rel = absolute.split("uploads")[1];
     return rel
-      ? `http://localhost:5000/uploads${rel.replace(/\\/g, "/")}`
+      ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
       : imgPlaceholder;
   };
 

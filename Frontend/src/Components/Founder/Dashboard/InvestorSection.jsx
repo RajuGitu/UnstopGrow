@@ -45,7 +45,7 @@ const InvestorInterest = () => {
 
     const rel = absolute.split("uploads")[1];
     return rel
-      ? `http://localhost:5000/uploads${rel.replace(/\\/g, "/")}`
+      ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
       : imgPlaceholder;
   };
 
@@ -56,24 +56,26 @@ const InvestorInterest = () => {
   const hasMoreInvestors = intereseted && intereseted.length > 3;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm p-6">
+    <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
         <div className="flex items-center space-x-2">
-          <Star className="h-5 w-5 text-yellow-500" />
-          <span className="text-2xl font-semibold">Active Investor Interest</span>
+          <Star className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
+          <span className="text-lg md:text-2xl font-semibold">Active Investor Interest</span>
         </div>
         <Link to="/founder/interests">
-          <Button variant="outline" size="sm">View All</Button>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+            View All
+          </Button>
         </Link>
       </div>
 
       {/* List */}
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {!intereseted || intereseted.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
-            <Star className="h-12 w-12 mx-auto mb-4 text-slate-300" />
-            <p>No active investor interest yet</p>
+          <div className="text-center py-6 md:py-8 text-slate-500">
+            <Star className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-3 md:mb-4 text-slate-300" />
+            <p className="text-sm md:text-base">No active investor interest yet</p>
           </div>
         ) : (
           <>
@@ -84,10 +86,10 @@ const InvestorInterest = () => {
               return (
                 <div
                   key={investor?.investorId || index}
-                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors space-y-3 sm:space-y-0"
                 >
                   <div className="flex items-center space-x-3">
-                    <Avatar className="h-12 w-12 flex-shrink-0">
+                    <Avatar className="h-10 w-10 md:h-12 md:w-12 flex-shrink-0">
                       <AvatarFallback>
                         {profile.image ? (
                           <img
@@ -100,34 +102,34 @@ const InvestorInterest = () => {
                           />
                         ) : (
                           <div className="w-full h-full bg-slate-300 rounded-full flex items-center justify-center">
-                            <span className="text-slate-600 font-medium">
+                            <span className="text-slate-600 font-medium text-sm md:text-base">
                               {profile.name ? profile.name.charAt(0).toUpperCase() : 'I'}
                             </span>
                           </div>
                         )}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <h3 className="font-semibold text-slate-900">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-slate-900 text-sm md:text-base truncate">
                         {profile.name || 'Unknown Investor'}
                       </h3>
-                      <p className="text-slate-600 text-sm">
+                      <p className="text-slate-600 text-xs md:text-sm truncate">
                         {profile.company || 'Company not specified'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                     {/* Interests */}
                     {domain.interests && domain.interests.length > 0 && (
-                      <div className="flex items-center space-x-1">
+                      <div className="flex items-center space-x-1 flex-wrap">
                         {domain.interests.slice(0, 2).map((interest, idx) => (
-                          <Badge key={idx} className="text-xs" variant="secondary">
+                          <Badge key={idx} className="text-xs mb-1" variant="secondary">
                             {interest}
                           </Badge>
                         ))}
                         {domain.interests.length > 2 && (
-                          <Badge className="text-xs" variant="outline">
+                          <Badge className="text-xs mb-1" variant="outline">
                             +{domain.interests.length - 2}
                           </Badge>
                         )}
@@ -138,10 +140,11 @@ const InvestorInterest = () => {
                     {profile.email && (
                       <a
                         href={`mailto:${profile.email}`}
-                        className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                        className="flex items-center text-xs md:text-sm text-blue-600 hover:text-blue-800 transition-colors self-start sm:self-center"
                       >
-                        <Mail className="h-4 w-4 mr-1" />
-                        Email
+                        <Mail className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                        <span className="hidden sm:inline">Email</span>
+                        <span className="sm:hidden">Contact</span>
                       </a>
                     )}
                   </div>
@@ -154,7 +157,7 @@ const InvestorInterest = () => {
               <div className="flex justify-center pt-2">
                 <button
                   onClick={() => setShowAll(!showAll)}
-                  className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium"
+                  className="flex items-center space-x-1 text-xs md:text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium"
                 >
                   <span>
                     {showAll
@@ -163,18 +166,17 @@ const InvestorInterest = () => {
                     }
                   </span>
                   {showAll ? (
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-3 w-3 md:h-4 md:w-4" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
                   )}
                 </button>
               </div>
             )}
           </>
-        )
-        }
-      </div >
-    </div >
+        )}
+      </div>
+    </div>
   );
 };
 

@@ -37,7 +37,7 @@ export default function InvestorCard({ investor }) {
     if (!investor) {
         return (
             <div className="p-4 bg-white rounded-lg border shadow-sm">
-                <p className="text-slate-500 text-center">No investor data available</p>
+                <p className="text-slate-500 text-center text-sm">No investor data available</p>
             </div>
         );
     }
@@ -50,7 +50,7 @@ export default function InvestorCard({ investor }) {
 
         const rel = imagePath.split("uploads")[1];
         return rel
-            ? `http://localhost:5000/uploads${rel.replace(/\\/g, "/")}`
+            ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
             : imgPlaceholder;
     };
 
@@ -70,10 +70,12 @@ export default function InvestorCard({ investor }) {
     };
 
     return (
-        <div className="p-4 bg-white rounded-lg border border-gray-300 m-2 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-4">
-                    <Avatar className="h-12 w-12 flex-shrink-0">
+        <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-300 shadow-sm hover:shadow-md transition-shadow w-full">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                {/* Main Content */}
+                <div className="flex items-start space-x-3 sm:space-x-4 flex-1 min-w-0">
+                    {/* Avatar */}
+                    <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                         <AvatarFallback>
                             {profile.image ? (
                                 <img
@@ -86,7 +88,7 @@ export default function InvestorCard({ investor }) {
                                 />
                             ) : (
                                 <div className="w-full h-full bg-slate-300 rounded-full flex items-center justify-center">
-                                    <span className="text-slate-600 font-medium">
+                                    <span className="text-slate-600 font-medium text-sm">
                                         {profile.name ? profile.name.charAt(0).toUpperCase() : 'I'}
                                     </span>
                                 </div>
@@ -94,44 +96,50 @@ export default function InvestorCard({ investor }) {
                         </AvatarFallback>
                     </Avatar>
 
+                    {/* Content */}
                     <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-slate-900 truncate">
-                            {profile.name || 'Unknown Investor'}
-                        </h3>
-                        <p className="text-slate-600 truncate">
-                            {profile.company || 'Company not specified'}
-                        </p>
+                        {/* Name and Company */}
+                        <div className="mb-2">
+                            <h3 className="font-semibold text-slate-900 text-sm sm:text-base truncate">
+                                {profile.name || 'Unknown Investor'}
+                            </h3>
+                            <p className="text-slate-600 text-xs sm:text-sm truncate">
+                                {profile.company || 'Company not specified'}
+                            </p>
+                        </div>
+
+                        {/* Bio */}
                         {profile.bio && (
-                            <p className="text-sm text-slate-500 mt-1 line-clamp-2">
+                            <p className="text-xs sm:text-sm text-slate-500 mb-2 line-clamp-2 leading-relaxed">
                                 {profile.bio}
                             </p>
                         )}
 
                         {/* Interests/Tags */}
                         {domain.interests && domain.interests.length > 0 && (
-                            <div className="flex items-center flex-wrap gap-1 mt-2">
-                                {domain.interests.slice(0, 3).map((interest, idx) => (
-                                    <Badge key={idx} className="text-xs" variant="secondary">
+                            <div className="flex items-center flex-wrap gap-1 mb-3">
+                                {domain.interests.slice(0, 2).map((interest, idx) => (
+                                    <Badge key={idx} className="text-xs px-2 py-0.5" variant="secondary">
                                         {interest}
                                     </Badge>
                                 ))}
-                                {domain.interests.length > 3 && (
-                                    <Badge className="text-xs" variant="outline">
-                                        +{domain.interests.length - 3} more
+                                {domain.interests.length > 2 && (
+                                    <Badge className="text-xs px-2 py-0.5" variant="outline">
+                                        +{domain.interests.length - 2}
                                     </Badge>
                                 )}
                             </div>
                         )}
 
                         {/* Contact Info */}
-                        <div className="flex items-center space-x-4 mt-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                             {profile.email && (
                                 <a
                                     href={`mailto:${profile.email}`}
-                                    className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                    className="flex items-center text-xs sm:text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                 >
-                                    <Mail className="h-4 w-4 mr-1" />
-                                    Email
+                                    <Mail className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                                    <span className="truncate">Email</span>
                                 </a>
                             )}
                             {profile.linkedin && (
@@ -139,20 +147,23 @@ export default function InvestorCard({ investor }) {
                                     href={profile.linkedin.startsWith('http') ? profile.linkedin : `https://${profile.linkedin}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                                    className="flex items-center text-xs sm:text-sm text-blue-600 hover:text-blue-800 transition-colors"
                                 >
-                                    <Linkedin className="h-4 w-4 mr-1" />
-                                    LinkedIn
+                                    <Linkedin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                                    <span className="truncate">LinkedIn</span>
                                 </a>
                             )}
                         </div>
                     </div>
                 </div>
 
-                <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-slate-500 mt-2 flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {formatDate(profile.createdAt)}
+                {/* Date - Mobile: Below content, Desktop: Top right */}
+                <div className="flex justify-end sm:justify-start sm:flex-shrink-0 sm:mt-0 mt-2">
+                    <p className="text-xs text-slate-500 flex items-center">
+                        <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                        <span className="whitespace-nowrap">
+                            {formatDate(profile.createdAt)}
+                        </span>
                     </p>
                 </div>
             </div>
