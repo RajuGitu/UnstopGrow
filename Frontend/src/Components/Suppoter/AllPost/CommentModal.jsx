@@ -209,7 +209,7 @@ const CommentModal = ({
         )}
 
         {/* Main Content */}
-        <div className="flex flex-col md:flex-row h-full md:h-[600px]">
+        <div className="flex flex-col md:flex-row h-full md:h-[600px] max-h-screen md:max-h-[600px]">
           {/* Desktop Image - Hidden on mobile */}
           <div className="hidden md:flex md:flex-1 bg-black items-center justify-center">
             <img
@@ -223,7 +223,7 @@ const CommentModal = ({
           </div>
 
           {/* Comments Section */}
-          <div className="flex flex-col flex-1 bg-white h-full">
+          <div className="flex flex-col flex-1 bg-white h-full min-h-0">
             {/* Header */}
             <DialogHeader className="p-3 md:p-4 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center justify-between">
@@ -264,7 +264,7 @@ const CommentModal = ({
             </DialogHeader>
 
             {/* Mobile Image Preview */}
-            <div className="md:hidden border-b border-gray-200 bg-black flex items-center justify-center h-48 flex-shrink-0">
+            <div className="md:hidden border-b border-gray-200 bg-black flex items-center justify-center h-40 flex-shrink-0">
               <img
                 src={makeImageUrl(postItem?.media)}
                 alt={postItem?.title}
@@ -277,7 +277,7 @@ const CommentModal = ({
             </div>
 
             {/* Comments List - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 min-h-0">
+            <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 min-h-0" style={{ maxHeight: 'calc(100vh - 280px)' }}>
               {comments.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   <p>No comments yet.</p>
@@ -319,14 +319,14 @@ const CommentModal = ({
             </div>
 
             {/* Comment Input - Fixed at bottom */}
-            <div className="p-3 md:p-4 border-t border-gray-200 bg-white flex-shrink-0">
+            <div className="p-3 md:p-4 border-t border-gray-200 bg-white flex-shrink-0 sticky bottom-0">
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Add a comment..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm touch-manipulation"
                   maxLength={300}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -338,7 +338,7 @@ const CommentModal = ({
                 <Button
                   onClick={handleSubmitComment}
                   disabled={!newComment.trim() || isSubmitting}
-                  className="px-3 md:px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 flex-shrink-0"
+                  className="px-3 md:px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 flex-shrink-0 touch-manipulation"
                 >
                   {isSubmitting ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
