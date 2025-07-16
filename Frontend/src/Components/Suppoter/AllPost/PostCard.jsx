@@ -263,7 +263,7 @@ const PostCard = ({
   return (
     <>
       <Card className="bg-white/90 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-        <CardHeader className="pb-3 p-4 sm:p-6">
+        <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg sm:text-xl font-bold text-slate-900 mb-1 truncate">
@@ -314,7 +314,7 @@ const PostCard = ({
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+        <CardContent className="space-y-3 sm:space-y-4 p-4 pt-0">
           {/* Image */}
           {postItem.media && (
             <div className="relative">

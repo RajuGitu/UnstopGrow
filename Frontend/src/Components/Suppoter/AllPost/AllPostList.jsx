@@ -103,7 +103,7 @@ const AllPostList = () => {
       </div>
 
       {/* Updates Cards Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 ">
         {filteredPosts.length > 0 ? (
           filteredPosts.map((postItem) => (
             <PostCard

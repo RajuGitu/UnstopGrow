@@ -57,7 +57,7 @@ const AllPitchList = () => {
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Search Section */}
             <Card className="bg-white/80 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6">
+                <CardContent className="">
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -90,7 +90,7 @@ const AllPitchList = () => {
             </div>
 
             {/* Pitch Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4">
                 {filteredPitches.length > 0 ? (
                     filteredPitches.map((pitchItem) => (
                         <PitchCard
