@@ -2,9 +2,13 @@ import { Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import { SupporterSidebar } from "./SupporterSidebar";
+import { useEffect } from "react";
 
 const SupporterLayout = () => {
-    const { supporter, loading, initialized } = useAuth();
+    const { supporter, loading, initialized, getSupporterName } = useAuth();
+    useEffect(() => {
+        getSupporterName()  
+    }, [])
 
     if (!initialized || loading) {
         return (

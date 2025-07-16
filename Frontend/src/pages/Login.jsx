@@ -14,6 +14,29 @@ const Login = () => {
 
     const roles = ['Founder', 'Investor', 'Supporter'];
 
+    // Demo credentials
+    const demoCredentials = {
+        Founder: {
+            email: "aarav@ecowave.com",
+            password: "Hashedpassword1@"
+        },
+        Investor: {
+            email: "simranyelave064@gmail.com",
+            password: "Simran123@"
+        },
+        Supporter: {
+            email: "rajg05457@gmail.com",
+            password: "Rajg05457@"
+        }
+    };
+
+    const handleDemoLogin = (role) => {
+        setSelectedRole(role);
+        setEmail(demoCredentials[role].email);
+        setPassword(demoCredentials[role].password);
+        setMessage("");
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -108,11 +131,33 @@ const Login = () => {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-100 to-blue-100">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md flex flex-col items-center space-y-6">
-                <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-4">
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-100 to-blue-100 p-4">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md flex flex-col items-center space-y-6">
+                <form onSubmit={handleSubmit} className="w-full space-y-4">
                     {/* Heading */}
-                    <h2 className="text-2xl font-bold text-purple-700">Login</h2>
+                    <h2 className="text-2xl font-bold text-purple-700 text-center">Login</h2>
+
+                    {/* Demo Credentials Section */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 className="text-sm font-semibold text-purple-800 mb-3 text-center">
+                            🚀 Experience UnstopGrow - Try Demo
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            {roles.map((role) => (
+                                <button
+                                    key={role}
+                                    type="button"
+                                    onClick={() => handleDemoLogin(role)}
+                                    className="bg-white hover:bg-purple-50 text-purple-700 font-medium py-2 px-3 rounded-md shadow-sm border border-purple-200 hover:border-purple-300 transition-all duration-200 text-xs sm:text-sm"
+                                >
+                                    {role}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-xs text-purple-600 mt-2 text-center">
+                            Click any role to auto-fill demo credentials
+                        </p>
+                    </div>
 
                     {/* Message Display */}
                     {message && (
