@@ -80,7 +80,7 @@ const Login = () => {
                     navigate("/founder", { replace: true });
                     break;
                 case "investor":
-                    navigate("/investor/dashboard", { replace: true });
+                    navigate("/investor", { replace: true });
                     break;
                 case "supporter":
                     navigate("/supporter", { replace: true });
