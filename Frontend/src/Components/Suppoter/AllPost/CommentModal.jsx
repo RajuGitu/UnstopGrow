@@ -176,12 +176,13 @@ const CommentModal = ({
       setIsDeleting((prev) => ({ ...prev, [commentId]: false }));
     }
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[99vh] p-0 overflow-hidden">
-        <div className="flex h-[600px]">
-          {/* Left side - Image */}
-          <div className="flex-1 bg-black flex items-center justify-center">
+      <DialogContent className="max-w-4xl w-full mx-4 sm:mx-6 md:mx-8 max-h-[95vh] sm:max-h-[90vh] p-0 overflow-hidden">
+        <div className="flex flex-col md:flex-row h-[90vh] sm:h-[600px] md:h-[600px]">
+          {/* Image Section */}
+          <div className="flex-1 bg-black flex items-center justify-center order-1 md:order-1 h-64 sm:h-80 md:h-full">
             <img
               src={makeImageUrl(postItem?.media)}
               alt={postItem?.title}
@@ -193,68 +194,48 @@ const CommentModal = ({
             />
           </div>
 
-          {/* Right side - Comments */}
-          <div className="flex-1 flex flex-col bg-white">
+          {/* Comments Section */}
+          <div className="flex-1 flex flex-col bg-white order-2 md:order-2 min-h-0">
             {/* Header */}
-            <DialogHeader className="p-4 border-b border-gray-200 flex-shrink-0">
+            <DialogHeader className="p-3 sm:p-4 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
                   <User className="w-4 h-4 text-white" />
                 </div>
-                <div>
-                  <DialogTitle className="text-sm font-semibold">
+                <div className="min-w-0 flex-1">
+                  <DialogTitle className="text-sm font-semibold truncate">
                     {postItem?.companyName || "Unnamed Startup"}
                   </DialogTitle>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 truncate">
                     {postItem?.ownerName || "Unknown"}
                   </p>
                 </div>
               </div>
             </DialogHeader>
 
-            {/* Post Description */}
-            {/* <div className="p-4 border-b border-gray-100 flex-shrink-0">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                  <User className="w-3 h-3 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm">
-                    <span className="font-semibold text-gray-900">
-                      {postItem?.companyName || "Unnamed Startup"}
-                    </span>{" "}
-                    {postItem?.description}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatDate(postItem?.createdAt)}
-                  </p>
-                </div>
-              </div>
-            </div> */}
-
             {/* Comments List - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
               {comments.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
-                  <p>No comments yet.</p>
-                  <p className="text-sm">Be the first to comment!</p>
+                  <p className="text-sm sm:text-base">No comments yet.</p>
+                  <p className="text-xs sm:text-sm">Be the first to comment!</p>
                 </div>
               ) : (
                 comments.map((comment) => (
-                  <div key={comment._id} className="flex items-start gap-3">
+                  <div key={comment._id} className="flex items-start gap-2 sm:gap-3">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center flex-shrink-0">
                       <User className="w-3 h-3 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm text-gray-900">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="font-semibold text-sm text-gray-900 truncate">
                           {comment.username}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
                           {formatDate(comment.createdAt)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 break-words">
+                      <p className="text-sm text-gray-700 break-words leading-relaxed">
                         {comment.comment}
                       </p>
                     </div>
@@ -275,20 +256,20 @@ const CommentModal = ({
             </div>
 
             {/* Comment Input - Fixed at bottom */}
-            <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0">
+            <div className="p-3 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0">
               <form onSubmit={handleSubmitComment} className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Add a comment..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm min-w-0"
                   maxLength={300}
                 />
                 <Button
                   type="submit"
                   disabled={!newComment.trim() || isSubmitting}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 flex-shrink-0"
+                  className="px-3 sm:px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 flex-shrink-0"
                 >
                   {isSubmitting ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -297,7 +278,7 @@ const CommentModal = ({
                   )}
                 </Button>
               </form>
-              <div className="flex justify-between items-center text-xs">
+              <div className="flex justify-between items-center text-xs flex-wrap gap-2">
                 <span className="text-gray-500">
                   {commentsPosts[postItem?._id] || 0} comments
                 </span>

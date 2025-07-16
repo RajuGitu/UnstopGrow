@@ -1,3 +1,4 @@
+// SupporterKeyMetrics.js
 import { Heart, Loader2, MessageCircle, Users } from "lucide-react";
 import SupporterMetricCard from "./SupporterMetricCard";
 import { useState, useEffect } from "react";
@@ -49,34 +50,34 @@ const SupporterKeyMetrics = () => {
         {
             title: "Total Following",
             value: `${follow}`,
-            icon: <Users className="h-8 w-8 text-blue-500" />,
+            icon: <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />,
             color: "blue",
         },
         {
             title: "Total Liked",
             value: `${likes}`,
-            icon: <Heart className="h-8 w-8 text-red-500" />,
+            icon: <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />,
             color: "green",
         },
         {
             title: "Total Comments",
             value: `${comments}`,
-            icon: <MessageCircle className="h-8 w-8 text-purple-500" />,
+            icon: <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />,
             color: "purple",
         },
     ];
 
     if (loading) {
         return (
-            <div className="max-h-screen px-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="w-full px-0">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {[1, 2, 3].map((_, index) => (
                         <div
                             key={index}
-                            className="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
+                            className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200"
                         >
                             <div className="flex items-center justify-center">
-                                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                                <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-gray-400" />
                             </div>
                         </div>
                     ))}
@@ -87,17 +88,17 @@ const SupporterKeyMetrics = () => {
 
     if (error) {
         return (
-            <div className="max-h-screen px-4">
+            <div className="w-full px-0">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-red-600 text-sm">{error}</p>
+                    <p className="text-red-600 text-sm text-center">{error}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="max-h-screen px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="w-full px-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {metrics.map((metric, index) => (
                     <SupporterMetricCard key={index} {...metric} />
                 ))}

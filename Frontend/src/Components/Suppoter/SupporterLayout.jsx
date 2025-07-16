@@ -7,7 +7,7 @@ import { useEffect } from "react";
 const SupporterLayout = () => {
     const { supporter, loading, initialized, getSupporterName } = useAuth();
     useEffect(() => {
-        getSupporterName()  
+        getSupporterName()
     }, [])
 
     if (!initialized || loading) {
@@ -23,7 +23,7 @@ const SupporterLayout = () => {
         return <Navigate to="/login" replace />;
     }
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
             <SupporterSidebar />
             <div className="flex-1 flex flex-col">
                 <main className="flex-1 overflow-auto">

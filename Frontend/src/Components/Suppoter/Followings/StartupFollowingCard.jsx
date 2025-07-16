@@ -79,11 +79,12 @@ const StartupFollowingCard = ({ startup, onFollowStatusChange }) => {
     const logoUrl = makeImageUrl(startup.logo);
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
-                        <Avatar className="w-16 h-16 rounded-xl shadow-md">
+        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+            {/* Mobile Layout - Stacked */}
+            <div className="flex flex-col sm:hidden space-y-4">
+                <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <Avatar className="w-12 h-12 rounded-full shadow-md">
                             {startup.logo && (
                                 <img
                                     src={logoUrl}
@@ -96,18 +97,18 @@ const StartupFollowingCard = ({ startup, onFollowStatusChange }) => {
                                 />
                             )}
                             {!startup.logo && (
-                                <AvatarFallback>
+                                <AvatarFallback className="text-xs">
                                     {getInitials(startup.companyName || "Unknown")}
                                 </AvatarFallback>
                             )}
                         </Avatar>
                     </div>
 
-                    <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 text-sm">
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate">
                             {startup.companyName}
                         </h3>
-                        <p className="text-gray-500 text-xs">
+                        <p className="text-gray-500 text-xs truncate">
                             Owner: {startup.ownerName}
                         </p>
                     </div>
@@ -118,7 +119,7 @@ const StartupFollowingCard = ({ startup, onFollowStatusChange }) => {
                     size="sm"
                     disabled={isLoading}
                     onClick={handleFollow}
-                    className={`text-sm px-4 py-2 flex items-center gap-2 ${isFollowing
+                    className={`w-full text-sm px-4 py-2 flex items-center justify-center gap-2 ${isFollowing
                         ? "text-green-600 border-green-600 hover:bg-green-50"
                         : "text-blue-600 border-blue-600 hover:bg-blue-50"
                         }`}
@@ -131,6 +132,61 @@ const StartupFollowingCard = ({ startup, onFollowStatusChange }) => {
                         <UserPlus className="h-4 w-4" />
                     )}
                     <span>{isFollowing ? "Following" : "Follow"}</span>
+                </Button>
+            </div>
+
+            {/* Desktop Layout - Side by Side */}
+            <div className="hidden sm:flex items-center justify-between">
+                <div className="flex items-center space-x-4 flex-1 min-w-0">
+                    <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <Avatar className="w-12 h-12 lg:w-16 lg:h-16 rounded-full shadow-md">
+                            {startup.logo && (
+                                <img
+                                    src={logoUrl}
+                                    alt={`${startup.companyName} logo`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                />
+                            )}
+                            {!startup.logo && (
+                                <AvatarFallback className="text-xs lg:text-sm">
+                                    {getInitials(startup.companyName || "Unknown")}
+                                </AvatarFallback>
+                            )}
+                        </Avatar>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">
+                            {startup.companyName}
+                        </h3>
+                        <p className="text-gray-500 text-xs lg:text-sm truncate">
+                            Owner: {startup.ownerName}
+                        </p>
+                    </div>
+                </div>
+
+                <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isLoading}
+                    onClick={handleFollow}
+                    className={`text-sm px-3 py-2 lg:px-4 lg:py-2 flex items-center gap-2 flex-shrink-0 ${isFollowing
+                        ? "text-green-600 border-green-600 hover:bg-green-50"
+                        : "text-blue-600 border-blue-600 hover:bg-blue-50"
+                        }`}
+                >
+                    {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : isFollowing ? (
+                        <UserCheck className="h-4 w-4" />
+                    ) : (
+                        <UserPlus className="h-4 w-4" />
+                    )}
+                    <span className="hidden lg:inline">{isFollowing ? "Following" : "Follow"}</span>
                 </Button>
             </div>
         </div>
