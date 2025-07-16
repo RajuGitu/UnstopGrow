@@ -4,9 +4,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import axiosInstance from '../../utils/axiosInstance';
 
-
 const Login = () => {
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [selectedRole, setSelectedRole] = useState("Select Role");
@@ -18,18 +16,27 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Clear previous messages
+        setMessage("");
+
+        // Validation
         if (selectedRole === "Select Role" || !email || !password) {
-            alert("Invalid email format or password");
+            setMessage("Please select a role and fill in all fields");
             return;
         }
+
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert("Invalid email format");
+            setMessage("Invalid email format");
             return;
         }
 
         const role = selectedRole.toLowerCase();
+
         try {
             setLoading(true);
+
+            // Determine endpoint
             let endpoint = "";
             switch (role) {
                 case "founder":
@@ -44,31 +51,58 @@ const Login = () => {
                 default:
                     throw new Error("Invalid role selected");
             }
+
+            console.log(`Attempting login for ${role} at endpoint: ${endpoint}`);
+
             const res = await axiosInstance.post(endpoint, { email, password }, {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true
             });
+
+            console.log("Login response:", res.data);
+
+            // Check if response contains required data
+            if (!res.data.token || !res.data.userId) {
+                throw new Error("Invalid response from server");
+            }
+
             const { token, userId } = res.data;
+
+            // Store authentication data
             localStorage.setItem("token", token);
             localStorage.setItem("authUser", userId);
-            alert(`${role} registered successfully`);
+
+            console.log("Authentication data stored, navigating to dashboard...");
+
+            // Navigate to appropriate dashboard
             switch (role) {
                 case "founder":
-                    navigate("/founder/dashboard");
+                    navigate("/founder", { replace: true });
                     break;
                 case "investor":
-                    navigate("/investor/dashboard");
+                    navigate("/investor/dashboard", { replace: true });
                     break;
                 case "supporter":
-                    navigate("/supporter");
+                    navigate("/supporter", { replace: true });
                     break;
             }
 
-            setLoading(false);
+            setMessage(`${selectedRole} logged in successfully`);
 
         } catch (error) {
-            console.error(`${role} login failed:`, error.response?.data || error.message);
-            setMessage(error.error);
+            console.error(`${role} login failed:`, error);
+
+            // Better error handling
+            if (error.response?.data?.message) {
+                setMessage(error.response.data.message);
+            } else if (error.response?.data?.error) {
+                setMessage(error.response.data.error);
+            } else if (error.message) {
+                setMessage(error.message);
+            } else {
+                setMessage("Login failed. Please try again.");
+            }
+        } finally {
             setLoading(false);
         }
     }
@@ -79,7 +113,16 @@ const Login = () => {
                 <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-4">
                     {/* Heading */}
                     <h2 className="text-2xl font-bold text-purple-700">Login</h2>
-                    {message && <p className="">{message}</p>}
+
+                    {/* Message Display */}
+                    {message && (
+                        <div className={`p-3 rounded-md ${message.includes('successfully')
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                            }`}>
+                            {message}
+                        </div>
+                    )}
 
                     {/* Dropdown */}
                     <Menu as="div" className="relative inline-block text-left w-full">
@@ -96,6 +139,7 @@ const Login = () => {
                                     <MenuItem key={role}>
                                         {({ active }) => (
                                             <button
+                                                type="button"
                                                 onClick={() => setSelectedRole(role)}
                                                 className={`w-full text-left px-4 py-2 text-sm ${active ? 'bg-purple-100 text-purple-900' : 'text-gray-700'
                                                     }`}
@@ -149,7 +193,7 @@ const Login = () => {
                             className={`mt-2 w-full ${loading ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
                                 } text-white font-semibold py-2 rounded-lg shadow-sm transition-all duration-200`}
                         >
-                            {loading ? 'Submitting...' : 'Submit'}
+                            {loading ? 'Logging in...' : 'Login'}
                         </button>
                     )}
 

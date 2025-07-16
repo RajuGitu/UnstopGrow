@@ -1,7 +1,11 @@
+import { useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 
 const SupporterHeader = () => {
-    const { supporter } = useAuth();
+    const { supporter, getSupporterName } = useAuth();
+    useEffect(() => {
+        getSupporterName()
+    }, [])
 
     return (
         <div className="flex justify-between items-start">
