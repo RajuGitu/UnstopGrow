@@ -57,7 +57,7 @@ const AllPitchList = () => {
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Search Section */}
             <Card className="bg-white/80 backdrop-blur-sm">
-                <CardContent className="">
+                <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
