@@ -10,7 +10,7 @@ const Investor = require('../models/investormodel');
 const path = require("path");
 const fs = require("fs").promises;
 const mongoose = require("mongoose");
-const { deleteFromCloudinary } = require('../config/cloudinaryConfig');
+const { deleteFromCloudinary, extractPublicId } = require('../config/cloudinaryConfig');
 
 const updateinvestorProfileController = async (req, res) => {
   try {
@@ -21,10 +21,14 @@ const updateinvestorProfileController = async (req, res) => {
     // If new image is uploaded, delete the old one from Cloudinary
     if (uploadedFile) {
       const existingProfile = await investorProfileInfo.findOne({ investorId });
-      if (existingProfile && existingProfile.imagePublicId) {
+      if (existingProfile && existingProfile.image) {
         try {
-          await deleteFromCloudinary(existingProfile.imagePublicId);
-          console.log("Old image deleted from Cloudinary");
+          // Parse existing image data to get publicId
+          const existingImageData = JSON.parse(existingProfile.image);
+          if (existingImageData.publicId) {
+            await deleteFromCloudinary(existingImageData.publicId);
+            console.log("Old image deleted from Cloudinary");
+          }
         } catch (deleteError) {
           console.warn("Old image deletion from Cloudinary failed:", deleteError.message);
           // Continue with update even if deletion fails
@@ -34,12 +38,16 @@ const updateinvestorProfileController = async (req, res) => {
 
     const updateData = { company, bio };
 
-    // Add image data if file was uploaded
+    // Store complete image data as JSON string in the image field
     if (uploadedFile) {
-      updateData.image = uploadedFile.path; // Cloudinary URL
-      updateData.imagePublicId = uploadedFile.filename; // Cloudinary public ID for future deletion
-      updateData.imageOriginalName = uploadedFile.originalname;
-      updateData.imageSize = uploadedFile.size;
+      const imageData = {
+        url: uploadedFile.path,
+        publicId: uploadedFile.filename, // This is the public ID from Cloudinary
+        originalName: uploadedFile.originalname,
+        size: uploadedFile.size,
+        uploadedAt: new Date()
+      };
+      updateData.image = JSON.stringify(imageData);
     }
 
     const updated = await investorProfileInfo.findOneAndUpdate(
@@ -48,9 +56,21 @@ const updateinvestorProfileController = async (req, res) => {
       { upsert: true, new: true }
     );
 
+    // Parse image data for response
+    let responseData = { ...updated.toObject() };
+    if (responseData.image) {
+      try {
+        responseData.imageData = JSON.parse(responseData.image);
+      } catch (e) {
+        // If parsing fails, treat as old string format
+        responseData.imageData = { url: responseData.image };
+      }
+    }
+
     res.status(200).json({
       message: "Profile information updated successfully",
-      data: updated,
+      data: responseData,
+      success: true,
     });
   } catch (error) {
     console.log("Profile information save Error:", error.message);
@@ -67,6 +87,7 @@ const updateinvestorProfileController = async (req, res) => {
 
     res.status(500).json({
       error: "Server error while saving profile information",
+      success: false,
     });
   }
 };
@@ -179,31 +200,47 @@ const deleteInvestorProfileImgController = async (req, res) => {
       });
     }
 
-    if (!investorProfile.image || !investorProfile.imagePublicId) {
+    if (!investorProfile.image) {
       return res.status(400).json({
         error: "No Investor Profile Image to delete",
         success: false
       });
     }
 
-    // Delete image from Cloudinary
+    // Parse image data to get public ID
+    let imageData;
     try {
-      const result = await deleteFromCloudinary(investorProfile.imagePublicId);
-      console.log("Image deleted from Cloudinary:", result);
-    } catch (deleteError) {
-      console.error("Failed to delete image from Cloudinary:", deleteError.message);
-      // Continue with database update even if Cloudinary deletion fails
+      imageData = JSON.parse(investorProfile.image);
+    } catch (parseError) {
+      // If parsing fails, try to extract from URL (for backward compatibility)
+      const publicId = extractPublicId(investorProfile.image);
+      if (publicId) {
+        imageData = { publicId };
+      } else {
+        return res.status(400).json({
+          error: "Invalid image data format",
+          success: false
+        });
+      }
     }
 
-    // Update database to remove image references
+    // Delete image from Cloudinary
+    if (imageData.publicId) {
+      try {
+        const result = await deleteFromCloudinary(imageData.publicId);
+        console.log("Image deleted from Cloudinary:", result);
+      } catch (deleteError) {
+        console.error("Failed to delete image from Cloudinary:", deleteError.message);
+        // Continue with database update even if Cloudinary deletion fails
+      }
+    }
+
+    // Update database to remove image reference
     const updatedProfile = await investorProfileInfo.findOneAndUpdate(
       { investorId },
       {
         $unset: {
-          image: "",
-          imagePublicId: "",
-          imageOriginalName: "",
-          imageSize: ""
+          image: ""
         }
       },
       { new: true }
@@ -271,7 +308,7 @@ const getInvestorDiscoverStartupsController = async (req, res) => {
     // 2. Fetch all saved startups for this investor
     const savedStartups = await investorSavedStartupsModel.find({ investorId });
 
-    const interestedStartup = await investorInterestStartupsModel.find({investorId})
+    const interestedStartup = await investorInterestStartupsModel.find({ investorId })
     // 3. Create a Set of saved startup IDs for faster lookup
     const savedIds = new Set(
       savedStartups.map((item) => item.startUpId.toString())
@@ -453,7 +490,7 @@ const getInvestorViewPitchController = async (req, res) => {
 
     // Get startup info
     const startup = await founderProfilemodel.findOne({
-      startupId : founderObjectId,
+      startupId: founderObjectId,
     }).lean();
 
     if (!startup) {
@@ -485,7 +522,7 @@ const getInvestorViewPitchController = async (req, res) => {
     };
 
     return res.status(200).json({
-      
+
       success: true,
       data: pitchData,
     });
@@ -783,8 +820,8 @@ const getInvestorInterestStartupsController = async (req, res) => {
       startupId: { $in: interestedStartupIds },
     });
     res.status(200).json({
-      success:true,
-      data:profiles,
+      success: true,
+      data: profiles,
     })
   } catch (error) {
     console.error("Fetching Interested Startups Error:", error.message);

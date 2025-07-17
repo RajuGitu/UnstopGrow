@@ -10,7 +10,7 @@ const createUploadMiddleware = (
   allowedExtensions = ["jpg", "jpeg", "png", "webp"],
   maxFiles = 1,
   customPath = "uploads/postImages",
-  useCloudinary = false
+  useCloudinary = true
 ) => {
   let storage;
 

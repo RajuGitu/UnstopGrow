@@ -30,15 +30,17 @@ const SupporterProfileCard = () => {
 
     const getImageURL = (imagePath) => {
         if (!imagePath) return null;
-        const relativePath = imagePath?.split("uploads")[1];
-        return relativePath
-            ? `https://unstopgrowb.onrender.com/uploads${relativePath.replace(/\\/g, "/")}`
-            : "https://via.placeholder.com/150";
+        return JSON.parse(profile.image);
     };
 
     const removeImage = () => {
         if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
         setImageFile(null);
+        // Mark existing image for deletion by clearing it from profile
+        setProfile(prev => ({
+            ...prev,
+            image: ""
+        }));
     };
 
     const fetchProfile = async () => {
@@ -138,6 +140,12 @@ const SupporterProfileCard = () => {
             formData.append("username", profile.username.trim());
             formData.append("location", profile.location.trim());
 
+            // Handle image deletion
+            if (originalProfile.image && !profile.image && !imageFile?.file) {
+                // Delete existing image
+                await deleteExistingImage();
+            }
+
             if (imageFile?.file) {
                 formData.append("image", imageFile.file);
             }
@@ -210,21 +218,6 @@ const SupporterProfileCard = () => {
                 return;
             }
 
-            // If there's an existing image, delete it from backend first
-            if (profile.image) {
-                toast.info("Removing existing image...");
-                const deleteSuccess = await deleteExistingImage();
-                if (!deleteSuccess) {
-                    return; // Stop if deletion failed
-                }
-
-                // Update profile state to remove the existing image
-                setProfile(prev => ({
-                    ...prev,
-                    image: ""
-                }));
-            }
-
             // Clean up previous preview
             if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
 
@@ -233,6 +226,8 @@ const SupporterProfileCard = () => {
 
             toast.success("New image selected successfully");
         }
+        // Reset file input to allow selecting the same file again
+        e.target.value = '';
     };
 
     const handleInputChange = (field, value) => {
@@ -292,15 +287,24 @@ const SupporterProfileCard = () => {
                                 </button>
                             </div>
                         ) : profile.image ? (
-                            <img
-                                src={getImageURL(profile.image)}
-                                alt="Profile"
-                                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border"
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                }}
-                            />
+                            <div className="relative">
+                                <img
+                                    src={getImageURL(profile.image)}
+                                    alt="Profile"
+                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border"
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                />
+                                <button
+                                    onClick={removeImage}
+                                    className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                    title="Remove image"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </div>
                         ) : null}
 
                         {/* Fallback avatar */}
@@ -326,7 +330,7 @@ const SupporterProfileCard = () => {
                             disabled={saving}
                             className="border-gray-300 text-sm"
                         >
-                            {profile.image ? "Replace Avatar" : "Change Avatar"}
+                            {profile.image || imageFile?.preview ? "Replace Avatar" : "Change Avatar"}
                         </Button>
                         <p className="text-xs sm:text-sm text-gray-500 mt-1">JPG, PNG up to 2MB</p>
                         {imageFile?.file && (

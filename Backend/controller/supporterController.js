@@ -13,7 +13,7 @@ const SupporterProfileModel = require('../models/Supporter/SupporterProfileSchem
 const supporterModel = require('../models/supportermodel');
 const mongoose = require('mongoose');
 const path = require("path");
-const { deleteFromCloudinary } = require('../config/cloudinaryConfig');
+const { deleteFromCloudinary,extractPublicId } = require('../config/cloudinaryConfig');
 
 const logoutController = async (req, res) => {
     try {
@@ -1648,10 +1648,14 @@ const updateProfileSupporterController = async (req, res) => {
         // If new image is uploaded, delete the old one from Cloudinary
         if (uploadedFile) {
             const existingProfile = await SupporterProfileModel.findOne({ SupporterId });
-            if (existingProfile && existingProfile.imagePublicId) {
+            if (existingProfile && existingProfile.image) {
                 try {
-                    await deleteFromCloudinary(existingProfile.imagePublicId);
-                    console.log("Old image deleted from Cloudinary");
+                    // Parse existing image data to get publicId
+                    const existingImageData = JSON.parse(existingProfile.image);
+                    if (existingImageData.publicId) {
+                        await deleteFromCloudinary(existingImageData.publicId);
+                        console.log("Old image deleted from Cloudinary");
+                    }
                 } catch (deleteError) {
                     console.warn("Old image deletion from Cloudinary failed:", deleteError.message);
                     // Continue with update even if deletion fails
@@ -1661,12 +1665,16 @@ const updateProfileSupporterController = async (req, res) => {
 
         const updateData = { username, location };
 
-        // Add image data if file was uploaded
+        // Store complete image data as JSON string in the image field
         if (uploadedFile) {
-            updateData.image = uploadedFile.path; // Cloudinary URL
-            updateData.imagePublicId = uploadedFile.filename; // Cloudinary public ID for future deletion
-            updateData.imageOriginalName = uploadedFile.originalname;
-            updateData.imageSize = uploadedFile.size;
+            const imageData = {
+                url: uploadedFile.path,
+                publicId: uploadedFile.filename,
+                originalName: uploadedFile.originalname,
+                size: uploadedFile.size,
+                uploadedAt: new Date()
+            };
+            updateData.image = JSON.stringify(imageData);
         }
 
         const updated = await SupporterProfileModel.findOneAndUpdate(
@@ -1675,15 +1683,26 @@ const updateProfileSupporterController = async (req, res) => {
             { upsert: true, new: true }
         );
 
+        // Parse image data for response
+        let responseData = { ...updated.toObject() };
+        if (responseData.image) {
+            try {
+                responseData.imageData = JSON.parse(responseData.image);
+            } catch (e) {
+                // If parsing fails, treat as old string format
+                responseData.imageData = { url: responseData.image };
+            }
+        }
+
         res.status(200).json({
             message: "Profile information updated successfully",
-            data: updated,
+            data: responseData,
             success: true,
         });
     } catch (error) {
         console.log("Profile information save Error:", error.message);
 
-        // If there was an upload but update failed, clean up the uploaded file from Cloudinary
+        // Cleanup uploaded file if update failed
         if (req.file?.filename) {
             try {
                 await deleteFromCloudinary(req.file.filename);
@@ -1712,31 +1731,42 @@ const deleteSupporterProfileImgController = async (req, res) => {
             });
         }
 
-        if (!supporterProfile.image || !supporterProfile.imagePublicId) {
+        if (!supporterProfile.image) {
             return res.status(400).json({
                 error: "No Supporter Profile Image to delete",
                 success: false
             });
         }
 
-        // Delete image from Cloudinary
+        // Parse image data to get public ID
+        let imageData;
         try {
-            const result = await deleteFromCloudinary(supporterProfile.imagePublicId);
-            console.log("Image deleted from Cloudinary:", result);
-        } catch (deleteError) {
-            console.error("Failed to delete image from Cloudinary:", deleteError.message);
-            // Continue with database update even if Cloudinary deletion fails
+            imageData = JSON.parse(supporterProfile.image);
+        } catch (parseError) {
+            // If parsing fails, treat as old string format (no public ID available)
+            return res.status(400).json({
+                error: "Invalid image data format",
+                success: false
+            });
         }
 
-        // Update database to remove image references
+        // Delete image from Cloudinary
+        if (imageData.publicId) {
+            try {
+                const result = await deleteFromCloudinary(imageData.publicId);
+                console.log("Image deleted from Cloudinary:", result);
+            } catch (deleteError) {
+                console.error("Failed to delete image from Cloudinary:", deleteError.message);
+                // Continue with database update even if Cloudinary deletion fails
+            }
+        }
+
+        // Update database to remove image reference
         const updatedProfile = await SupporterProfileModel.findOneAndUpdate(
             { SupporterId },
             {
                 $unset: {
-                    image: "",
-                    imagePublicId: "",
-                    imageOriginalName: "",
-                    imageSize: ""
+                    image: ""
                 }
             },
             { new: true }

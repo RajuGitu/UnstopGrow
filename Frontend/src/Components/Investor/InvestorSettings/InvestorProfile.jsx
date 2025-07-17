@@ -24,10 +24,7 @@ const InvestorProfile = () => {
 
   const getImageURL = (imagePath) => {
     if (!imagePath) return null;
-    const relativePath = imagePath?.split("uploads")[1];
-    return relativePath
-      ? `https://unstopgrowb.onrender.com/uploads${relativePath.replace(/\\/g, "/")}`
-      : "https://via.placeholder.com/150";
+    return JSON.parse(profile.image);
   };
 
   const removeImage = () => {
@@ -271,8 +268,8 @@ const InvestorProfile = () => {
 
         {/* Save Button */}
         <div className="pt-4">
-          <Button 
-            onClick={handleSaveProfile} 
+          <Button
+            onClick={handleSaveProfile}
             className="bg-gray-900 text-white w-full sm:w-auto hover:bg-gray-800 transition-colors"
           >
             Save Profile

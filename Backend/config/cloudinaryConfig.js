@@ -24,9 +24,15 @@ const deleteFromCloudinary = async (publicId) => {
 // Helper function to extract public ID from Cloudinary URL
 const extractPublicId = (url) => {
     if (!url) return null;
-    const matches = url.match(/\/([^\/]+)\.(jpg|jpeg|png|webp|gif)$/);
+
+    // Remove query params (in case)
+    const cleanUrl = url.split('?')[0];
+
+    // Extract path between 'upload/' and extension
+    const matches = cleanUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.(jpg|jpeg|png|webp|gif)$/);
     return matches ? matches[1] : null;
 };
+
 
 module.exports = {
     cloudinary,

@@ -20,10 +20,11 @@ const {
 } = require("../controller/investorController");
 const createUploadMiddleware = require("../middleware/uploadImageMiddleware");
 const uploadInvestorProfileImg = createUploadMiddleware(
-  undefined,
+  "image",
   ["jpg", "jpeg", "png", "webp"],
   1, // maxFiles (not used in this example but available)
-  "investorProfileImage"
+  "investorProfileImage",
+  true
 );
 
 const router = express.Router();

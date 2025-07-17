@@ -72,7 +72,7 @@ router.get('/allfollowedstartup', authMiddleware, getSupporterFollowStartup);
 router.get('/supporterProfile', authMiddleware, getSupporterProfile);
 
 const uploadSupporterProfileImg = createUploadMiddleware(
-  "profileImage", // fieldName
+  "image", // fieldName
   ["jpg", "jpeg", "png", "webp"], // allowed extensions
   1, // maxFiles
   "supporter-profiles", // Cloudinary folder name
