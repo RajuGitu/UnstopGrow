@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const { cloudinary } = require('../config/cloudinaryConfig'); // Import from your config
+const { cloudinary } = require('../config/cloudinaryConfig'); 
 
 const createUploadMiddleware = (
   fieldName = "image",

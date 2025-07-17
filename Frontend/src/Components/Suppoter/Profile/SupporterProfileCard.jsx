@@ -17,7 +17,7 @@ const SupporterProfileCard = () => {
 
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);//
+    const [saving, setSaving] = useState(false);
 
     const fileInputRef = useRef();
 
