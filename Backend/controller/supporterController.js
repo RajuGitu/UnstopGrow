@@ -13,6 +13,7 @@ const SupporterProfileModel = require('../models/Supporter/SupporterProfileSchem
 const supporterModel = require('../models/supportermodel');
 const mongoose = require('mongoose');
 const path = require("path");
+const { deleteFromCloudinary } = require('../config/cloudinaryConfig');
 
 const logoutController = async (req, res) => {
     try {
@@ -1659,7 +1660,7 @@ const updateProfileSupporterController = async (req, res) => {
         }
 
         const updateData = { username, location };
-        
+
         // Add image data if file was uploaded
         if (uploadedFile) {
             updateData.image = uploadedFile.path; // Cloudinary URL
@@ -1681,7 +1682,7 @@ const updateProfileSupporterController = async (req, res) => {
         });
     } catch (error) {
         console.log("Profile information save Error:", error.message);
-        
+
         // If there was an upload but update failed, clean up the uploaded file from Cloudinary
         if (req.file?.filename) {
             try {
@@ -1691,7 +1692,7 @@ const updateProfileSupporterController = async (req, res) => {
                 console.error('Error cleaning up uploaded file:', cleanupError.message);
             }
         }
-        
+
         res.status(500).json({
             error: "Server error while saving profile information",
             success: false,
@@ -1705,34 +1706,52 @@ const deleteSupporterProfileImgController = async (req, res) => {
 
         const supporterProfile = await SupporterProfileModel.findOne({ SupporterId });
         if (!supporterProfile) {
-            return res.status(404).json({ error: "Supporter profile not found" }); // Fixed: was "Investor"
+            return res.status(404).json({
+                error: "Supporter profile not found",
+                success: false
+            });
         }
 
-        if (!supporterProfile.image) {
-            return res
-                .status(400)
-                .json({ error: "No Supporter Profile Image to delete" }); // Fixed: was "Investor"
+        if (!supporterProfile.image || !supporterProfile.imagePublicId) {
+            return res.status(400).json({
+                error: "No Supporter Profile Image to delete",
+                success: false
+            });
         }
 
-        const absolutePath = path.isAbsolute(supporterProfile.image)
-            ? supporterProfile.image
-            : path.resolve(__dirname, "..", supporterProfile.image);
+        // Delete image from Cloudinary
+        try {
+            const result = await deleteFromCloudinary(supporterProfile.imagePublicId);
+            console.log("Image deleted from Cloudinary:", result);
+        } catch (deleteError) {
+            console.error("Failed to delete image from Cloudinary:", deleteError.message);
+            // Continue with database update even if Cloudinary deletion fails
+        }
 
-        await fs.unlink(absolutePath).catch((err) => {
-            console.warn("Image deletion skipped:", err.message);
-        });
-
-        supporterProfile.image = null;
-        await supporterProfile.save();
+        // Update database to remove image references
+        const updatedProfile = await SupporterProfileModel.findOneAndUpdate(
+            { SupporterId },
+            {
+                $unset: {
+                    image: "",
+                    imagePublicId: "",
+                    imageOriginalName: "",
+                    imageSize: ""
+                }
+            },
+            { new: true }
+        );
 
         res.status(200).json({
-            message: "Supporter profile image deleted successfully", // Fixed: was "Investor"
-            success: true // Added for consistency
+            message: "Supporter profile image deleted successfully",
+            success: true,
+            data: updatedProfile
         });
     } catch (error) {
-        console.error("Supporter Profile Img Error:", error.message); // Fixed: was "Investor"
+        console.error("Supporter Profile Img Delete Error:", error.message);
         res.status(500).json({
-            error: "Server error while deleting the supporter profile image", // Fixed: was "investor"
+            error: "Server error while deleting the supporter profile image",
+            success: false
         });
     }
 };

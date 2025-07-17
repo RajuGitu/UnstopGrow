@@ -10,16 +10,41 @@ const Investor = require('../models/investormodel');
 const path = require("path");
 const fs = require("fs").promises;
 const mongoose = require("mongoose");
+const { deleteFromCloudinary } = require('../config/cloudinaryConfig');
 
 const updateinvestorProfileController = async (req, res) => {
   try {
     const { company, bio } = req.body;
     const investorId = req.user.id;
-    const image = req.file.path;
+    const uploadedFile = req.file;
+
+    // If new image is uploaded, delete the old one from Cloudinary
+    if (uploadedFile) {
+      const existingProfile = await investorProfileInfo.findOne({ investorId });
+      if (existingProfile && existingProfile.imagePublicId) {
+        try {
+          await deleteFromCloudinary(existingProfile.imagePublicId);
+          console.log("Old image deleted from Cloudinary");
+        } catch (deleteError) {
+          console.warn("Old image deletion from Cloudinary failed:", deleteError.message);
+          // Continue with update even if deletion fails
+        }
+      }
+    }
+
+    const updateData = { company, bio };
+
+    // Add image data if file was uploaded
+    if (uploadedFile) {
+      updateData.image = uploadedFile.path; // Cloudinary URL
+      updateData.imagePublicId = uploadedFile.filename; // Cloudinary public ID for future deletion
+      updateData.imageOriginalName = uploadedFile.originalname;
+      updateData.imageSize = uploadedFile.size;
+    }
 
     const updated = await investorProfileInfo.findOneAndUpdate(
       { investorId },
-      { $set: { image, company, bio } },
+      { $set: updateData },
       { upsert: true, new: true }
     );
 
@@ -29,11 +54,46 @@ const updateinvestorProfileController = async (req, res) => {
     });
   } catch (error) {
     console.log("Profile information save Error:", error.message);
+
+    // If there was an upload but update failed, clean up the uploaded file from Cloudinary
+    if (req.file?.filename) {
+      try {
+        await deleteFromCloudinary(req.file.filename);
+        console.log("Cleanup: Deleted uploaded file from Cloudinary after error");
+      } catch (cleanupError) {
+        console.error('Error cleaning up uploaded file:', cleanupError.message);
+      }
+    }
+
     res.status(500).json({
       error: "Server error while saving profile information",
     });
   }
 };
+
+// const updateinvestorProfileController = async (req, res) => {
+//   try {
+//     const { company, bio } = req.body;
+//     const investorId = req.user.id;
+//     const image = req.file.path;
+
+//     const updated = await investorProfileInfo.findOneAndUpdate(
+//       { investorId },
+//       { $set: { image, company, bio } },
+//       { upsert: true, new: true }
+//     );
+
+//     res.status(200).json({
+//       message: "Profile information updated successfully",
+//       data: updated,
+//     });
+//   } catch (error) {
+//     console.log("Profile information save Error:", error.message);
+//     res.status(500).json({
+//       error: "Server error while saving profile information",
+//     });
+//   }
+// };
 
 const updateInvestorDomainInterestController = async (req, res) => {
   try {
@@ -113,34 +173,90 @@ const deleteInvestorProfileImgController = async (req, res) => {
 
     const investorProfile = await investorProfileInfo.findOne({ investorId });
     if (!investorProfile) {
-      return res.status(404).json({ error: "Investor profile not found" });
+      return res.status(404).json({
+        error: "Investor profile not found",
+        success: false
+      });
     }
 
-    if (!investorProfile.image) {
-      return res
-        .status(400)
-        .json({ error: "No Investor Profile Image to delete" });
+    if (!investorProfile.image || !investorProfile.imagePublicId) {
+      return res.status(400).json({
+        error: "No Investor Profile Image to delete",
+        success: false
+      });
     }
 
-    const absolutePath = path.isAbsolute(investorProfile.image)
-      ? investorProfile.image
-      : path.resolve(__dirname, "..", investorProfile.image);
+    // Delete image from Cloudinary
+    try {
+      const result = await deleteFromCloudinary(investorProfile.imagePublicId);
+      console.log("Image deleted from Cloudinary:", result);
+    } catch (deleteError) {
+      console.error("Failed to delete image from Cloudinary:", deleteError.message);
+      // Continue with database update even if Cloudinary deletion fails
+    }
 
-    await fs.unlink(absolutePath).catch((err) => {
-      console.warn("Image deletion skipped:", err.message);
+    // Update database to remove image references
+    const updatedProfile = await investorProfileInfo.findOneAndUpdate(
+      { investorId },
+      {
+        $unset: {
+          image: "",
+          imagePublicId: "",
+          imageOriginalName: "",
+          imageSize: ""
+        }
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Investor profile image deleted successfully",
+      success: true,
+      data: updatedProfile
     });
-
-    investorProfile.image = null;
-    await investorProfile.save();
-
-    res.status(200).json({ message: "Investor profile image deleted" });
   } catch (error) {
-    console.error("Investor Profile Img Error:", error.message);
+    console.error("Investor Profile Img Delete Error:", error.message);
     res.status(500).json({
       error: "Server error while deleting the investor profile image",
+      success: false
     });
   }
 };
+
+// const deleteInvestorProfileImgController = async (req, res) => {
+//   try {
+//     const investorId = req.user.id;
+
+//     const investorProfile = await investorProfileInfo.findOne({ investorId });
+//     if (!investorProfile) {
+//       return res.status(404).json({ error: "Investor profile not found" });
+//     }
+
+//     if (!investorProfile.image) {
+//       return res
+//         .status(400)
+//         .json({ error: "No Investor Profile Image to delete" });
+//     }
+
+//     const absolutePath = path.isAbsolute(investorProfile.image)
+//       ? investorProfile.image
+//       : path.resolve(__dirname, "..", investorProfile.image);
+
+//     await fs.unlink(absolutePath).catch((err) => {
+//       console.warn("Image deletion skipped:", err.message);
+//     });
+
+//     investorProfile.image = null;
+//     await investorProfile.save();
+
+//     res.status(200).json({ message: "Investor profile image deleted" });
+//   } catch (error) {
+//     console.error("Investor Profile Img Error:", error.message);
+//     res.status(500).json({
+//       error: "Server error while deleting the investor profile image",
+//     });
+//   }
+// };
 
 const getInvestorDiscoverStartupsController = async (req, res) => {
   try {

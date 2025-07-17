@@ -23,7 +23,7 @@ const uploadInvestorProfileImg = createUploadMiddleware(
   undefined,
   ["jpg", "jpeg", "png", "webp"],
   1, // maxFiles (not used in this example but available)
-  "uploads/investorProfileImage"
+  "investorProfileImage"
 );
 
 const router = express.Router();
