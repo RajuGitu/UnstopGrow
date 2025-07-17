@@ -47,11 +47,7 @@ export default function InvestorCard({ investor }) {
 
     const makeUrl = (imagePath) => {
         if (!imagePath) return imgPlaceholder;
-
-        const rel = imagePath.split("uploads")[1];
-        return rel
-            ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
-            : imgPlaceholder;
+        return JSON.parse(profile.url);
     };
 
     const formatDate = (dateString) => {
