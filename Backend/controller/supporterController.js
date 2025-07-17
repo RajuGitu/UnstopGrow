@@ -1642,25 +1642,30 @@ const updateProfileSupporterController = async (req, res) => {
     try {
         const { username, location } = req.body;
         const SupporterId = req.user.id;
-        const image = req.file?.path;
+        const uploadedFile = req.file;
 
-        // If new image is uploaded, delete the old one
-        if (image) {
+        // If new image is uploaded, delete the old one from Cloudinary
+        if (uploadedFile) {
             const existingProfile = await SupporterProfileModel.findOne({ SupporterId });
-            if (existingProfile && existingProfile.image) {
-                const absolutePath = path.isAbsolute(existingProfile.image)
-                    ? existingProfile.image
-                    : path.resolve(__dirname, "..", existingProfile.image);
-
-                await fs.unlink(absolutePath).catch((err) => {
-                    console.warn("Old image deletion skipped:", err.message);
-                });
+            if (existingProfile && existingProfile.imagePublicId) {
+                try {
+                    await deleteFromCloudinary(existingProfile.imagePublicId);
+                    console.log("Old image deleted from Cloudinary");
+                } catch (deleteError) {
+                    console.warn("Old image deletion from Cloudinary failed:", deleteError.message);
+                    // Continue with update even if deletion fails
+                }
             }
         }
 
         const updateData = { username, location };
-        if (image) {
-            updateData.image = image;
+        
+        // Add image data if file was uploaded
+        if (uploadedFile) {
+            updateData.image = uploadedFile.path; // Cloudinary URL
+            updateData.imagePublicId = uploadedFile.filename; // Cloudinary public ID for future deletion
+            updateData.imageOriginalName = uploadedFile.originalname;
+            updateData.imageSize = uploadedFile.size;
         }
 
         const updated = await SupporterProfileModel.findOneAndUpdate(
@@ -1676,6 +1681,17 @@ const updateProfileSupporterController = async (req, res) => {
         });
     } catch (error) {
         console.log("Profile information save Error:", error.message);
+        
+        // If there was an upload but update failed, clean up the uploaded file from Cloudinary
+        if (req.file?.filename) {
+            try {
+                await deleteFromCloudinary(req.file.filename);
+                console.log("Cleanup: Deleted uploaded file from Cloudinary after error");
+            } catch (cleanupError) {
+                console.error('Error cleaning up uploaded file:', cleanupError.message);
+            }
+        }
+        
         res.status(500).json({
             error: "Server error while saving profile information",
             success: false,

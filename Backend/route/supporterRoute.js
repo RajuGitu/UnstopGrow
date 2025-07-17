@@ -1,6 +1,6 @@
 const express = require('express');
 const authMiddleware = require("../middleware/authMiddleware");
-const { logoutController, getTrendingStartup, getSupporterAllPitchesController, postSupporterPitchLikes, deleteSupporterPitchUnlikes, postSupporterPitchFollow, deleteSupporterPitchUnfollow, getSupporterCountFollow, getSupporterCountLikes , postSupporterLikesPostsController, getSupporterExploreAllPostController, deleteSupporterlikesPostsController, postSupporterFollowPostController, deleteSupporterFollowPostController, getSupporterLikesPostsController , postSupporterCommentsPostController, deleteSupporterCommentsPostController , getSupporterAllLikedPitchController, getSupporterCountComments, getSupporterFollowStartup, getSupporterProfile, updateProfileSupporterController, deleteSupporterProfileImgController} = require('../controller/supporterController');
+const { logoutController, getTrendingStartup, getSupporterAllPitchesController, postSupporterPitchLikes, deleteSupporterPitchUnlikes, postSupporterPitchFollow, deleteSupporterPitchUnfollow, getSupporterCountFollow, getSupporterCountLikes, postSupporterLikesPostsController, getSupporterExploreAllPostController, deleteSupporterlikesPostsController, postSupporterFollowPostController, deleteSupporterFollowPostController, getSupporterLikesPostsController, postSupporterCommentsPostController, deleteSupporterCommentsPostController, getSupporterAllLikedPitchController, getSupporterCountComments, getSupporterFollowStartup, getSupporterProfile, updateProfileSupporterController, deleteSupporterProfileImgController } = require('../controller/supporterController');
 const createUploadMiddleware = require('../middleware/uploadImageMiddleware');
 
 const router = express.Router();
@@ -53,38 +53,39 @@ router.delete(
 )
 
 router.post(
-    "/supporterCommentsPosts",
-    authMiddleware,
-    postSupporterCommentsPostController
+  "/supporterCommentsPosts",
+  authMiddleware,
+  postSupporterCommentsPostController
 )
 
 router.delete(
-    "/supporterCommentsPosts",
-    authMiddleware,
-    deleteSupporterCommentsPostController
+  "/supporterCommentsPosts",
+  authMiddleware,
+  deleteSupporterCommentsPostController
 )
 
 
 router.get('/alllikedpitch', authMiddleware, getSupporterAllLikedPitchController);
 
-router.get('/allfollowedstartup',authMiddleware,getSupporterFollowStartup);
+router.get('/allfollowedstartup', authMiddleware, getSupporterFollowStartup);
 
-router.get('/supporterProfile',authMiddleware,getSupporterProfile);
+router.get('/supporterProfile', authMiddleware, getSupporterProfile);
 
 const uploadSupporterProfileImg = createUploadMiddleware(
-  undefined,
-  ["jpg", "jpeg", "png", "webp"],
-  1,
-  "uploads/supporterProfileImage"
-)
+  "profileImage", // fieldName
+  ["jpg", "jpeg", "png", "webp"], // allowed extensions
+  1, // maxFiles
+  "supporter-profiles", // Cloudinary folder name
+  true // useCloudinary = true
+);
 
 router.put(
   "/supporterProfile",
   authMiddleware,
   uploadSupporterProfileImg.single("image"),
-  updateProfileSupporterController  
+  updateProfileSupporterController
 );
 
-router.delete('/supporterProfile',authMiddleware,deleteSupporterProfileImgController);
+router.delete('/supporterProfile', authMiddleware, deleteSupporterProfileImgController);
 
 module.exports = router;
