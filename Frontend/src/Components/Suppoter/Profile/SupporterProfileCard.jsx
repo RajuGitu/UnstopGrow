@@ -149,8 +149,7 @@ const SupporterProfileCard = () => {
 
             if (res.data.success) {
                 toast.success("Profile updated successfully!");
-                await fetchProfile(); // Refresh profile data
-                removeImage(); // Clear image preview
+                await fetchProfile(); 
             } else {
                 toast.error(res.data.message || "Profile update failed");
             }
