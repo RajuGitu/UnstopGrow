@@ -145,13 +145,7 @@ const SupporterProfileCard = () => {
     };
 
     const handleSaveProfile = async () => {
-        // Check if there are any changes
-        if (!hasProfileChanged()) {
-            toast.info("No changes detected");
-            return;
-        }
-
-        // Validate the form
+        // Validate the form first
         if (!validateProfile()) {
             return;
         }
@@ -164,15 +158,14 @@ const SupporterProfileCard = () => {
                 return;
             }
 
+            // Handle image deletion first if needed
+            if (originalProfile.image && !profile.image && !imageFile?.file) {
+                await deleteExistingImage();
+            }
+
             const formData = new FormData();
             formData.append("username", profile.username.trim());
             formData.append("location", profile.location.trim());
-
-            // Handle image deletion
-            if (originalProfile.image && !profile.image && !imageFile?.file) {
-                // Delete existing image
-                await deleteExistingImage();
-            }
 
             if (imageFile?.file) {
                 formData.append("image", imageFile.file);
@@ -187,10 +180,11 @@ const SupporterProfileCard = () => {
 
             if (res.data.success) {
                 toast.success("Profile updated successfully!");
-                await fetchProfile();
                 // Clean up imageFile after successful save
                 if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
                 setImageFile(null);
+                // Refresh profile data
+                await fetchProfile();
             } else {
                 toast.error(res.data.message || "Profile update failed");
             }
@@ -206,7 +200,7 @@ const SupporterProfileCard = () => {
         }
     };
 
-    const handleImageUpload = async (e) => {
+    const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
             // Validate file type
@@ -242,14 +236,16 @@ const SupporterProfileCard = () => {
 
     useEffect(() => {
         fetchProfile();
+    }, []);
 
-        // Cleanup function to revoke object URLs on unmount
+    // Separate cleanup effect for imageFile
+    useEffect(() => {
         return () => {
             if (imageFile?.preview) {
                 URL.revokeObjectURL(imageFile.preview);
             }
         };
-    }, []);
+    }, [imageFile?.preview]);
 
     if (loading) {
         return (
