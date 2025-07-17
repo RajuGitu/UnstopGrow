@@ -24,7 +24,8 @@ const InvestorProfile = () => {
 
   const getImageURL = (imagePath) => {
     if (!imagePath) return null;
-    return JSON.parse(imagePath.url);
+    const parsed = JSON.parse(imagePath);
+    return parsed.url;
   };
 
   const removeImage = () => {
