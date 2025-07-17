@@ -84,8 +84,7 @@ const createUploadMiddleware = (
         );
       }
       cb(null, true);
-    },
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    },// 10MB
   });
 };
 
