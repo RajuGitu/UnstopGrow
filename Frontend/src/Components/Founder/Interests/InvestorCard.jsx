@@ -47,7 +47,7 @@ export default function InvestorCard({ investor }) {
 
     const makeUrl = (imagePath) => {
         if (!imagePath) return imgPlaceholder;
-        return JSON.parse(profile.url);
+        return JSON.parse(imagePath.url);
     };
 
     const formatDate = (dateString) => {
