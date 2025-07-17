@@ -4,7 +4,6 @@ import {
   Heart,
 } from "lucide-react";
 
-
 import { Badge } from "../../../Components/UI/Badge";
 import { useEffect, useState } from "react";
 import PostCard from "../AllPost/PostCard"; // Import the PostCard component
@@ -20,7 +19,7 @@ const LikedPostList = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -33,7 +32,7 @@ const LikedPostList = () => {
 
       if (response.data && response.data.success) {
         setLikedPosts(response.data.data || []);
-        
+
         // Initialize likes count
         const likesCount = {};
         (response.data.data || []).forEach((post) => {
@@ -72,19 +71,19 @@ const LikedPostList = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
           Your Liked Posts
         </h2>
-        <Badge variant="outline" className="text-sm">
+        <Badge variant="outline" className="text-sm w-fit">
           {likedPosts.length} posts liked
         </Badge>
       </div>
 
       {/* Liked Posts Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {likedPosts.length > 0 ? (
           likedPosts.map((postItem) => (
             <PostCard
@@ -97,14 +96,14 @@ const LikedPostList = () => {
             />
           ))
         ) : (
-          <div className="col-span-full text-center py-12">
+          <div className="col-span-full text-center py-8 sm:py-12">
             <div className="text-slate-400 mb-4">
-              <Heart className="h-12 w-12 mx-auto mb-4" />
+              <Heart className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4" />
             </div>
             <h3 className="text-lg font-medium text-slate-900 mb-2">
               No liked posts yet
             </h3>
-            <p className="text-slate-600">
+            <p className="text-slate-600 text-sm sm:text-base px-4">
               Start exploring and liking posts to see them here
             </p>
           </div>

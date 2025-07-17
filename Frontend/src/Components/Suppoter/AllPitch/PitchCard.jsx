@@ -1,3 +1,4 @@
+// PitchCard.jsx
 import { useState } from "react";
 import {
     Loader2,
@@ -197,23 +198,27 @@ const PitchCard = ({
     };
 
     return (
-        <Card className="bg-white/90 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+        <Card className="bg-white/90 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
             <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                        <CardTitle className="text-xl font-bold text-slate-900 mb-1">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg sm:text-xl font-bold text-slate-900 mb-1 truncate">
                             {pitchItem.companyName || "Unnamed Startup"}
                         </CardTitle>
-                        <p className="text-xs text-gray-500 mb-3">
+                        <p className="text-xs text-gray-500 mb-2 sm:mb-3">
                             Owner: {pitchItem.ownerName || "Unknown"}
                         </p>
 
                         <div className="mb-3">
-                            <p className="text-base font-medium text-slate-800">{pitchItem.title}</p>
-                            <p className="text-sm text-indigo-600">{pitchItem.tagline}</p>
+                            <p className="text-sm sm:text-base font-medium text-slate-800 line-clamp-2">
+                                {pitchItem.title}
+                            </p>
+                            <p className="text-sm text-indigo-600 line-clamp-2">
+                                {pitchItem.tagline}
+                            </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                         {/* Like Button */}
                         <Button
                             variant="ghost"
@@ -255,7 +260,7 @@ const PitchCard = ({
                             ) : (
                                 <UserPlus className="h-4 w-4" />
                             )}
-                            <span className="text-xs">
+                            <span className="text-xs hidden sm:inline">
                                 {pitchItem.isFollow ? "Following" : "Follow"}
                             </span>
                         </Button>
@@ -263,42 +268,50 @@ const PitchCard = ({
                 </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1">
                 {/* Problem & Solution */}
                 <div className="space-y-3">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <Target className="h-4 w-4 text-red-500" />
+                            <Target className="h-4 w-4 text-red-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Problem</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.problem}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-3">
+                            {pitchItem.problem}
+                        </p>
                     </div>
 
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <Building className="h-4 w-4 text-green-500" />
+                            <Building className="h-4 w-4 text-green-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Solution</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.solution}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-3">
+                            {pitchItem.solution}
+                        </p>
                     </div>
                 </div>
 
                 {/* Key Metrics */}
-                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-slate-200">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-green-600" />
+                            <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0" />
                             <span className="text-xs font-medium text-slate-700">Funding</span>
                         </div>
-                        <p className="text-sm text-slate-900 font-medium">{pitchItem.funding}</p>
+                        <p className="text-sm text-slate-900 font-medium truncate">
+                            {pitchItem.funding}
+                        </p>
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-blue-600" />
+                            <TrendingUp className="h-4 w-4 text-blue-600 flex-shrink-0" />
                             <span className="text-xs font-medium text-slate-700">Raised</span>
                         </div>
-                        <p className="text-sm text-slate-900 font-medium">{pitchItem.raised}</p>
+                        <p className="text-sm text-slate-900 font-medium truncate">
+                            {pitchItem.raised}
+                        </p>
                     </div>
                 </div>
 
@@ -306,35 +319,47 @@ const PitchCard = ({
                 <div className="space-y-3">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <Users className="h-4 w-4 text-purple-500" />
+                            <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Market</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.market}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-2">
+                            {pitchItem.market}
+                        </p>
                     </div>
 
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <TrendingUp className="h-4 w-4 text-orange-500" />
+                            <TrendingUp className="h-4 w-4 text-orange-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Traction</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.traction}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-2">
+                            {pitchItem.traction}
+                        </p>
                     </div>
                 </div>
 
                 {/* Team & Active Users */}
                 <div className="grid grid-cols-1 gap-3">
-                    <div>
-                        <span className="text-sm font-medium text-slate-700">Team: </span>
-                        <span className="text-sm text-slate-600">{pitchItem.team}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <span className="text-sm font-medium text-slate-700 flex-shrink-0">
+                            Team:
+                        </span>
+                        <span className="text-sm text-slate-600 truncate">
+                            {pitchItem.team}
+                        </span>
                     </div>
-                    <div>
-                        <span className="text-sm font-medium text-slate-700">Active Users: </span>
-                        <span className="text-sm text-slate-600">{pitchItem.activeUser}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <span className="text-sm font-medium text-slate-700 flex-shrink-0">
+                            Active Users:
+                        </span>
+                        <span className="text-sm text-slate-600 truncate">
+                            {pitchItem.activeUser}
+                        </span>
                     </div>
                 </div>
 
                 {/* Links and Date */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-200">
                     <div className="flex items-center gap-3">
                         {pitchItem.youtube && (
                             <a

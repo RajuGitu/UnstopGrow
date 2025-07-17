@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Send, Trash2, User } from "lucide-react";
+import { Send, Trash2, User, X, ChevronLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ const CommentModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState({});
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [showMobileImage, setShowMobileImage] = useState(false);
 
   // Get current user ID from localStorage or context
   useEffect(() => {
@@ -45,7 +46,7 @@ const CommentModal = ({
     if (uploadsIndex === -1)
       return "https://via.placeholder.com/400x200?text=No+Image";
     const relativePath = normalizedPath.substring(uploadsIndex);
-    return `http://localhost:5000/${relativePath}`;
+    return `https://unstopgrowb.onrender.com/${relativePath}`;
   };
 
   const formatDate = (dateString) => {
@@ -90,7 +91,7 @@ const CommentModal = ({
       if (response.data.success) {
         // Create new comment object with the response data
         const newCommentObj = {
-          _id: response.data.data.commentId, // Temporary ID until refresh
+          _id: response.data.data.commentId,
           userId: currentUserId,
           comment: newComment.trim(),
           username: response.data.data.username,
@@ -176,64 +177,107 @@ const CommentModal = ({
       setIsDeleting((prev) => ({ ...prev, [commentId]: false }));
     }
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[99vh] p-0 overflow-hidden">
-        <div className="flex h-[600px]">
-          {/* Left side - Image */}
-          <div className="flex-1 bg-black flex items-center justify-center">
+      <DialogContent className="w-full h-full md:max-w-4xl md:max-h-[90vh] md:h-auto p-0 overflow-hidden md:rounded-lg">
+        {/* Mobile Image Overlay */}
+        {showMobileImage && (
+          <div className="fixed inset-0 z-60 bg-black md:hidden">
+            <div className="flex items-center justify-between p-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileImage(false)}
+                className="text-white hover:bg-white/20"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                Back
+              </Button>
+            </div>
+            <div className="flex items-center justify-center h-full pb-16">
+              <img
+                src={makeImageUrl(postItem?.media)}
+                alt={postItem?.title}
+                className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/400x400?text=No+Image";
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="flex flex-col md:flex-row h-full md:h-[600px] max-h-screen md:max-h-[600px]">
+          {/* Desktop Image - Hidden on mobile */}
+          <div className="hidden md:flex md:flex-1 bg-black items-center justify-center">
             <img
               src={makeImageUrl(postItem?.media)}
               alt={postItem?.title}
               className="max-w-full max-h-full object-contain"
               onError={(e) => {
-                e.target.src =
-                  "https://via.placeholder.com/400x400?text=No+Image";
+                e.target.src = "https://via.placeholder.com/400x400?text=No+Image";
               }}
             />
           </div>
 
-          {/* Right side - Comments */}
-          <div className="flex-1 flex flex-col bg-white">
+          {/* Comments Section */}
+          <div className="flex flex-col flex-1 bg-white h-full min-h-0">
             {/* Header */}
-            <DialogHeader className="p-4 border-b border-gray-200 flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+            <DialogHeader className="p-3 md:p-4 border-b border-gray-200 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <DialogTitle className="text-sm font-semibold">
+                      {postItem?.companyName || "Unnamed Startup"}
+                    </DialogTitle>
+                    <p className="text-xs text-gray-500">
+                      {postItem?.ownerName || "Unknown"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <DialogTitle className="text-sm font-semibold">
-                    {postItem?.companyName || "Unnamed Startup"}
-                  </DialogTitle>
-                  <p className="text-xs text-gray-500">
-                    {postItem?.ownerName || "Unknown"}
-                  </p>
+                <div className="flex items-center gap-2">
+                  {/* Mobile View Image Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowMobileImage(true)}
+                    className="md:hidden text-gray-600 hover:text-gray-800"
+                  >
+                    View Image
+                  </Button>
+                  {/* Close Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </DialogHeader>
 
-            {/* Post Description */}
-            {/* <div className="p-4 border-b border-gray-100 flex-shrink-0">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                  <User className="w-3 h-3 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm">
-                    <span className="font-semibold text-gray-900">
-                      {postItem?.companyName || "Unnamed Startup"}
-                    </span>{" "}
-                    {postItem?.description}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatDate(postItem?.createdAt)}
-                  </p>
-                </div>
-              </div>
-            </div> */}
+            {/* Mobile Image Preview */}
+            <div className="md:hidden border-b border-gray-200 bg-black flex items-center justify-center h-40 flex-shrink-0">
+              <img
+                src={makeImageUrl(postItem?.media)}
+                alt={postItem?.title}
+                className="max-w-full max-h-full object-contain cursor-pointer"
+                onClick={() => setShowMobileImage(true)}
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/400x200?text=No+Image";
+                }}
+              />
+            </div>
 
             {/* Comments List - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+            <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 min-h-0" style={{ maxHeight: 'calc(100vh - 280px)' }}>
               {comments.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   <p>No comments yet.</p>
@@ -241,7 +285,7 @@ const CommentModal = ({
                 </div>
               ) : (
                 comments.map((comment) => (
-                  <div key={comment._id} className="flex items-start gap-3">
+                  <div key={comment._id} className="flex items-start gap-2 md:gap-3">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center flex-shrink-0">
                       <User className="w-3 h-3 text-white" />
                     </div>
@@ -275,20 +319,26 @@ const CommentModal = ({
             </div>
 
             {/* Comment Input - Fixed at bottom */}
-            <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0">
-              <form onSubmit={handleSubmitComment} className="flex gap-2 mb-2">
+            <div className="p-3 md:p-4 border-t border-gray-200 bg-white flex-shrink-0 sticky bottom-0">
+              <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Add a comment..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm touch-manipulation"
                   maxLength={300}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmitComment(e);
+                    }
+                  }}
                 />
                 <Button
-                  type="submit"
+                  onClick={handleSubmitComment}
                   disabled={!newComment.trim() || isSubmitting}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 flex-shrink-0"
+                  className="px-3 md:px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 flex-shrink-0 touch-manipulation"
                 >
                   {isSubmitting ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -296,7 +346,7 @@ const CommentModal = ({
                     <Send className="w-4 h-4" />
                   )}
                 </Button>
-              </form>
+              </div>
               <div className="flex justify-between items-center text-xs">
                 <span className="text-gray-500">
                   {commentsPosts[postItem?._id] || 0} comments

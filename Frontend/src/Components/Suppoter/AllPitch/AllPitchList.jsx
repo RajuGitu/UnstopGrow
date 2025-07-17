@@ -54,40 +54,43 @@ const AllPitchList = () => {
     }
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Search Section */}
             <Card className="bg-white/80 backdrop-blur-sm">
-                <CardContent className="p-6">
-                    <div className="flex gap-4 items-center">
+                <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input
                                 placeholder="Search pitches by title, tagline, problem, or solution..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-10 border-gray-300"
+                                className="pl-10 border-gray-300 text-sm"
                             />
                         </div>
-                        <Button variant="outline" className="flex items-center gap-2 border-gray-300">
+                        <Button
+                            variant="outline"
+                            className="flex items-center gap-2 border-gray-300 w-full sm:w-auto justify-center"
+                        >
                             <Filter className="h-4 w-4 text-gray-500" />
-                            <span className="text-gray-500"> Filter</span>
+                            <span className="text-gray-500">Filter</span>
                         </Button>
                     </div>
                 </CardContent>
             </Card>
 
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     Explore Pitches
                 </h2>
-                <Badge variant="outline" className="text-sm">
+                <Badge variant="outline" className="text-sm w-fit">
                     {filteredPitches.length} pitches found
                 </Badge>
             </div>
 
             {/* Pitch Cards Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4">
                 {filteredPitches.length > 0 ? (
                     filteredPitches.map((pitchItem) => (
                         <PitchCard

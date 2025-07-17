@@ -14,7 +14,7 @@ const StartupFollowingCard = ({ startup, onFollowStatusChange }) => {
         const uploadsIndex = normalizedPath.indexOf("uploads/");
         if (uploadsIndex === -1) return null;
         const relativePath = normalizedPath.substring(uploadsIndex);
-        return `http://localhost:5000/${relativePath}`;
+        return `https://unstopgrowb.onrender.com/${relativePath}`;
     };
 
     const handleFollow = async () => {

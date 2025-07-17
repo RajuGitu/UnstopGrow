@@ -255,8 +255,8 @@ const SupporterProfileCard = () => {
 
     if (loading) {
         return (
-            <Card>
-                <CardContent className="p-6 text-center text-gray-500">
+            <Card className="w-full max-w-none">
+                <CardContent className="p-4 sm:p-6 text-center text-gray-500">
                     Loading profile...
                 </CardContent>
             </Card>
@@ -264,52 +264,54 @@ const SupporterProfileCard = () => {
     }
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <User className="w-5 h-5" />
+        <Card className="w-full max-w-none">
+            <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Supporter Profile</span>
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {/* Profile Image Section */}
-                <div className="flex items-center space-x-4">
-                    {imageFile?.preview ? (
-                        <div className="relative">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div className="flex-shrink-0">
+                        {imageFile?.preview ? (
+                            <div className="relative">
+                                <img
+                                    src={imageFile.preview}
+                                    alt="Preview"
+                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border"
+                                />
+                                <button
+                                    onClick={removeImage}
+                                    className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                    title="Remove image"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </div>
+                        ) : profile.image ? (
                             <img
-                                src={imageFile.preview}
-                                alt="Preview"
-                                className="w-20 h-20 rounded-full object-cover border"
+                                src={getImageURL(profile.image)}
+                                alt="Profile"
+                                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border"
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
                             />
-                            <button
-                                onClick={removeImage}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                title="Remove image"
-                            >
-                                <X className="w-3 h-3" />
-                            </button>
-                        </div>
-                    ) : profile.image ? (
-                        <img
-                            src={getImageURL(profile.image)}
-                            alt="Profile"
-                            className="w-20 h-20 rounded-full object-cover border"
-                            onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                            }}
-                        />
-                    ) : null}
+                        ) : null}
 
-                    {/* Fallback avatar */}
-                    {!imageFile?.preview && !profile.image && (
-                        <div className="w-20 h-20 bg-indigo-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                            {profile.username ? profile.username.slice(0, 2).toUpperCase() : "??"}
-                        </div>
-                    )}
+                        {/* Fallback avatar */}
+                        {!imageFile?.preview && !profile.image && (
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-500 rounded-full flex items-center justify-center text-white text-lg sm:text-2xl font-bold">
+                                {profile.username ? profile.username.slice(0, 2).toUpperCase() : "??"}
+                            </div>
+                        )}
+                    </div>
 
-                    <div>
+                    <div className="text-center sm:text-left">
                         <input
                             type="file"
                             accept="image/*"
@@ -322,13 +324,13 @@ const SupporterProfileCard = () => {
                             size="sm"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={saving}
-                            className="border-gray-300"
+                            className="border-gray-300 text-sm"
                         >
                             {profile.image ? "Replace Avatar" : "Change Avatar"}
                         </Button>
-                        <p className="text-sm text-gray-500 mt-1">JPG, PNG up to 2MB</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">JPG, PNG up to 2MB</p>
                         {imageFile?.file && (
-                            <p className="text-sm text-green-600 mt-1">
+                            <p className="text-xs sm:text-sm text-green-600 mt-1 break-all">
                                 Selected: {imageFile.file.name}
                             </p>
                         )}
@@ -336,62 +338,64 @@ const SupporterProfileCard = () => {
                 </div>
 
                 {/* Form Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div>
-                        <Label htmlFor="username">Username *</Label>
+                        <Label htmlFor="username" className="text-sm sm:text-base">Username *</Label>
                         <Input
                             id="username"
                             value={profile.username}
                             onChange={(e) => handleInputChange("username", e.target.value)}
                             placeholder="Your name"
-                            className="border-gray-300"
+                            className="border-gray-300 mt-1 text-sm sm:text-base"
                             disabled={saving}
                             required
                         />
                     </div>
 
                     <div>
-                        <Label htmlFor="email">Email *</Label>
+                        <Label htmlFor="email" className="text-sm sm:text-base">Email *</Label>
                         <Input
                             id="email"
                             type="email"
                             value={profile.email}
                             onChange={(e) => handleInputChange("email", e.target.value)}
                             placeholder="example@gmail.com"
-                            className="border-gray-300"
+                            className="border-gray-300 mt-1 text-sm sm:text-base"
                             disabled={saving}
                             required
                         />
                     </div>
 
-                    <div className="md:col-span-2">
-                        <Label htmlFor="location">Location</Label>
+                    <div className="lg:col-span-2">
+                        <Label htmlFor="location" className="text-sm sm:text-base">Location</Label>
                         <Input
                             id="location"
                             value={profile.location}
                             onChange={(e) => handleInputChange("location", e.target.value)}
                             placeholder="Your city or country"
-                            className="border-gray-300"
+                            className="border-gray-300 mt-1 text-sm sm:text-base"
                             disabled={saving}
                         />
                     </div>
                 </div>
 
                 {/* Save Button */}
-                <Button
-                    onClick={handleSaveProfile}
-                    className="bg-gray-900 text-white hover:bg-gray-800 transition-colors"
-                    disabled={saving || !hasProfileChanged()}
-                >
-                    {saving ? "Saving..." : "Save Profile"}
-                </Button>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <Button
+                        onClick={handleSaveProfile}
+                        className="bg-gray-900 text-white hover:bg-gray-800 transition-colors w-full sm:w-auto text-sm sm:text-base"
+                        disabled={saving || !hasProfileChanged()}
+                    >
+                        {saving ? "Saving..." : "Save Profile"}
+                    </Button>
 
-                {/* Change indicator */}
-                {hasProfileChanged() && (
-                    <p className="text-sm text-amber-600">
-                        * You have unsaved changes
-                    </p>
-                )}
+                    {/* Change indicator */}
+                    {hasProfileChanged() && (
+                        <p className="text-xs sm:text-sm text-amber-600 text-center sm:text-left">
+                            * You have unsaved changes
+                        </p>
+                    )}
+                </div>
             </CardContent>
         </Card>
     );

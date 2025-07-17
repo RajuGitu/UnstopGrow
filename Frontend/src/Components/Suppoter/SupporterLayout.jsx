@@ -2,9 +2,13 @@ import { Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import { SupporterSidebar } from "./SupporterSidebar";
+import { useEffect } from "react";
 
 const SupporterLayout = () => {
-    const { supporter, loading, initialized } = useAuth();
+    const { supporter, loading, initialized, getSupporterName } = useAuth();
+    useEffect(() => {
+        getSupporterName()
+    }, [])
 
     if (!initialized || loading) {
         return (
@@ -19,7 +23,7 @@ const SupporterLayout = () => {
         return <Navigate to="/login" replace />;
     }
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
             <SupporterSidebar />
             <div className="flex-1 flex flex-col">
                 <main className="flex-1 overflow-auto">

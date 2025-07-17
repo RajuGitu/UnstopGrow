@@ -196,27 +196,31 @@ const LikedPitchCard = ({
         const uploadsIndex = normalizedPath.indexOf("uploads/");
         if (uploadsIndex === -1) return null;
         const relativePath = normalizedPath.substring(uploadsIndex);
-        return `http://localhost:5000/${relativePath}`;
+        return `https://unstopgrowb.onrender.com/${relativePath}`;
     };
 
     return (
-        <Card className="bg-white/90 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                        <CardTitle className="text-xl font-bold text-slate-900 mb-1">
+        <Card className="bg-white/90 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300 w-full">
+            <CardHeader className="pb-3 px-4 sm:px-6">
+                <div className="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+                    <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg sm:text-xl font-bold text-slate-900 mb-1 truncate">
                             {pitchItem.companyName || "Unnamed Startup"}
                         </CardTitle>
-                        <p className="text-xs text-gray-500 mb-3">
+                        <p className="text-xs text-gray-500 mb-2 sm:mb-3">
                             Owner: {pitchItem.ownerName || "Unknown"}
                         </p>
 
                         <div className="mb-3">
-                            <p className="text-base font-medium text-slate-800">{pitchItem.title}</p>
-                            <p className="text-sm text-indigo-600">{pitchItem.tagline}</p>
+                            <p className="text-sm sm:text-base font-medium text-slate-800 line-clamp-2">
+                                {pitchItem.title}
+                            </p>
+                            <p className="text-sm text-indigo-600 line-clamp-1">
+                                {pitchItem.tagline}
+                            </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                         {/* Like Button */}
                         <Button
                             variant="ghost"
@@ -235,7 +239,7 @@ const LikedPitchCard = ({
                                     className={`h-4 w-4 ${pitchItem.isSaved ? "fill-current" : ""}`}
                                 />
                             )}
-                            <span className="text-xs">
+                            <span className="text-xs hidden sm:inline">
                                 {pitchLikes[pitchItem._id] || 0}
                             </span>
                         </Button>
@@ -258,7 +262,7 @@ const LikedPitchCard = ({
                             ) : (
                                 <UserPlus className="h-4 w-4" />
                             )}
-                            <span className="text-xs">
+                            <span className="text-xs hidden sm:inline">
                                 {pitchItem.isFollow ? "Following" : "Follow"}
                             </span>
                         </Button>
@@ -266,42 +270,50 @@ const LikedPitchCard = ({
                 </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-4 sm:px-6">
                 {/* Problem & Solution */}
                 <div className="space-y-3">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <Target className="h-4 w-4 text-red-500" />
+                            <Target className="h-4 w-4 text-red-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Problem</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.problem}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-3 sm:line-clamp-none">
+                            {pitchItem.problem}
+                        </p>
                     </div>
 
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <Building className="h-4 w-4 text-green-500" />
+                            <Building className="h-4 w-4 text-green-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Solution</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.solution}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-3 sm:line-clamp-none">
+                            {pitchItem.solution}
+                        </p>
                     </div>
                 </div>
 
                 {/* Key Metrics */}
-                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-slate-200">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-green-600" />
+                            <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0" />
                             <span className="text-xs font-medium text-slate-700">Funding</span>
                         </div>
-                        <p className="text-sm text-slate-900 font-medium">{pitchItem.funding}</p>
+                        <p className="text-sm text-slate-900 font-medium truncate">
+                            {pitchItem.funding}
+                        </p>
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-blue-600" />
+                            <TrendingUp className="h-4 w-4 text-blue-600 flex-shrink-0" />
                             <span className="text-xs font-medium text-slate-700">Raised</span>
                         </div>
-                        <p className="text-sm text-slate-900 font-medium">{pitchItem.raised}</p>
+                        <p className="text-sm text-slate-900 font-medium truncate">
+                            {pitchItem.raised}
+                        </p>
                     </div>
                 </div>
 
@@ -309,36 +321,40 @@ const LikedPitchCard = ({
                 <div className="space-y-3">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <Users className="h-4 w-4 text-purple-500" />
+                            <Users className="h-4 w-4 text-purple-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Market</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.market}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-3 sm:line-clamp-none">
+                            {pitchItem.market}
+                        </p>
                     </div>
 
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <TrendingUp className="h-4 w-4 text-orange-500" />
+                            <TrendingUp className="h-4 w-4 text-orange-500 flex-shrink-0" />
                             <span className="text-sm font-medium text-slate-700">Traction</span>
                         </div>
-                        <p className="text-sm text-slate-600 pl-6">{pitchItem.traction}</p>
+                        <p className="text-sm text-slate-600 pl-6 line-clamp-3 sm:line-clamp-none">
+                            {pitchItem.traction}
+                        </p>
                     </div>
                 </div>
 
                 {/* Team & Active Users */}
                 <div className="grid grid-cols-1 gap-3">
-                    <div>
-                        <span className="text-sm font-medium text-slate-700">Team: </span>
-                        <span className="text-sm text-slate-600">{pitchItem.team}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <span className="text-sm font-medium text-slate-700 flex-shrink-0">Team:</span>
+                        <span className="text-sm text-slate-600 break-words">{pitchItem.team}</span>
                     </div>
-                    <div>
-                        <span className="text-sm font-medium text-slate-700">Active Users: </span>
-                        <span className="text-sm text-slate-600">{pitchItem.activeUser}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <span className="text-sm font-medium text-slate-700 flex-shrink-0">Active Users:</span>
+                        <span className="text-sm text-slate-600 break-words">{pitchItem.activeUser}</span>
                     </div>
                 </div>
 
                 {/* Links and Date */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-                    <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-200">
+                    <div className="flex items-center gap-3 flex-wrap">
                         {pitchItem.youtube && (
                             <a
                                 href={pitchItem.youtube}
@@ -346,7 +362,7 @@ const LikedPitchCard = ({
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
                             >
-                                <Youtube className="h-4 w-4" />
+                                <Youtube className="h-4 w-4 flex-shrink-0" />
                                 <span className="text-xs">Video</span>
                             </a>
                         )}
@@ -357,13 +373,13 @@ const LikedPitchCard = ({
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"
                             >
-                                <FileText className="h-4 w-4" />
+                                <FileText className="h-4 w-4 flex-shrink-0" />
                                 <span className="text-xs">PDF</span>
                             </a>
                         )}
                     </div>
 
-                    <div className="flex items-center gap-1 text-slate-500">
+                    <div className="flex items-center gap-1 text-slate-500 flex-shrink-0">
                         <Calendar className="h-3 w-3" />
                         <span className="text-xs">{formatDate(pitchItem.createdAt)}</span>
                     </div>

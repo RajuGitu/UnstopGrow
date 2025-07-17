@@ -2,9 +2,13 @@ import { Outlet } from "react-router-dom";
 import { InvestorSidebar } from "./InvestorSidebar";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const InvestorLayout = () => {
-  const { investor, loading, initialized } = useAuth();
+  const { investor, loading, initialized, getInvestorName } = useAuth();
+  useEffect(() => {
+    getInvestorName()
+  },[]);
 
   if (!initialized || loading) {
     return (

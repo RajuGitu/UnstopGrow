@@ -22,7 +22,7 @@ import FounderInvestor from "./pages/Founder/FounderInvestor";
 import FounderAllPost from "./pages/Founder/FounderAllPost";
 import FounderAllPitch from "./pages/Founder/FounderAllPitch";
 // Investor Pages
-import InvestDashboard from "./pages/Investor/InvestDashboard";
+import InvestorDashboard from "./pages/Investor/InvestorDashboard";
 import InvestorLayout from "./Components/Investor/InvestorLayout";
 import InvestorDiscover from "./pages/Investor/InvertorDiscover";
 import InvestorSaved from "./pages/Investor/InvestorSaved";
@@ -92,7 +92,7 @@ function App() {
                 }
               >
                 <Route index element={<Navigate to="/investor/dashboard" />} />
-                <Route path="dashboard" element={<InvestDashboard />} />
+                <Route path="dashboard" element={<InvestorDashboard />} />
                 <Route path="discover" element={<InvestorDiscover />} />
                 <Route path="saved" element={<InvestorSaved />} />
                 <Route path="contacts" element={<InvestorContacts />} />

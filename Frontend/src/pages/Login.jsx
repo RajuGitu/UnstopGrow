@@ -4,9 +4,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import axiosInstance from '../../utils/axiosInstance';
 
-
 const Login = () => {
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [selectedRole, setSelectedRole] = useState("Select Role");
@@ -16,20 +14,52 @@ const Login = () => {
 
     const roles = ['Founder', 'Investor', 'Supporter'];
 
+    // Demo credentials
+    const demoCredentials = {
+        Founder: {
+            email: "aarav@ecowave.com",
+            password: "Hashedpassword1@"
+        },
+        Investor: {
+            email: "simranyelave064@gmail.com",
+            password: "Simran123@"
+        },
+        Supporter: {
+            email: "rajg05457@gmail.com",
+            password: "Rajg05457@"
+        }
+    };
+
+    const handleDemoLogin = (role) => {
+        setSelectedRole(role);
+        setEmail(demoCredentials[role].email);
+        setPassword(demoCredentials[role].password);
+        setMessage("");
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Clear previous messages
+        setMessage("");
+
+        // Validation
         if (selectedRole === "Select Role" || !email || !password) {
-            alert("Invalid email format or password");
+            setMessage("Please select a role and fill in all fields");
             return;
         }
+
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert("Invalid email format");
+            setMessage("Invalid email format");
             return;
         }
 
         const role = selectedRole.toLowerCase();
+
         try {
             setLoading(true);
+
+            // Determine endpoint
             let endpoint = "";
             switch (role) {
                 case "founder":
@@ -44,42 +74,100 @@ const Login = () => {
                 default:
                     throw new Error("Invalid role selected");
             }
+
+            console.log(`Attempting login for ${role} at endpoint: ${endpoint}`);
+
             const res = await axiosInstance.post(endpoint, { email, password }, {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true
             });
+
+            console.log("Login response:", res.data);
+
+            // Check if response contains required data
+            if (!res.data.token || !res.data.userId) {
+                throw new Error("Invalid response from server");
+            }
+
             const { token, userId } = res.data;
+
+            // Store authentication data
             localStorage.setItem("token", token);
             localStorage.setItem("authUser", userId);
-            alert(`${role} registered successfully`);
+
+            console.log("Authentication data stored, navigating to dashboard...");
+
+            // Navigate to appropriate dashboard
             switch (role) {
                 case "founder":
-                    navigate("/founder/dashboard");
+                    navigate("/founder", { replace: true });
                     break;
                 case "investor":
-                    navigate("/investor/dashboard");
+                    navigate("/investor", { replace: true });
                     break;
                 case "supporter":
-                    navigate("/supporter");
+                    navigate("/supporter", { replace: true });
                     break;
             }
 
-            setLoading(false);
+            setMessage(`${selectedRole} logged in successfully`);
 
         } catch (error) {
-            console.error(`${role} login failed:`, error.response?.data || error.message);
-            setMessage(error.error);
+            console.error(`${role} login failed:`, error);
+
+            // Better error handling
+            if (error.response?.data?.message) {
+                setMessage(error.response.data.message);
+            } else if (error.response?.data?.error) {
+                setMessage(error.response.data.error);
+            } else if (error.message) {
+                setMessage(error.message);
+            } else {
+                setMessage("Login failed. Please try again.");
+            }
+        } finally {
             setLoading(false);
         }
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-100 to-blue-100">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md flex flex-col items-center space-y-6">
-                <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-4">
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-100 to-blue-100 p-4">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md flex flex-col items-center space-y-6">
+                <form onSubmit={handleSubmit} className="w-full space-y-4">
                     {/* Heading */}
-                    <h2 className="text-2xl font-bold text-purple-700">Login</h2>
-                    {message && <p className="">{message}</p>}
+                    <h2 className="text-2xl font-bold text-purple-700 text-center">Login</h2>
+
+                    {/* Demo Credentials Section */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h3 className="text-sm font-semibold text-purple-800 mb-3 text-center">
+                            🚀 Experience UnstopGrow - Try Demo
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            {roles.map((role) => (
+                                <button
+                                    key={role}
+                                    type="button"
+                                    onClick={() => handleDemoLogin(role)}
+                                    className="bg-white hover:bg-purple-50 text-purple-700 font-medium py-2 px-3 rounded-md shadow-sm border border-purple-200 hover:border-purple-300 transition-all duration-200 text-xs sm:text-sm"
+                                >
+                                    {role}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-xs text-purple-600 mt-2 text-center">
+                            Click any role to auto-fill demo credentials
+                        </p>
+                    </div>
+
+                    {/* Message Display */}
+                    {message && (
+                        <div className={`p-3 rounded-md ${message.includes('successfully')
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                            }`}>
+                            {message}
+                        </div>
+                    )}
 
                     {/* Dropdown */}
                     <Menu as="div" className="relative inline-block text-left w-full">
@@ -96,6 +184,7 @@ const Login = () => {
                                     <MenuItem key={role}>
                                         {({ active }) => (
                                             <button
+                                                type="button"
                                                 onClick={() => setSelectedRole(role)}
                                                 className={`w-full text-left px-4 py-2 text-sm ${active ? 'bg-purple-100 text-purple-900' : 'text-gray-700'
                                                     }`}
@@ -149,7 +238,7 @@ const Login = () => {
                             className={`mt-2 w-full ${loading ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
                                 } text-white font-semibold py-2 rounded-lg shadow-sm transition-all duration-200`}
                         >
-                            {loading ? 'Submitting...' : 'Submit'}
+                            {loading ? 'Logging in...' : 'Login'}
                         </button>
                     )}
 
