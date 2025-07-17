@@ -202,12 +202,6 @@ const SupporterProfileCard = () => {
             return false;
         }
 
-        // Check image file size (2MB limit)
-        if (imageFile?.file && imageFile.file.size > 2 * 1024 * 1024) {
-            toast.error("Image size should be less than 2MB");
-            return false;
-        }
-
         return true;
     };
 
