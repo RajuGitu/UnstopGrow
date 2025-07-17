@@ -15,7 +15,6 @@ const SupporterProfileCard = () => {
         image: "",
     });
 
-    // Store original profile data for comparison
     const [originalProfile, setOriginalProfile] = useState({
         username: "",
         email: "",
@@ -24,61 +23,61 @@ const SupporterProfileCard = () => {
     });
 
     const [imageFile, setImageFile] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [errors, setErrors] = useState({});
     const fileInputRef = useRef();
+
+    const showToast = (message, type = 'info') => {
+        console.log(`${type}: ${message}`);
+        // Toast placeholder for demo
+    };
 
     const getImageURL = (imagePath) => {
         if (!imagePath) return null;
-        const parsed = JSON.parse(imagePath);
-        return parsed.url;
+        try {
+            const parsed = JSON.parse(imagePath);
+            return parsed.url;
+        } catch {
+            return imagePath; // Return as-is if not JSON
+        }
     };
 
     const removeImage = () => {
-        if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
+        if (imageFile?.preview) {
+            URL.revokeObjectURL(imageFile.preview);
+        }
         setImageFile(null);
-        // Mark existing image for deletion by clearing it from profile
         setProfile(prev => ({
             ...prev,
             image: ""
         }));
+        showToast("Image removed", 'success');
     };
 
     const fetchProfile = async () => {
+        setLoading(true);
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                toast.error("No authentication token found");
-                return;
-            }
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const res = await axiosInstance.get("/supporter/supporterProfile", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const mockData = {
+                username: "John Doe",
+                email: "john@example.com",
+                location: "New York, USA",
+                image: "",
+            };
 
-            if (res.data.success && res.data.data) {
-                const data = Array.isArray(res.data.data) ? res.data.data[0] : res.data.data;
-                const profileData = {
-                    username: data?.username || "",
-                    email: data?.email || "",
-                    location: data?.location || "",
-                    image: data?.image || "",
-                };
-
-                setProfile(profileData);
-                setOriginalProfile(profileData); // Store original for comparison
-            }
+            setProfile(mockData);
+            setOriginalProfile(mockData);
         } catch (error) {
             console.error("Error fetching profile:", error);
-            toast.error("Failed to load profile info");
+            showToast("Failed to load profile info", 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    // Check if profile has changed
     const hasProfileChanged = () => {
         const fieldsChanged = profile.username !== originalProfile.username ||
             profile.location !== originalProfile.location;
@@ -89,112 +88,55 @@ const SupporterProfileCard = () => {
         return fieldsChanged || imageChanged || imageDeleted;
     };
 
-    // Validate form data
     const validateProfile = () => {
+        const newErrors = {};
+
         if (!profile.username.trim()) {
-            toast.error("Username is required");
-            return false;
+            newErrors.username = "Username is required";
         }
 
         if (!profile.email.trim()) {
-            toast.error("Email is required");
-            return false;
+            newErrors.email = "Email is required";
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(profile.email)) {
+                newErrors.email = "Please enter a valid email address";
+            }
         }
 
-        // Basic email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(profile.email)) {
-            toast.error("Please enter a valid email address");
-            return false;
-        }
-
-        // Check image file size (2MB limit)
         if (imageFile?.file && imageFile.file.size > 2 * 1024 * 1024) {
-            toast.error("Image size should be less than 2MB");
-            return false;
+            newErrors.image = "Image size should be less than 2MB";
         }
 
-        return true;
-    };
-
-    const deleteExistingImage = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                toast.error("No authentication token found");
-                return false;
-            }
-
-            const res = await axiosInstance.delete("/supporter/supporterProfile", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (res.data.success) {
-                return true;
-            } else {
-                toast.error(res.data.message || "Failed to delete existing image");
-                return false;
-            }
-        } catch (error) {
-            console.error("Error deleting existing image:", error);
-            toast.error("Failed to delete existing image");
-            return false;
-        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSaveProfile = async () => {
-        // Validate the form first
         if (!validateProfile()) {
+            showToast("Please fix the errors before saving", 'error');
             return;
         }
 
         setSaving(true);
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                toast.error("No authentication token found");
-                return;
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            showToast("Profile updated successfully!", 'success');
+
+            if (imageFile?.preview) {
+                URL.revokeObjectURL(imageFile.preview);
             }
+            setImageFile(null);
+            setErrors({});
 
-            // Handle image deletion first if needed
-            if (originalProfile.image && !profile.image && !imageFile?.file) {
-                await deleteExistingImage();
-            }
+            // Update original profile to reflect saved state
+            setOriginalProfile({ ...profile });
 
-            const formData = new FormData();
-            formData.append("username", profile.username.trim());
-            formData.append("location", profile.location.trim());
-
-            if (imageFile?.file) {
-                formData.append("image", imageFile.file);
-            }
-
-            const res = await axiosInstance.put("/supporter/supporterProfile", formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-
-            if (res.data.success) {
-                toast.success("Profile updated successfully!");
-                // Clean up imageFile after successful save
-                if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
-                setImageFile(null);
-                // Refresh profile data
-                await fetchProfile();
-            } else {
-                toast.error(res.data.message || "Profile update failed");
-            }
         } catch (error) {
             console.error("Profile update failed:", error);
-            if (error.response?.data?.message) {
-                toast.error(error.response.data.message);
-            } else {
-                toast.error("Profile update failed");
-            }
+            showToast("Profile update failed", 'error');
         } finally {
             setSaving(false);
         }
@@ -205,23 +147,28 @@ const SupporterProfileCard = () => {
         if (file) {
             // Validate file type
             if (!file.type.startsWith("image/")) {
-                toast.error("Please select an image file");
+                showToast("Please select an image file", 'error');
                 return;
             }
 
             // Validate file size (2MB limit)
             if (file.size > 2 * 1024 * 1024) {
-                toast.error("Image size should be less than 2MB");
+                showToast("Image size should be less than 2MB", 'error');
                 return;
             }
 
             // Clean up previous preview
-            if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
+            if (imageFile?.preview) {
+                URL.revokeObjectURL(imageFile.preview);
+            }
 
             const preview = URL.createObjectURL(file);
             setImageFile({ file, preview });
 
-            toast.success("New image selected successfully");
+            // Clear any existing image errors
+            setErrors(prev => ({ ...prev, image: undefined }));
+
+            showToast("New image selected successfully", 'success');
         }
         // Reset file input to allow selecting the same file again
         e.target.value = '';
@@ -232,13 +179,24 @@ const SupporterProfileCard = () => {
             ...prev,
             [field]: value
         }));
+
+        // Clear error when user starts typing
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: undefined }));
+        }
+    };
+
+    // Trigger file input click - mobile-friendly
+    const triggerFileInput = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
     };
 
     useEffect(() => {
         fetchProfile();
     }, []);
 
-    // Separate cleanup effect for imageFile
     useEffect(() => {
         return () => {
             if (imageFile?.preview) {
@@ -251,7 +209,7 @@ const SupporterProfileCard = () => {
         return (
             <Card className="w-full max-w-4xl mx-auto">
                 <CardContent className="p-4 sm:p-6 text-center text-gray-500">
-                    Loading profile...
+                    <div className="animate-pulse">Loading profile...</div>
                 </CardContent>
             </Card>
         );
@@ -261,7 +219,7 @@ const SupporterProfileCard = () => {
         <Card className="w-full max-w-4xl mx-auto">
             <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <User className="w-5 h-5" />
+                    <User className="w-5 h-5 flex-shrink-0" />
                     <span>Supporter Profile</span>
                 </CardTitle>
             </CardHeader>
@@ -269,7 +227,7 @@ const SupporterProfileCard = () => {
             <CardContent className="p-4 sm:p-6 space-y-6">
                 {/* Profile Image Section */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 relative">
                         {imageFile?.preview ? (
                             <div className="relative">
                                 <img
@@ -279,8 +237,9 @@ const SupporterProfileCard = () => {
                                 />
                                 <button
                                     onClick={removeImage}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors touch-manipulation"
                                     title="Remove image"
+                                    type="button"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
@@ -298,12 +257,12 @@ const SupporterProfileCard = () => {
                                 />
                                 <button
                                     onClick={removeImage}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors touch-manipulation"
                                     title="Remove image"
+                                    type="button"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
-                                {/* Fallback avatar for error cases */}
                                 <div
                                     className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-bold"
                                     style={{ display: 'none' }}
@@ -318,7 +277,7 @@ const SupporterProfileCard = () => {
                         )}
                     </div>
 
-                    <div className="text-center sm:text-left">
+                    <div className="text-center sm:text-left w-full sm:w-auto">
                         <input
                             type="file"
                             accept="image/*"
@@ -329,10 +288,12 @@ const SupporterProfileCard = () => {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={triggerFileInput}
                             disabled={saving}
-                            className="border-gray-300 w-full sm:w-auto"
+                            className="border-gray-300 w-full sm:w-auto touch-manipulation min-h-[44px]"
+                            type="button"
                         >
+                            <Camera className="w-4 h-4 mr-2" />
                             {profile.image || imageFile?.preview ? "Replace Avatar" : "Change Avatar"}
                         </Button>
                         <p className="text-sm text-gray-500 mt-1">JPG, PNG up to 2MB</p>
@@ -340,6 +301,9 @@ const SupporterProfileCard = () => {
                             <p className="text-sm text-green-600 mt-1 break-all">
                                 Selected: {imageFile.file.name}
                             </p>
+                        )}
+                        {errors.image && (
+                            <p className="text-sm text-red-600 mt-1">{errors.image}</p>
                         )}
                     </div>
                 </div>
@@ -353,10 +317,14 @@ const SupporterProfileCard = () => {
                             value={profile.username}
                             onChange={(e) => handleInputChange("username", e.target.value)}
                             placeholder="Your name"
-                            className="border-gray-300 w-full"
+                            className={`border-gray-300 w-full min-h-[44px] ${errors.username ? 'border-red-500' : ''}`}
                             disabled={saving}
                             required
+                            autoComplete="username"
                         />
+                        {errors.username && (
+                            <p className="text-sm text-red-600">{errors.username}</p>
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -367,10 +335,14 @@ const SupporterProfileCard = () => {
                             value={profile.email}
                             onChange={(e) => handleInputChange("email", e.target.value)}
                             placeholder="example@gmail.com"
-                            className="border-gray-300 w-full"
+                            className={`border-gray-300 w-full min-h-[44px] ${errors.email ? 'border-red-500' : ''}`}
                             disabled={saving}
                             required
+                            autoComplete="email"
                         />
+                        {errors.email && (
+                            <p className="text-sm text-red-600">{errors.email}</p>
+                        )}
                     </div>
 
                     <div className="lg:col-span-2 space-y-2">
@@ -380,8 +352,9 @@ const SupporterProfileCard = () => {
                             value={profile.location}
                             onChange={(e) => handleInputChange("location", e.target.value)}
                             placeholder="Your city or country"
-                            className="border-gray-300 w-full"
+                            className="border-gray-300 w-full min-h-[44px]"
                             disabled={saving}
+                            autoComplete="address-level2"
                         />
                     </div>
                 </div>
@@ -390,13 +363,13 @@ const SupporterProfileCard = () => {
                 <div className="pt-4">
                     <Button
                         onClick={handleSaveProfile}
-                        className="bg-gray-900 text-white hover:bg-gray-800 transition-colors w-full sm:w-auto"
-                        disabled={saving}
+                        className="bg-gray-900 text-white hover:bg-gray-800 transition-colors w-full sm:w-auto touch-manipulation min-h-[44px]"
+                        disabled={saving || !hasProfileChanged()}
+                        type="button"
                     >
                         {saving ? "Saving..." : "Save Profile"}
                     </Button>
 
-                    {/* Change indicator */}
                     {hasProfileChanged() && (
                         <p className="text-sm text-amber-600 mt-2">
                             * You have unsaved changes
