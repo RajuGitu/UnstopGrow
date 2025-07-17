@@ -158,12 +158,6 @@ const SupporterProfileCard = () => {
                 return;
             }
 
-            // Validate file size (2MB limit)
-            if (file.size > 2 * 1024 * 1024) {
-                toast.error("Image size should be less than 2MB");
-                return;
-            }
-
             // If there's an existing image, delete it from backend first
             // if (profile.image) {
             //     toast.info("Removing existing image...");
