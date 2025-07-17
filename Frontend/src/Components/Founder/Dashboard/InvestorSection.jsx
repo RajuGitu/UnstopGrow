@@ -40,13 +40,11 @@ const InvestorInterest = () => {
   const { intereseted } = useInterest();
   const [showAll, setShowAll] = useState(false);
 
-  const makeUrl = (absolute) => {
-    if (!absolute) return imgPlaceholder;
-
-    const rel = absolute.split("uploads")[1];
-    return rel
-      ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
-      : imgPlaceholder;
+  const makeUrl = (imagePath) => {
+    if (!imagePath) return imgPlaceholder;
+    if (!imagePath) return null;
+    const parsed = JSON.parse(imagePath);
+    return parsed.url;
   };
 
   const displayedInvestors = showAll
