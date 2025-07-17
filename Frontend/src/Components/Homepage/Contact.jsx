@@ -16,6 +16,7 @@ const Footer = () => {
   };
 
   const socialLinks = [
+    { name: 'Twitter', icon: Twitter, href: '#', color: 'hover:text-blue-400' },
     { name: 'LinkedIn', icon: Linkedin, href: '#', color: 'hover:text-blue-600' },
     { name: 'GitHub', icon: Github, href: '#', color: 'hover:text-gray-700' },
     { name: 'Email', icon: Mail, href: '#contact', color: 'hover:text-green-500' },
@@ -83,10 +84,10 @@ const Footer = () => {
               <Heart className="h-4 w-4 text-red-500 animate-pulse" />
               <span>for innovators worldwide.</span>
             </div>
-            {/* <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
               <span>🚀 500+ Startups</span>
               <span>💼 200+ Investors</span>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
