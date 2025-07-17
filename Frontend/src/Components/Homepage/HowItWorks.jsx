@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../UI/Tabs';
 import { Lightbulb, DollarSign, Users, ArrowRight } from 'lucide-react';
@@ -16,19 +15,19 @@ const HowItWorks = () => {
           number: '01',
           title: 'Create Your Startup Profile',
           description: 'Share your vision, team, and progress with detailed posts and updates',
-          image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         },
         {
           number: '02',
           title: 'Engage with Community',
           description: 'Get feedback from users and build a following around your innovation',
-          image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         },
         {
           number: '03',
           title: 'Connect with Investors',
           description: 'Get discovered by investors actively looking for opportunities in your space',
-          image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         }
       ]
     },
@@ -41,19 +40,19 @@ const HowItWorks = () => {
           number: '01',
           title: 'Discover Verified Startups',
           description: 'Browse curated startups filtered by industry, stage, and growth metrics',
-          image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         },
         {
           number: '02',
           title: 'Analyze & Save Opportunities',
           description: 'Deep dive into startup metrics, team backgrounds, and market traction',
-          image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         },
         {
           number: '03',
           title: 'Connect Securely',
           description: 'Reach out to founders through our verified platform with confidence',
-          image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         }
       ]
     },
@@ -66,19 +65,19 @@ const HowItWorks = () => {
           number: '01',
           title: 'Explore Trending Startups',
           description: 'Discover innovative startups on your personalized feed based on interests',
-          image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         },
         {
           number: '02',
           title: 'Follow & Give Feedback',
           description: 'Support founders with valuable insights and track their progress',
-          image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         },
         {
           number: '03',
-          title: 'Support & Earn Rewards',
-          description: 'Contribute financially and earn exclusive badges and community recognition',
-          image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+          title: 'Like, Comment & Engage',
+          description: 'Show support through likes, comments, and follows to build a thriving community',
+          image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
         }
       ]
     }

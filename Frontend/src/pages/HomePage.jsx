@@ -12,8 +12,8 @@ const HomePage = () => {
         <Hero />
         <ProblemSolution />
         <HowItWorks />
-        <StartupFeed/>
-        <CallToAction/>
+        {/* <StartupFeed/> */}
+        {/* <CallToAction/> */}
         <Footer/>
       </div>
     </>
