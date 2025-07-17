@@ -74,6 +74,14 @@ const SupporterProfileCard = () => {
             URL.revokeObjectURL(imageFile.preview);
         }
         setImageFile(null);
+        
+        // If there was an original image, mark it for deletion
+        if (originalProfile.image) {
+            setProfile(prev => ({
+                ...prev,
+                image: ""
+            }));
+        }
     };
 
     const fetchProfile = async () => {
@@ -116,8 +124,8 @@ const SupporterProfileCard = () => {
         const fieldsChanged = profile.username !== originalProfile.username ||
             profile.location !== originalProfile.location;
 
-        const imageChanged = imageFile !== null;
-        const imageDeleted = profile.image !== originalProfile.image;
+        const imageChanged = imageFile !== null; // New image selected
+        const imageDeleted = profile.image !== originalProfile.image; // Existing image removed
 
         return fieldsChanged || imageChanged || imageDeleted;
     };
@@ -174,6 +182,7 @@ const SupporterProfileCard = () => {
             formData.append("username", profile.username.trim());
             formData.append("location", profile.location.trim());
 
+            // If there's a new image file, add it to form data
             if (imageFile?.file) {
                 formData.append("image", imageFile.file);
             }
@@ -187,6 +196,14 @@ const SupporterProfileCard = () => {
 
             if (res.data.success) {
                 toast.success("Profile updated successfully!");
+                
+                // Clear the temporary image file since it's now saved
+                if (imageFile?.preview) {
+                    URL.revokeObjectURL(imageFile.preview);
+                }
+                setImageFile(null);
+                
+                // Refresh profile data from server
                 await fetchProfile(); 
             } else {
                 toast.error(res.data.message || "Profile update failed");
@@ -246,30 +263,25 @@ const SupporterProfileCard = () => {
             return;
         }
 
-        // If there's an existing image, delete it from backend first
-        if (profile.image) {
-            toast.info("Removing existing image...");
-            const deleteSuccess = await deleteExistingImage();
-            if (!deleteSuccess) {
-                return;
-            }
-
-            // Update profile state to remove the existing image
-            setProfile(prev => ({
-                ...prev,
-                image: ""
-            }));
-        }
-
         // Clean up previous preview
         if (imageFile?.preview) {
             URL.revokeObjectURL(imageFile.preview);
         }
 
+        // Create new preview
         const preview = URL.createObjectURL(file);
         setImageFile({ file, preview });
 
+        // Clear the existing profile image to show the new preview
+        setProfile(prev => ({
+            ...prev,
+            image: ""
+        }));
+
         toast.success("New image selected successfully");
+        
+        // Reset the file input to allow selecting the same file again
+        e.target.value = '';
     };
 
     const handleInputChange = (field, value) => {
