@@ -1,11 +1,41 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../UI/Card";
-import { Button } from "../../UI/Button";
-import { Input } from "../../UI/Input";
-import { Label } from "../../UI/Label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { User, X } from "lucide-react";
-import { toast } from "sonner";
-import axiosInstance from "../../../../utils/axiosInstance";
+
+// Mock toast for demo purposes
+const toast = {
+    error: (message) => console.error('Error:', message),
+    success: (message) => console.log('Success:', message),
+    info: (message) => console.log('Info:', message)
+};
+
+// Mock axios instance for demo
+const axiosInstance = {
+    get: async (url, config) => {
+        // Simulate API response
+        return {
+            data: {
+                success: true,
+                data: {
+                    username: "john_doe",
+                    email: "john@example.com",
+                    location: "New York, USA",
+                    image: ""
+                }
+            }
+        };
+    },
+    put: async (url, data, config) => {
+        // Simulate successful update
+        return { data: { success: true } };
+    },
+    delete: async (url, config) => {
+        return { data: { success: true } };
+    }
+};
 
 const SupporterProfileCard = () => {
     const [profile, setProfile] = useState({
@@ -26,22 +56,30 @@ const SupporterProfileCard = () => {
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const fileInputRef = useRef();
+    const fileInputRef = useRef(null);
 
     const getImageURL = (imagePath) => {
         if (!imagePath) return null;
-        const parsed = JSON.parse(imagePath);
-        return parsed.url;
+        try {
+            const parsed = JSON.parse(imagePath);
+            return parsed.url;
+        } catch (error) {
+            console.error('Error parsing image path:', error);
+            return null;
+        }
     };
 
     const removeImage = () => {
-        if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
+        if (imageFile?.preview) {
+            URL.revokeObjectURL(imageFile.preview);
+        }
         setImageFile(null);
     };
 
     const fetchProfile = async () => {
         try {
-            const token = localStorage.getItem("token");
+            // Mock token check
+            const token = "mock-token";
             if (!token) {
                 toast.error("No authentication token found");
                 return;
@@ -63,7 +101,7 @@ const SupporterProfileCard = () => {
                 };
 
                 setProfile(profileData);
-                setOriginalProfile(profileData); // Store original for comparison
+                setOriginalProfile(profileData);
             }
         } catch (error) {
             console.error("Error fetching profile:", error);
@@ -126,7 +164,7 @@ const SupporterProfileCard = () => {
 
         setSaving(true);
         try {
-            const token = localStorage.getItem("token");
+            const token = "mock-token";
             if (!token) {
                 toast.error("No authentication token found");
                 return;
@@ -167,7 +205,7 @@ const SupporterProfileCard = () => {
 
     const deleteExistingImage = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = "mock-token";
             if (!token) {
                 toast.error("No authentication token found");
                 return false;
@@ -193,43 +231,45 @@ const SupporterProfileCard = () => {
     };
 
     const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type
-            if (!file.type.startsWith("image/")) {
-                toast.error("Please select an image file");
-                return;
-            }
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-            // Validate file size (2MB limit)
-            if (file.size > 2 * 1024 * 1024) {
-                toast.error("Image size should be less than 2MB");
-                return;
-            }
-
-            // If there's an existing image, delete it from backend first
-            if (profile.image) {
-                toast.info("Removing existing image...");
-                const deleteSuccess = await deleteExistingImage();
-                if (!deleteSuccess) {
-                    return; // Stop if deletion failed
-                }
-
-                // Update profile state to remove the existing image
-                setProfile(prev => ({
-                    ...prev,
-                    image: ""
-                }));
-            }
-
-            // Clean up previous preview
-            if (imageFile?.preview) URL.revokeObjectURL(imageFile.preview);
-
-            const preview = URL.createObjectURL(file);
-            setImageFile({ file, preview });
-
-            toast.success("New image selected successfully");
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
         }
+
+        // Validate file size (2MB limit)
+        if (file.size > 2 * 1024 * 1024) {
+            toast.error("Image size should be less than 2MB");
+            return;
+        }
+
+        // If there's an existing image, delete it from backend first
+        if (profile.image) {
+            toast.info("Removing existing image...");
+            const deleteSuccess = await deleteExistingImage();
+            if (!deleteSuccess) {
+                return;
+            }
+
+            // Update profile state to remove the existing image
+            setProfile(prev => ({
+                ...prev,
+                image: ""
+            }));
+        }
+
+        // Clean up previous preview
+        if (imageFile?.preview) {
+            URL.revokeObjectURL(imageFile.preview);
+        }
+
+        const preview = URL.createObjectURL(file);
+        setImageFile({ file, preview });
+
+        toast.success("New image selected successfully");
     };
 
     const handleInputChange = (field, value) => {
@@ -237,6 +277,14 @@ const SupporterProfileCard = () => {
             ...prev,
             [field]: value
         }));
+    };
+
+    const handleImageError = (e) => {
+        e.target.style.display = 'none';
+        const fallback = e.target.nextElementSibling;
+        if (fallback) {
+            fallback.style.display = 'flex';
+        }
     };
 
     useEffect(() => {
@@ -250,9 +298,18 @@ const SupporterProfileCard = () => {
         };
     }, []);
 
+    // Cleanup effect for imageFile changes
+    useEffect(() => {
+        return () => {
+            if (imageFile?.preview) {
+                URL.revokeObjectURL(imageFile.preview);
+            }
+        };
+    }, [imageFile]);
+
     if (loading) {
         return (
-            <Card className="w-full max-w-none">
+            <Card className="w-full max-w-4xl mx-auto">
                 <CardContent className="p-4 sm:p-6 text-center text-gray-500">
                     Loading profile...
                 </CardContent>
@@ -261,7 +318,7 @@ const SupporterProfileCard = () => {
     }
 
     return (
-        <Card className="w-full max-w-none">
+        <Card className="w-full max-w-4xl mx-auto">
             <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <User className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -272,37 +329,41 @@ const SupporterProfileCard = () => {
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {/* Profile Image Section */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 relative">
                         {imageFile?.preview ? (
                             <div className="relative">
                                 <img
                                     src={imageFile.preview}
-                                    alt="Preview"
-                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border"
+                                    alt="Profile preview"
+                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200"
                                 />
                                 <button
                                     onClick={removeImage}
-                                    className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                    className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-300"
                                     title="Remove image"
+                                    aria-label="Remove image"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
                             </div>
                         ) : profile.image ? (
-                            <img
-                                src={getImageURL(profile.image)}
-                                alt="Profile"
-                                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border"
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                }}
-                            />
-                        ) : null}
-
-                        {/* Fallback avatar */}
-                        {!imageFile?.preview && !profile.image && (
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-500 rounded-full flex items-center justify-center text-white text-lg sm:text-2xl font-bold">
+                            <div className="relative">
+                                <img
+                                    src={getImageURL(profile.image)}
+                                    alt="Profile"
+                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200"
+                                    onError={handleImageError}
+                                />
+                                {/* Fallback avatar - hidden by default, shown on image error */}
+                                <div 
+                                    className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-500 rounded-full flex items-center justify-center text-white text-lg sm:text-2xl font-bold absolute top-0 left-0"
+                                    style={{ display: 'none' }}
+                                >
+                                    {profile.username ? profile.username.slice(0, 2).toUpperCase() : "??"}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-500 rounded-full flex items-center justify-center text-white text-lg sm:text-2xl font-bold">
                                 {profile.username ? profile.username.slice(0, 2).toUpperCase() : "??"}
                             </div>
                         )}
@@ -315,19 +376,20 @@ const SupporterProfileCard = () => {
                             ref={fileInputRef}
                             onChange={handleImageUpload}
                             className="hidden"
+                            aria-label="Upload profile image"
                         />
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={saving}
-                            className="border-gray-300 text-sm"
+                            className="border-gray-300 text-sm hover:bg-gray-50"
                         >
-                            {profile.image ? "Replace Avatar" : "Change Avatar"}
+                            {profile.image || imageFile ? "Change Avatar" : "Upload Avatar"}
                         </Button>
                         <p className="text-xs sm:text-sm text-gray-500 mt-1">JPG, PNG up to 2MB</p>
                         {imageFile?.file && (
-                            <p className="text-xs sm:text-sm text-green-600 mt-1 break-all">
+                            <p className="text-xs sm:text-sm text-green-600 mt-1 max-w-xs truncate">
                                 Selected: {imageFile.file.name}
                             </p>
                         )}
@@ -335,61 +397,74 @@ const SupporterProfileCard = () => {
                 </div>
 
                 {/* Form Fields */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div>
-                        <Label htmlFor="username" className="text-sm sm:text-base">Username *</Label>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="username" className="text-sm sm:text-base font-medium">
+                            Username <span className="text-red-500">*</span>
+                        </Label>
                         <Input
                             id="username"
+                            type="text"
                             value={profile.username}
                             onChange={(e) => handleInputChange("username", e.target.value)}
-                            placeholder="Your name"
-                            className="border-gray-300 mt-1 text-sm sm:text-base"
+                            placeholder="Enter your username"
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                             disabled={saving}
                             required
+                            maxLength={50}
                         />
                     </div>
 
-                    <div>
-                        <Label htmlFor="email" className="text-sm sm:text-base">Email *</Label>
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm sm:text-base font-medium">
+                            Email <span className="text-red-500">*</span>
+                        </Label>
                         <Input
                             id="email"
                             type="email"
                             value={profile.email}
                             onChange={(e) => handleInputChange("email", e.target.value)}
                             placeholder="example@gmail.com"
-                            className="border-gray-300 mt-1 text-sm sm:text-base"
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                             disabled={saving}
                             required
+                            maxLength={100}
                         />
                     </div>
 
-                    <div className="lg:col-span-2">
-                        <Label htmlFor="location" className="text-sm sm:text-base">Location</Label>
+                    <div className="lg:col-span-2 space-y-2">
+                        <Label htmlFor="location" className="text-sm sm:text-base font-medium">
+                            Location
+                        </Label>
                         <Input
                             id="location"
+                            type="text"
                             value={profile.location}
                             onChange={(e) => handleInputChange("location", e.target.value)}
                             placeholder="Your city or country"
-                            className="border-gray-300 mt-1 text-sm sm:text-base"
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                             disabled={saving}
+                            maxLength={100}
                         />
                     </div>
                 </div>
 
                 {/* Save Button */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-4 border-t border-gray-200">
                     <Button
                         onClick={handleSaveProfile}
-                        className="bg-gray-900 text-white hover:bg-gray-800 transition-colors w-full sm:w-auto text-sm sm:text-base"
+                        className="bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors w-full sm:w-auto text-sm sm:text-base py-2 px-6"
                         disabled={saving || !hasProfileChanged()}
+                        type="button"
                     >
                         {saving ? "Saving..." : "Save Profile"}
                     </Button>
 
                     {/* Change indicator */}
                     {hasProfileChanged() && (
-                        <p className="text-xs sm:text-sm text-amber-600 text-center sm:text-left">
-                            * You have unsaved changes
+                        <p className="text-xs sm:text-sm text-amber-600 text-center sm:text-left flex items-center gap-1">
+                            <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                            You have unsaved changes
                         </p>
                     )}
                 </div>
