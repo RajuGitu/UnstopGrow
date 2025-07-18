@@ -1,5 +1,5 @@
 import About from "../Components/Homepage/About";
-import Contact from "../Components/Homepage/Contact";
+// import Contact from "../Components/Homepage/Contact";
 import Features from "../Components/Homepage/Features";
 import Footer from "../Components/Homepage/Footer";
 import Hero from "../Components/Homepage/Hero";
@@ -16,7 +16,7 @@ const HomePage = () => {
         <ProblemSolution />
         <Features/>
         <HowItWorks />
-        <Contact/>
+        {/* <Contact/> */}
         <Footer/>
       </div>
     </>
