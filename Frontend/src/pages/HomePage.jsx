@@ -1,12 +1,12 @@
 import About from "../Components/Homepage/About";
-import CallToAction from "../Components/Homepage/CallToAction";
+// import CallToAction from "../Components/Homepage/CallToAction";
 import Contact from "../Components/Homepage/Contact";
 import Features from "../Components/Homepage/Features";
 import Footer from "../Components/Homepage/Footer";
 import Hero from "../Components/Homepage/Hero";
 import HowItWorks from "../Components/Homepage/HowItWorks";
 import ProblemSolution from "../Components/Homepage/ProblemSolution";
-import StartupFeed from "../Components/Homepage/StartUpFeed";
+// import StartupFeed from "../Components/Homepage/StartUpFeed";
 
 const HomePage = () => {
   return (
