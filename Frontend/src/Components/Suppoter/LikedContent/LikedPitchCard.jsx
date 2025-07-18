@@ -192,7 +192,7 @@ const LikedPitchCard = ({
 
     const makePdfUrl = (pdfPath) => {
         if (!pdfPath) return null;
-        const parsedData = JSON.parse(pdfData);
+        const parsedData = JSON.parse(pdfPath);
         return parsedData.url || null;
     };
 
