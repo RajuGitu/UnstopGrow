@@ -157,11 +157,9 @@ const StartupCard = ({ startup }) => {
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
   const makeUrl = (imagePath) => {
-    if (!imagePath) return imgPlaceholder;
-    const rel = imagePath.split("uploads")[1];
-    return rel
-      ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
-      : imgPlaceholder;
+    if (!imagePath) return null;
+    const parsed = JSON.parse(imagePath);
+    return parsed.url;
   };
 
   const handleViewPitch = async (startup) => {
@@ -199,64 +197,63 @@ const StartupCard = ({ startup }) => {
     interestedStartups[startup.savedstartupId] ?? startup.isInterest;
 
   // Inside the return JSX
-return (
-  <Card className="hover:shadow-lg transition-shadow">
-    <CardContent className="p-6">
-      <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 flex-1">
-          <Avatar className="h-12 w-12 flex-shrink-0">
-            <AvatarFallback>
-              {profile.logo ? (
-                <img
-                  src={makeUrl(profile.logo)}
-                  alt={profile.startUpName || "Founder"}
-                  className="w-full h-full object-cover rounded-full"
-                  onError={(e) => {
-                    e.target.src = imgPlaceholder;
-                  }}
-                />
-              ) : (
-                <div className="w-full h-full bg-slate-300 rounded-full flex items-center justify-center">
-                  <span className="text-slate-600 font-medium">
-                    {profile.startUpName
-                      ? profile.startUpName.charAt(0).toUpperCase()
-                      : "I"}
-                  </span>
-                </div>
-              )}
-            </AvatarFallback>
-          </Avatar>
+  return (
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardContent className="p-6">
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 flex-1">
+            <Avatar className="h-12 w-12 flex-shrink-0">
+              <AvatarFallback>
+                {profile.logo ? (
+                  <img
+                    src={makeUrl(profile.logo)}
+                    alt={profile.startUpName || "Founder"}
+                    className="w-full h-full object-cover rounded-full"
+                    onError={(e) => {
+                      e.target.src = imgPlaceholder;
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-slate-300 rounded-full flex items-center justify-center">
+                    <span className="text-slate-600 font-medium">
+                      {profile.startUpName
+                        ? profile.startUpName.charAt(0).toUpperCase()
+                        : "I"}
+                    </span>
+                  </div>
+                )}
+              </AvatarFallback>
+            </Avatar>
 
-          <div className="flex-1 space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-xl font-bold">{profile.startUpName}</h3>
-              <Badge variant="outline" className="border-gray-300">
-                {profile.domain}
-              </Badge>
-            </div>
+            <div className="flex-1 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-xl font-bold">{profile.startUpName}</h3>
+                <Badge variant="outline" className="border-gray-300">
+                  {profile.domain}
+                </Badge>
+              </div>
 
-            <p className="text-gray-700 text-sm md:text-base">{profile.bio}</p>
+              <p className="text-gray-700 text-sm md:text-base">{profile.bio}</p>
 
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <span className="flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                Saved {diffDays || 4} days ago
-              </span>
-              <span>{NoOfFollowers} followers</span>
+              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                <span className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  Saved {diffDays || 4} days ago
+                </span>
+                <span>{NoOfFollowers} followers</span>
+              </div>
             </div>
           </div>
-        </div>
 
           <div className="flex flex-col sm:flex-row md:flex-col items-start md:items-end gap-2">
             <Button
               size="sm"
               onClick={() => handleExpressInterest(startup.savedstartupId)}
               disabled={isInterestLoading}
-              className={`flex transition-colors items-center duration-200 cursor-pointer ${
-                isInterested
+              className={`flex transition-colors items-center duration-200 cursor-pointer ${isInterested
                   ? "bg-red-500 hover:bg-red-600 text-white"
                   : "bg-red-700 hover:bg-red-800 text-white"
-              } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${isInterestLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <Heart
                 className={`w-4 h-4 mr-2 ${isInterested ? "fill-current" : ""}`}
@@ -264,8 +261,8 @@ return (
               {isInterestLoading
                 ? "Processing..."
                 : isInterested
-                ? "Interested"
-                : "Interest"}
+                  ? "Interested"
+                  : "Interest"}
             </Button>
             <Button
               size="sm"

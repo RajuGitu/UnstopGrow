@@ -16,11 +16,7 @@ router.get("/getcountfollow", authMiddleware, getSupporterCountFollow);
 router.get("/getCountLikes", authMiddleware, getSupporterCountLikes);
 router.get("/getcountcomments", authMiddleware, getSupporterCountComments);
 
-// router to get the all the post in the using context in SupporterAllPost page.
-
 router.get("/supporterExploreAllPost", authMiddleware, getSupporterExploreAllPostController);
-
-//router to post the likes to the post of the startups in Allpostlist components.
 
 router.post(
   "/supporterLikesPosts",
@@ -72,11 +68,11 @@ router.get('/allfollowedstartup', authMiddleware, getSupporterFollowStartup);
 router.get('/supporterProfile', authMiddleware, getSupporterProfile);
 
 const uploadSupporterProfileImg = createUploadMiddleware(
-  "image", // fieldName
-  ["jpg", "jpeg", "png", "webp"], // allowed extensions
-  1, // maxFiles
-  "supporter-profiles", // Cloudinary folder name
-  true // useCloudinary = true
+  "image",
+  ["jpg", "jpeg", "png", "webp"],
+  1,
+  "supporter-profiles",
+  true
 );
 
 router.put(

@@ -7,17 +7,94 @@ const fs = require("fs/promises");
 const Interest = require("../models/InvestorFounder/Interestmodel");
 const Setting = require("../models/Investor/Setting");
 const Domain = require("../models/Investor/Domain");
+const { deleteFromCloudinary, extractPublicId } = require('../config/cloudinaryConfig');
 const { deletePdfFromCloudinary } = require('../config/cloudinaryPdfConfig');
+// const Founder = require('../models/foundermodel');
+
+// const updatePitchPdfController = async (req, res) => {
+//   try {
+//     const { id } = req.params; // Pitch ID from URL parameter
+//     const uploadedFile = req.file;
+//     console.log('Uploaded PDF file:', uploadedFile);
+
+//     // Validate that ID is provided
+//     if (!id) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Pitch ID is required"
+//       });
+//     }
+
+//     // Check if pitch exists
+//     const existingPitch = await Founder.findById(id);
+//     if (!existingPitch) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Pitch not found"
+//       });
+//     }
+
+//     // If no file is uploaded, handle this case
+//     if (!uploadedFile) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No PDF file provided for update"
+//       });
+//     }
+
+//     // Prepare update data
+//     const updateData = {};
+
+//     // Handle PDF update if file is uploaded
+//     if (uploadedFile) {
+//       const pdfData = {
+//         url: uploadedFile.path,
+//         publicId: uploadedFile.filename, // This is the public ID from Cloudinary
+//         originalName: uploadedFile.originalname,
+//         size: uploadedFile.size,
+//         uploadedAt: new Date()
+//       };
+//       updateData.file = JSON.stringify(pdfData); // Assuming 'url' is the field name in Pitch model
+//     }
+
+//     console.log('PDF update data:', updateData);
+
+//     // Update the pitch
+//     const updatedPitch = await Founder.findByIdAndUpdate(
+//       id,
+//       { $set: updateData },
+//       { new: true, runValidators: true }
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Pitch PDF updated successfully",
+//       data: updatedPitch
+//     });
+
+//   } catch (error) {
+//     console.error("Error updating pitch PDF:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
 
 const updateFormController = async (req, res) => {
   try {
     const { title, descriptions, tags } = req.body;
-    const image = req.file; // Changed from req.media to req.file (standard multer)
+    const uploadedFile = req.file; // Cloudinary uploaded file
     const startupId = req.user.id;
 
-    if (!title || !descriptions || !image || !startupId) {
+    console.log('Uploaded file:', uploadedFile);
+
+    // Validate required fields
+    if (!title || !descriptions || !uploadedFile || !startupId) {
       return res.status(400).json({
-        error: "Title, descriptions, image, and startupId are required.",
+        success: false,
+        message: "Title, descriptions, image, and startupId are required."
       });
     }
 
@@ -32,24 +109,39 @@ const updateFormController = async (req, res) => {
       }
     }
 
+    // Prepare image data for Cloudinary (similar to updateImagePostController)
+    const imageData = {
+      url: uploadedFile.path, // Cloudinary URL
+      publicId: uploadedFile.filename, // Cloudinary public ID
+      originalName: uploadedFile.originalname,
+      size: uploadedFile.size,
+      uploadedAt: new Date()
+    };
+
     // Create the post object
     const newPost = new Post({
       startupId,
       title,
       description: descriptions, // Make sure your schema field matches
-      media: image.path || image.filename, // Store file path or filename
+      media: JSON.stringify(imageData), // Store as JSON string like in updateImagePostController
       tags: tagArray,
     });
 
     await newPost.save();
 
-    res.status(201).json({
+    return res.status(201).json({
+      success: true,
       message: "Post created successfully.",
-      post: newPost,
+      data: newPost
     });
+
   } catch (error) {
-    console.log("Publish Update Error:", error.message); // Fixed: was 'err' instead of 'error'
-    res.status(500).json({ error: "Server error while publishing Update" });
+    console.error("Error creating post:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
   }
 };
 
@@ -259,117 +351,111 @@ const pitchFormController = async (req, res) => {
   }
 };
 
-// Helper function to update existing pitch (if needed)
-const updatePitchController = async (req, res) => {
-  try {
-    const startupId = req.user.id;
-    const {
-      title,
-      tagline,
-      youtube,
-      problem,
-      solution,
-      market,
-      traction,
-      funding,
-      team,
-      raised,
-      activeUser,
-    } = req.body;
-    const uploadedFile = req.file;
+// const updatePitchController = async (req, res) => {
+//   try {
+//     const startupId = req.user.id;
+//     const {
+//       title,
+//       tagline,
+//       youtube,
+//       problem,
+//       solution,
+//       market,
+//       traction,
+//       funding,
+//       team,
+//       raised,
+//       activeUser,
+//     } = req.body;
+//     const uploadedFile = req.file;
 
-    // If new PDF is uploaded, delete the old one from Cloudinary
-    if (uploadedFile) {
-      const existingPitch = await Pitch.findOne({ startupId });
-      if (existingPitch && existingPitch.pdf) {
-        try {
-          // Parse existing PDF data to get publicId
-          const existingPdfData = JSON.parse(existingPitch.pdf);
-          if (existingPdfData.publicId) {
-            await deletePdfFromCloudinary(existingPdfData.publicId);
-            console.log("Old PDF deleted from Cloudinary");
-          }
-        } catch (deleteError) {
-          console.warn("Old PDF deletion from Cloudinary failed:", deleteError.message);
-          // Continue with update even if deletion fails
-        }
-      }
-    }
+//     // If new PDF is uploaded, delete the old one from Cloudinary
+//     if (uploadedFile) {
+//       const existingPitch = await Pitch.findOne({ startupId });
+//       if (existingPitch && existingPitch.pdf) {
+//         try {
+//           // Parse existing PDF data to get publicId
+//           const existingPdfData = JSON.parse(existingPitch.pdf);
+//           if (existingPdfData.publicId) {
+//             await deletePdfFromCloudinary(existingPdfData.publicId);
+//             console.log("Old PDF deleted from Cloudinary");
+//           }
+//         } catch (deleteError) {
+//           console.warn("Old PDF deletion from Cloudinary failed:", deleteError.message);
+//           // Continue with update even if deletion fails
+//         }
+//       }
+//     }
 
-    const updateData = {
-      title,
-      tagline,
-      youtube,
-      problem,
-      solution,
-      market,
-      traction,
-      funding,
-      team,
-      raised,
-      activeUser,
-    };
+//     const updateData = {
+//       title,
+//       tagline,
+//       youtube,
+//       problem,
+//       solution,
+//       market,
+//       traction,
+//       funding,
+//       team,
+//       raised,
+//       activeUser,
+//     };
 
-    // Store complete PDF data as JSON string in the pdf field
-    if (uploadedFile) {
-      const pdfData = {
-        url: uploadedFile.path,
-        publicId: uploadedFile.filename, // This is the public ID from Cloudinary
-        originalName: uploadedFile.originalname,
-        size: uploadedFile.size,
-        uploadedAt: new Date()
-      };
-      updateData.pdf = JSON.stringify(pdfData);
-    }
+//     // Store complete PDF data as JSON string in the pdf field
+//     if (uploadedFile) {
+//       const pdfData = {
+//         url: uploadedFile.path,
+//         publicId: uploadedFile.filename, // This is the public ID from Cloudinary
+//         originalName: uploadedFile.originalname,
+//         size: uploadedFile.size,
+//         uploadedAt: new Date()
+//       };
+//       updateData.pdf = JSON.stringify(pdfData);
+//     }
 
-    const updated = await Pitch.findOneAndUpdate(
-      { startupId },
-      { $set: updateData },
-      { new: true }
-    );
+//     const updated = await Pitch.findOneAndUpdate(
+//       { startupId },
+//       { $set: updateData },
+//       { new: true }
+//     );
 
-    if (!updated) {
-      return res.status(404).json({
-        error: "Pitch not found for this startup",
-      });
-    }
+//     if (!updated) {
+//       return res.status(404).json({
+//         error: "Pitch not found for this startup",
+//       });
+//     }
 
-    // Parse PDF data for response
-    let responseData = { ...updated.toObject() };
-    if (responseData.pdf) {
-      try {
-        responseData.pdfData = JSON.parse(responseData.pdf);
-      } catch (e) {
-        // If parsing fails, treat as old string format
-        responseData.pdfData = { url: responseData.pdf };
-      }
-    }
+//     // Parse PDF data for response
+//     let responseData = { ...updated.toObject() };
+//     if (responseData.pdf) {
+//       try {
+//         responseData.pdfData = JSON.parse(responseData.pdf);
+//       } catch (e) {
+//         // If parsing fails, treat as old string format
+//         responseData.pdfData = { url: responseData.pdf };
+//       }
+//     }
 
-    res.status(200).json({
-      message: "Pitch updated successfully",
-      pitch: responseData,
-    });
-  } catch (error) {
-    console.log("update Pitch Error:", error.message);
+//     res.status(200).json({
+//       message: "Pitch updated successfully",
+//       pitch: responseData,
+//     });
+//   } catch (error) {
+//     console.log("update Pitch Error:", error.message);
 
-    // If there was an upload but update failed, clean up the uploaded file from Cloudinary
-    if (req.file?.filename) {
-      try {
-        await deletePdfFromCloudinary(req.file.filename);
-        console.log("Cleanup: Deleted uploaded PDF from Cloudinary after error");
-      } catch (cleanupError) {
-        console.error('Error cleaning up uploaded PDF:', cleanupError.message);
-      }
-    }
+//     // If there was an upload but update failed, clean up the uploaded file from Cloudinary
+//     if (req.file?.filename) {
+//       try {
+//         await deletePdfFromCloudinary(req.file.filename);
+//         console.log("Cleanup: Deleted uploaded PDF from Cloudinary after error");
+//       } catch (cleanupError) {
+//         console.error('Error cleaning up uploaded PDF:', cleanupError.message);
+//       }
+//     }
 
-    res.status(500).json({ error: "Server error while updating pitch" });
-  }
-};
-
-module.exports = {
-  pitchFormController,
-  updatePitchController
-};
+//     res.status(500).json({ error: "Server error while updating pitch" });
+//   }
+// };
 
 const getFounderProfileController = async (req, res) => {
   try {
@@ -448,55 +534,134 @@ const uploadImageController = async (req, res) => {
   try {
     const founderId = req.user?.id;
     if (!founderId) {
-      return res.status(401).json({ error: "Unauthorized person" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized person"
+      });
     }
 
-    const image = req.file;
-    if (!image) {
-      return res.status(404).json({ error: "Image not found" });
+    const uploadedFile = req.file;
+    console.log('Uploaded file:', uploadedFile);
+
+    if (!uploadedFile) {
+      return res.status(400).json({
+        success: false,
+        message: "Image not found"
+      });
     }
 
-    const logoPath = image.path;
+    // Prepare image data for Cloudinary (following your pattern)
+    const imageData = {
+      url: uploadedFile.path, // Cloudinary URL
+      publicId: uploadedFile.filename, // Cloudinary public ID
+      originalName: uploadedFile.originalname,
+      size: uploadedFile.size,
+      uploadedAt: new Date()
+    };
 
     const updated = await Profile.findOneAndUpdate(
       { startupId: founderId },
-      { $set: { logo: logoPath } },
+      { $set: { logo: JSON.stringify(imageData) } }, // Store as JSON string
       { new: true, runValidators: true }
     );
 
     if (!updated) {
-      return res.status(404).json({ error: "Profile not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found"
+      });
     }
 
     return res.status(200).json({
+      success: true,
       message: "Logo uploaded successfully",
-      url: logoPath,
+      data: {
+        url: uploadedFile.path,
+        publicId: uploadedFile.filename
+      }
     });
+
   } catch (error) {
-    console.error("Upload logo error:", error);
-    return res.status(500).json({ error: "Server error while uploading logo" });
+    console.error("Error uploading logo:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
   }
 };
 
 const deleteLogoController = async (req, res) => {
   try {
     const founderId = req.user.id;
+
     const profile = await Profile.findOne({ startupId: founderId });
-    if (!profile) return res.status(404).json({ error: "Profile not found" });
-    if (!profile.logo)
-      return res.status(400).json({ error: "No logo to delete" });
-    const absolutePath = path.isAbsolute(profile.logo)
-      ? profile.logo
-      : path.join(__dirname, "..", profile.logo);
-    await fs.unlink(absolutePath).catch(() => { });
-    profile.logo = null;
-    await profile.save();
-    res.status(200).json({ message: "Logo deleted" });
+    if (!profile) {
+      return res.status(404).json({
+        error: "Profile not found",
+        success: false
+      });
+    }
+
+    if (!profile.logo) {
+      return res.status(400).json({
+        error: "No logo to delete",
+        success: false
+      });
+    }
+
+    // Parse logo data to get public ID
+    let logoData;
+    try {
+      logoData = JSON.parse(profile.logo);
+    } catch (parseError) {
+      // If parsing fails, try to extract from URL (for backward compatibility)
+      const publicId = extractPublicId(profile.logo);
+      if (publicId) {
+        logoData = { publicId };
+      } else {
+        return res.status(400).json({
+          error: "Invalid logo data format",
+          success: false
+        });
+      }
+    }
+
+    // Delete logo from Cloudinary
+    if (logoData.publicId) {
+      try {
+        const result = await deleteFromCloudinary(logoData.publicId);
+        console.log("Logo deleted from Cloudinary:", result);
+      } catch (deleteError) {
+        console.error("Failed to delete logo from Cloudinary:", deleteError.message);
+        // Continue with database update even if Cloudinary deletion fails
+      }
+    }
+
+    // Update database to remove logo reference
+    const updatedProfile = await Profile.findOneAndUpdate(
+      { startupId: founderId },
+      {
+        $unset: {
+          logo: ""
+        }
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Logo deleted successfully",
+      success: true,
+      data: updatedProfile
+    });
   } catch (error) {
-    console.error("Upload logo error:", error);
-    return res.status(500).json({ error: "Server error while uploading logo" });
+    console.error("Logo Delete Error:", error.message);
+    res.status(500).json({
+      error: "Server error while deleting the logo",
+      success: false
+    });
   }
-}
+};
 
 const getPitchsController = async (req, res) => {
   try {
@@ -825,6 +990,7 @@ const logoutController = async (req, res) => {
 };
 
 module.exports = {
+  // updatePitchPdfController,
   updateFormController,
   recentUpdatesController,
   pitchFormController,
@@ -842,5 +1008,5 @@ module.exports = {
   getRequestController,
   updateStatusRequest,
   getAllInterestedController,
-  logoutController
+  logoutController,
 };

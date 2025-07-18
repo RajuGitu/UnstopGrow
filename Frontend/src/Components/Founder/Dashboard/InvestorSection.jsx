@@ -41,7 +41,6 @@ const InvestorInterest = () => {
   const [showAll, setShowAll] = useState(false);
 
   const makeUrl = (imagePath) => {
-    if (!imagePath) return imgPlaceholder;
     if (!imagePath) return null;
     const parsed = JSON.parse(imagePath);
     return parsed.url;

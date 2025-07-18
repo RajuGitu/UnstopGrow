@@ -13,11 +13,10 @@ export default function RecentUpdates() {
 
   useEffect(() => { getAllPost(); }, [getAllPost]);
 
-  const makeUrl = (absolute) => {
-    const rel = absolute.split("uploads")[1];
-    return rel
-      ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
-      : imgPlaceholder;
+  const makeUrl = (imagePath) => {
+    if (!imagePath) return null;
+    const parsed = JSON.parse(imagePath);
+    return parsed.url;
   };
 
   if (loading) {

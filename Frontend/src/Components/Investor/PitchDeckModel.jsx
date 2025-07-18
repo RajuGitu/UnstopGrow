@@ -38,14 +38,10 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
     return words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
   };
 
-  const makeUrl = (absolute) => {
-    if (!absolute) return imgPlaceholder;
-    const rel = absolute.split("uploads")[1];
-    // Consider making this configurable via environment variables
-    const baseUrl = "http://localhost:5000";
-    return rel
-      ? `${baseUrl}/uploads${rel.replace(/\\/g, "/")}`
-      : imgPlaceholder;
+  const makeUrl = (imagePath) => {
+    if (!imagePath) return null;
+    const parsed = JSON.parse(imagePath);
+    return parsed.url;
   };
 
   const startupName = startup.title || startup.startUpName || "StartupPitch";
@@ -138,7 +134,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                 </p>
               </div>
             </DialogTitle>
-            
+
             <Button
               variant="ghost"
               size="sm"

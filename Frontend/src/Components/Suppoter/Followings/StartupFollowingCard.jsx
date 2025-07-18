@@ -10,11 +10,8 @@ const StartupFollowingCard = ({ startup, onFollowStatusChange }) => {
 
     const makeImageUrl = (imagePath) => {
         if (!imagePath) return null;
-        const normalizedPath = imagePath.replace(/\\/g, "/");
-        const uploadsIndex = normalizedPath.indexOf("uploads/");
-        if (uploadsIndex === -1) return null;
-        const relativePath = normalizedPath.substring(uploadsIndex);
-        return `https://unstopgrowb.onrender.com/${relativePath}`;
+        const parsed = JSON.parse(imagePath);
+        return parsed.url;
     };
 
     const handleFollow = async () => {

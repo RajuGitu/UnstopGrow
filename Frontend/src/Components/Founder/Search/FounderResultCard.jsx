@@ -26,12 +26,10 @@ export default function FounderResultCard({ founder }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Generate initials from startup name
-    const makeUrl = (absolute) => {
-        if (!absolute) return imgPlaceholder;
-        const rel = absolute.split("uploads")[1];
-        return rel
-            ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
-            : imgPlaceholder;
+    const makeUrl = (imagePath) => {
+        if (!imagePath) return null;
+        const parsed = JSON.parse(imagePath);
+        return parsed.url;
     };
     const getInitials = (name) => {
         if (!name) return "ST";

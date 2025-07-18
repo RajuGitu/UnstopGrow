@@ -11,10 +11,10 @@ export default function StartupLogoCard() {
 
     const getImageURL = (imagePath) => {
         if (!imagePath) return null;
-        const relativePath = imagePath?.split("uploads")[1];
-        return relativePath ? `https://unstopgrowb.onrender.com/uploads${relativePath.replace(/\\/g, "/")}`
-            : "https://via.placeholder.com/150";
+        const parsed = JSON.parse(imagePath);
+        return parsed.url;
     }
+    
     const [logoFile, setLogoFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(getImageURL(form.logo));
     const [saving, setSaving] = useState(false);

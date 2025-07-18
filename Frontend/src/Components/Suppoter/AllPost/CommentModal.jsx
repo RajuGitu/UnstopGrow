@@ -40,13 +40,9 @@ const CommentModal = ({
   }, [postItem]);
 
   const makeImageUrl = (imagePath) => {
-    if (!imagePath) return "https://via.placeholder.com/400x200?text=No+Image";
-    const normalizedPath = imagePath.replace(/\\/g, "/");
-    const uploadsIndex = normalizedPath.indexOf("uploads/");
-    if (uploadsIndex === -1)
-      return "https://via.placeholder.com/400x200?text=No+Image";
-    const relativePath = normalizedPath.substring(uploadsIndex);
-    return `https://unstopgrowb.onrender.com/${relativePath}`;
+    if (!imagePath) return null;
+    const parsed = JSON.parse(imagePath);
+    return parsed.url;
   };
 
   const formatDate = (dateString) => {

@@ -18,6 +18,7 @@ const {
   updateStatusRequest,
   getAllInterestedController,
   logoutController,
+  // updatePitchPdfController,
 } = require("../controller/founderController");
 const authMiddleware = require("../middleware/authMiddleware");
 const createUploadMiddleware = require("../middleware/uploadImageMiddleware");
@@ -34,12 +35,24 @@ const upload = multer();
 const router = express.Router();
 
 const uploadFounderPost = createUploadMiddleware(
-  undefined,
+  "postImages",
   ["jpg", "jpeg", "png", "webp"],
   1,
-  "uploads/postImages"
+  "postImages",
+  true
 );
-
+// const proofUpload = createPitchPdfUploadMiddleware(
+//   "founderProofs",
+//   ["pdf"],
+//   1,
+//   "founderProofs",
+//   true
+// );
+// router.put(
+//   '/updatePitch/:id',
+//   proofUpload.single("file"),
+//   updatePitchPdfController
+// );
 router.post(
   "/updateForm",
   authMiddleware,
@@ -55,7 +68,7 @@ const uploadProfileImage = createUploadMiddleware(
   undefined,
   ["jpg", "jpeg", "png", "webp"],
   1,
-  "uploads/FounderProfileImage"
+  "FounderProfileImage"
 );
 router.post(
   "/logoUpload",

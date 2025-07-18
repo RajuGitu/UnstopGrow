@@ -241,15 +241,10 @@ const StartupCard = ({ startup }) => {
     return words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
   };
 
-  const makeUrl = (absolute) => {
-    if (!absolute) return imgPlaceholder;
-    const rel = absolute.split("uploads")[1];
-    console.log("Relative Path:", rel);
-    // Consider making this configurable via environment variables
-    const baseUrl = "https://unstopgrowb.onrender.com";
-    return rel
-      ? `${baseUrl}/uploads${rel.replace(/\\/g, "/")}`
-      : imgPlaceholder;
+  const makeUrl = (imagePath) => {
+    if (!imagePath) return null;
+    const parsed = JSON.parse(imagePath);
+    return parsed.url;
   };
 
   const isSaved = savedStartups[startup.startupId] ?? startup.isSaved;

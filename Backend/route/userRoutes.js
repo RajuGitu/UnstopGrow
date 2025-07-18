@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { loginUserController, SignupUserController, getFounderFileById, registerFounderController, registerInvestorController, loginFounderController, loginInvestorController, forgotUserController, forgotFounderController, forgotInvestorController, getFounderAuthenticate, getInvestorAuthenticate, getSuppoterAuthenticate } = require('../controller/userController');
-const getUploader = require('../middleware/getUploaderMiddleware');
+const { getUploader } = require('../middleware/getUploaderMiddleware');
 const uploadFounderProof = getUploader('founder');
 const uploadInvestorProof = getUploader('investor');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -18,6 +18,6 @@ router.post('/investor/forgot-password', forgotInvestorController);
 router.get('/file/:id', getFounderFileById);
 router.get('/getfounderauthenticate', authMiddleware, getFounderAuthenticate);
 router.get('/getinvestorauthenticate', authMiddleware, getInvestorAuthenticate);
-router.get('/getSupporterAuthenticate',authMiddleware,getSuppoterAuthenticate)
+router.get('/getSupporterAuthenticate', authMiddleware, getSuppoterAuthenticate)
 
 module.exports = router;

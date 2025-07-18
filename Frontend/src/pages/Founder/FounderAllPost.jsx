@@ -48,10 +48,9 @@ const FounderAllPost = () => {
     };
 
     const makeImageUrl = (imagePath) => {
-        const rel = imagePath.split("uploads")[1];
-        return rel
-            ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
-            : "https://via.placeholder.com/120x80?text=No+Image";
+        if (!imagePath) return null;
+        const parsed = JSON.parse(imagePath);
+        return parsed.url;
     };
 
     if (loading) {
