@@ -351,6 +351,7 @@ const pitchFormController = async (req, res) => {
   }
 };
 
+// Helper function to update existing pitch (if needed)
 // const updatePitchController = async (req, res) => {
 //   try {
 //     const startupId = req.user.id;
@@ -455,6 +456,11 @@ const pitchFormController = async (req, res) => {
 
 //     res.status(500).json({ error: "Server error while updating pitch" });
 //   }
+// };
+
+// module.exports = {
+//   pitchFormController,
+//   updatePitchController
 // };
 
 const getFounderProfileController = async (req, res) => {

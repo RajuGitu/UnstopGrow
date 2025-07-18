@@ -44,7 +44,67 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
     return parsed.url;
   };
 
-  const startupName = startup.title || startup.startUpName || "StartupPitch";
+  // Updated function to handle Cloudinary PDF URLs
+  const makePdfUrl = (pdfData) => {
+    if (!pdfData) return null;
+
+    try {
+      // If it's already a direct URL (backward compatibility)
+      // if (typeof pdfData === 'string' && pdfData.startsWith('http')) {
+      //   return pdfData;
+      // }
+
+      // If it's a JSON string, parse it
+      if (typeof pdfData === 'string' && pdfData.startsWith('{')) {
+        const parsedData = JSON.parse(pdfData);
+        return parsedData.url || null;
+      }
+
+      // If it's already a parsed object
+      // if (typeof pdfData === 'object' && pdfData.url) {
+      //   return pdfData.url;
+      // }
+
+      // Fallback for old local path format
+      // if (typeof pdfData === 'string' && pdfData.includes('uploads/')) {
+      //   const normalizedPath = pdfData.replace(/\\/g, "/");
+      //   const uploadsIndex = normalizedPath.indexOf("uploads/");
+      //   if (uploadsIndex === -1) return null;
+      //   const relativePath = normalizedPath.substring(uploadsIndex);
+      //   return `http://localhost:5000/${relativePath}`;
+      // }
+
+      return null;
+    } catch (error) {
+      console.error("Error parsing PDF data:", error);
+      return null;
+    }
+  };
+
+  // Helper function to get PDF filename for display
+  const getPdfFileName = (pdfData) => {
+    if (!pdfData) return "PDF";
+
+    try {
+      // If it's a JSON string, parse it
+      if (typeof pdfData === 'string' && pdfData.startsWith('{')) {
+        const parsedData = JSON.parse(pdfData);
+        return parsedData.originalName || "PDF";
+      }
+
+      // If it's already a parsed object
+      // if (typeof pdfData === 'object' && pdfData.originalName) {
+      //   return pdfData.originalName;
+      // }
+
+      return "PDF";
+    } catch (error) {
+      console.error("Error getting PDF filename:", error);
+      return "PDF";
+    }
+  };
+
+  // const startupName = startup.title || startup.startUpName || "StartupPitch";
 
   const pitchSections = [
     {
@@ -237,7 +297,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
           )}
 
           {/* Download Section */}
-          {startup.pdf && (
+          {startup.pdf && makePdfUrl(startup.pdf) && (
             <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
               <h5 className="font-semibold text-slate-700 text-sm sm:text-base">
                 Download Resources
@@ -248,7 +308,9 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                   <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 flex-shrink-0" />
                   <div>
                     <p className="font-medium text-sm sm:text-base">Pitch Deck PDF</p>
-                    <p className="text-xs text-gray-500">{startupName}.pdf</p>
+                    <p className="text-xs text-gray-500">
+                      {getPdfFileName(startup.pdf)}
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
@@ -259,7 +321,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                     asChild
                   >
                     <a
-                      href={makeUrl(startup.pdf)}
+                      href={makePdfUrl(startup.pdf)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -275,8 +337,8 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                     asChild
                   >
                     <a
-                      href={makeUrl(startup.pdf)}
-                      download={`${startupName}.pdf`}
+                      href={makePdfUrl(startup.pdf)}
+                      download={getPdfFileName(startup.pdf)}
                     >
                       <Download className="h-4 w-4 mr-1" />
                       <span className="hidden sm:inline">Download PDF</span>

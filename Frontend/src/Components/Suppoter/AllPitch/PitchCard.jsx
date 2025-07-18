@@ -188,13 +188,64 @@ const PitchCard = ({
         });
     };
 
-    const makePdfUrl = (pdfPath) => {
-        if (!pdfPath) return null;
-        const normalizedPath = pdfPath.replace(/\\/g, "/");
-        const uploadsIndex = normalizedPath.indexOf("uploads/");
-        if (uploadsIndex === -1) return null;
-        const relativePath = normalizedPath.substring(uploadsIndex);
-        return `http://localhost:5000/${relativePath}`;
+    // Updated function to handle Cloudinary PDF URLs
+    const makePdfUrl = (pdfData) => {
+        if (!pdfData) return null;
+
+        try {
+            // // If it's already a direct URL (backward compatibility)
+            // if (typeof pdfData === 'string' && pdfData.startsWith('http')) {
+            //     return pdfData;
+            // }
+
+            // If it's a JSON string, parse it
+            if (typeof pdfData === 'string' && pdfData.startsWith('{')) {
+                const parsedData = JSON.parse(pdfData);
+                return parsedData.url || null;
+            }
+
+            // // If it's already a parsed object
+            // if (typeof pdfData === 'object' && pdfData.url) {
+            //     return pdfData.url;
+            // }
+
+            // Fallback for old local path format
+            // if (typeof pdfData === 'string' && pdfData.includes('uploads/')) {
+            //     const normalizedPath = pdfData.replace(/\\/g, "/");
+            //     const uploadsIndex = normalizedPath.indexOf("uploads/");
+            //     if (uploadsIndex === -1) return null;
+            //     const relativePath = normalizedPath.substring(uploadsIndex);
+            //     return `http://localhost:5000/${relativePath}`;
+            // }
+
+            return null;
+        } catch (error) {
+            console.error("Error parsing PDF data:", error);
+            return null;
+        }
+    };
+
+    // Helper function to get PDF filename for display
+    const getPdfFileName = (pdfData) => {
+        if (!pdfData) return "PDF";
+
+        try {
+            // If it's a JSON string, parse it
+            if (typeof pdfData === 'string' && pdfData.startsWith('{')) {
+                const parsedData = JSON.parse(pdfData);
+                return parsedData.originalName || "PDF";
+            }
+
+            // If it's already a parsed object
+            // if (typeof pdfData === 'object' && pdfData.originalName) {
+            //     return pdfData.originalName;
+            // }
+
+            return "PDF";
+        } catch (error) {
+            console.error("Error getting PDF filename:", error);
+            return "PDF";
+        }
     };
 
     return (
@@ -372,12 +423,13 @@ const PitchCard = ({
                                 <span className="text-xs">Video</span>
                             </a>
                         )}
-                        {pitchItem.pdf && (
+                        {pitchItem.pdf && makePdfUrl(pitchItem.pdf) && (
                             <a
                                 href={makePdfUrl(pitchItem.pdf)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"
+                                title={getPdfFileName(pitchItem.pdf)}
                             >
                                 <FileText className="h-4 w-4" />
                                 <span className="text-xs">PDF</span>
