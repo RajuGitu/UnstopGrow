@@ -175,6 +175,206 @@ const SignupUserController = async (req, res) => {
   }
 };
 
+// const registerFounderController = async (req, res) => {
+//   try {
+//     const {
+//       companyName,
+//       ownerName,
+//       email,
+//       password,
+//       aadhaar,
+//       pancard,
+//       linkedin,
+//       proof,
+//       answer,
+//     } = req.body;
+
+//     const file = req.file;
+
+//     if (
+//       !file ||
+//       !companyName ||
+//       !ownerName ||
+//       !email ||
+//       !password ||
+//       !aadhaar ||
+//       !pancard ||
+//       !linkedin ||
+//       !proof ||
+//       !answer
+//     ) {
+//       return res
+//         .status(400)
+//         .json({ error: "All details including file are required" });
+//     }
+
+//     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+//       return res.status(400).json({ error: "Invalid email format" });
+//     }
+
+//     if (!/^\d{12}$/.test(aadhaar)) {
+//       return res
+//         .status(400)
+//         .json({ error: "Aadhaar must be exactly 12 digits" });
+//     }
+
+//     if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pancard.toUpperCase())) {
+//       return res.status(400).json({ error: "Invalid PAN format" });
+//     }
+
+//     const existingFounder = await Founder.findOne({ email });
+//     if (existingFounder) {
+//       return res
+//         .status(409)
+//         .json({ error: "Founder with this email already exists" });
+//     }
+
+//     // Create new founder
+//     const newFounder = new Founder({
+//       companyName,
+//       ownerName,
+//       email,
+//       password,
+//       aadhaar,
+//       pancard,
+//       linkedin,
+//       proof,
+//       file: file.path,
+//       answer,
+//     });
+
+//     const savedFounder = await newFounder.save();
+
+//     const newProfile = new Profile({
+//       startupId: savedFounder._id,
+//       startUpName: companyName,
+//       bio: "Tell us about your startup...",
+//       domain: "Technology",
+//       email: email,
+//       socials: {
+//         linkedin: linkedin,
+//       },
+//     });
+
+//     const savedProfile = await newProfile.save();
+//     const token = JWT.sign({ id: savedFounder._id }, process.env.JWT_SECRET, {
+//       expiresIn: "7d",
+//     });
+//     res.cookie("token", token, {
+//       httpOnly: true,
+//       secure: false,
+//       sameSite: "strict",
+//       maxAge: 7 * 24 * 60 * 60 * 1000,
+//     });
+//     res.status(201).json({
+//       message: "Founder registered successfully",
+//       userId: savedFounder._id,
+//       profileId: savedProfile,
+//       token
+//     });
+//   } catch (err) {
+//     console.error("Register Founder Error:", err.message);
+//     res.status(500).json({ error: "Server error while registering founder" });
+//   }
+// };
+
+// const registerInvestorController = async (req, res) => {
+//   try {
+//     const {
+//       investorName,
+//       email,
+//       password,
+//       pastInvestment,
+//       linkedin,
+//       aadhaar,
+//       pancard,
+//       answer,
+//     } = req.body;
+//     const file = req.file;
+//     if (
+//       !file ||
+//       !investorName ||
+//       !email ||
+//       !password ||
+//       !pastInvestment ||
+//       !linkedin ||
+//       !aadhaar ||
+//       !pancard ||
+//       !answer
+//     ) {
+//       return res.status(400).json({ error: "All file Details are required" });
+//     }
+
+//     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+//       return res.status(400).json({ error: "Invalid email format" });
+//     }
+
+//     if (!/^\d{12}$/.test(aadhaar)) {
+//       return res
+//         .status(400)
+//         .json({ error: "Aadhaar must be exactly 12 digits" });
+//     }
+
+//     if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pancard.toUpperCase())) {
+//       return res.status(400).json({ error: "Invalid PAN format" });
+//     }
+
+//     const existingInvestor = await Investor.findOne({ email });
+//     if (existingInvestor) {
+//       return res
+//         .status(409)
+//         .json({ error: "Investor with this email already exists" });
+//     }
+//     const newInvestor = new Investor({
+//       investorName,
+//       email,
+//       password,
+//       pastInvestment,
+//       linkedin,
+//       aadhaar,
+//       pancard,
+//       file: file.path,
+//       answer,
+//     });
+//     const savedInvestor = await newInvestor.save();
+
+//     const newInvestorProfileinfo = new investorProfileInfo({
+//       investorId: savedInvestor._id,
+//       name: investorName,
+//       email: email,
+//       linkedin: linkedin,
+//     });
+
+//     const savedInvestorProfileinfo = await newInvestorProfileinfo.save();
+
+//     const newInvestorDomain = new investorDomain({
+//       investorId: savedInvestor._id,
+//     });
+
+//     const savedInvestorDomain = await newInvestorDomain.save();
+
+//     const token = JWT.sign({ id: savedInvestor._id }, process.env.JWT_SECRET, {
+//       expiresIn: "7d",
+//     });
+//     res.cookie("token", token, {
+//       httpOnly: true,
+//       secure: false,
+//       sameSite: "strict",
+//       maxAge: 7 * 24 * 60 * 60 * 1000,
+//     });
+//     res.status(201).json({
+//       message: "Investor registered successfully",
+//       userId: savedInvestor._id,
+//       token,
+//       profile: savedInvestorProfileinfo,
+//       domain: savedInvestorDomain,
+//     });
+//   } catch (error) {
+//     console.error("Register Investor Error:", error);
+//     res.status(500).json({ error: "Server error while registering investor" });
+//   }
+// };
+
 const registerFounderController = async (req, res) => {
   try {
     const {
@@ -229,6 +429,15 @@ const registerFounderController = async (req, res) => {
         .json({ error: "Founder with this email already exists" });
     }
 
+    // Store complete file data as JSON string in the file field
+    const fileData = {
+      url: file.path,
+      publicId: file.filename, // This is the public ID from Cloudinary
+      originalName: file.originalname,
+      size: file.size,
+      uploadedAt: new Date()
+    };
+
     // Create new founder
     const newFounder = new Founder({
       companyName,
@@ -239,7 +448,7 @@ const registerFounderController = async (req, res) => {
       pancard,
       linkedin,
       proof,
-      file: file.path,
+      file: JSON.stringify(fileData), // Store file data as JSON string
       answer,
     });
 
@@ -266,14 +475,38 @@ const registerFounderController = async (req, res) => {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    // Parse file data for response
+    let responseData = { ...savedFounder.toObject() };
+    if (responseData.file) {
+      try {
+        responseData.fileData = JSON.parse(responseData.file);
+      } catch (e) {
+        // If parsing fails, treat as old string format
+        responseData.fileData = { url: responseData.file };
+      }
+    }
+
     res.status(201).json({
       message: "Founder registered successfully",
       userId: savedFounder._id,
       profileId: savedProfile,
-      token
+      token,
+      founder: responseData
     });
   } catch (err) {
     console.error("Register Founder Error:", err.message);
+
+    // If there was an upload but save failed, clean up the uploaded file from Cloudinary
+    if (req.file?.filename) {
+      try {
+        await deleteFileFromCloudinary(req.file.filename);
+        console.log("Cleanup: Deleted uploaded file from Cloudinary after error");
+      } catch (cleanupError) {
+        console.error('Error cleaning up uploaded file:', cleanupError.message);
+      }
+    }
+
     res.status(500).json({ error: "Server error while registering founder" });
   }
 };
@@ -291,6 +524,7 @@ const registerInvestorController = async (req, res) => {
       answer,
     } = req.body;
     const file = req.file;
+    
     if (
       !file ||
       !investorName ||
@@ -325,6 +559,16 @@ const registerInvestorController = async (req, res) => {
         .status(409)
         .json({ error: "Investor with this email already exists" });
     }
+
+    // Store complete file data as JSON string in the file field
+    const fileData = {
+      url: file.path,
+      publicId: file.filename, // This is the public ID from Cloudinary
+      originalName: file.originalname,
+      size: file.size,
+      uploadedAt: new Date()
+    };
+
     const newInvestor = new Investor({
       investorName,
       email,
@@ -333,7 +577,7 @@ const registerInvestorController = async (req, res) => {
       linkedin,
       aadhaar,
       pancard,
-      file: file.path,
+      file: JSON.stringify(fileData), // Store file data as JSON string
       answer,
     });
     const savedInvestor = await newInvestor.save();
@@ -362,18 +606,43 @@ const registerInvestorController = async (req, res) => {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    // Parse file data for response
+    let responseData = { ...savedInvestor.toObject() };
+    if (responseData.file) {
+      try {
+        responseData.fileData = JSON.parse(responseData.file);
+      } catch (e) {
+        // If parsing fails, treat as old string format
+        responseData.fileData = { url: responseData.file };
+      }
+    }
+
     res.status(201).json({
       message: "Investor registered successfully",
       userId: savedInvestor._id,
       token,
       profile: savedInvestorProfileinfo,
       domain: savedInvestorDomain,
+      investor: responseData
     });
   } catch (error) {
     console.error("Register Investor Error:", error);
+
+    // If there was an upload but save failed, clean up the uploaded file from Cloudinary
+    if (req.file?.filename) {
+      try {
+        await deleteFileFromCloudinary(req.file.filename);
+        console.log("Cleanup: Deleted uploaded file from Cloudinary after error");
+      } catch (cleanupError) {
+        console.error('Error cleaning up uploaded file:', cleanupError.message);
+      }
+    }
+
     res.status(500).json({ error: "Server error while registering investor" });
   }
 };
+
 
 const forgotUserController = async (req, res) => {
   try {

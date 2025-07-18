@@ -7,6 +7,7 @@ const fs = require("fs/promises");
 const Interest = require("../models/InvestorFounder/Interestmodel");
 const Setting = require("../models/Investor/Setting");
 const Domain = require("../models/Investor/Domain");
+const { deletePdfFromCloudinary } = require('../config/cloudinaryPdfConfig');
 
 const updateFormController = async (req, res) => {
   try {
@@ -76,6 +77,73 @@ const recentUpdatesController = async (req, res) => {
   }
 };
 
+// const pitchFormController = async (req, res) => {
+//   try {
+//     const startupId = req.user.id;
+//     const {
+//       title,
+//       tagline,
+//       youtube,
+//       problem,
+//       solution,
+//       market,
+//       traction,
+//       funding,
+//       team,
+//       raised,
+//       activeUser,
+//     } = req.body;
+//     const pdf = req.file;
+
+//     console.log("Received data:", {
+//       startupId,
+//       title,
+//       tagline,
+//       pdf,
+//       youtube,
+//       problem,
+//       solution,
+//       market,
+//       traction,
+//       funding,
+//       team,
+//       raised,
+//       activeUser,
+//     });
+
+//     if (!startupId || !title || !tagline || !pdf || !youtube || !problem || !solution || !market || !traction || !funding || !team || !raised || !activeUser) {
+//       return res.status(400).json({
+//         error: "You have to provide all the details.",
+//       });
+//     }
+
+//     const newPitch = new Pitch({
+//       startupId,
+//       title,
+//       tagline,
+//       pdf: pdf.path,
+//       youtube,
+//       problem,
+//       solution,
+//       market,
+//       traction,
+//       funding,
+//       team,
+//       raised,
+//       activeUser,
+//     });
+//     const savedPitch = await newPitch.save();
+//     res.status(201).json({
+//       message: "Pitch Published Successfully.",
+//       pitch: savedPitch,
+//     });
+//   } catch (error) {
+//     console.log("publish Pitch Error:", error.message);
+//     res.status(500).json({ error: "Server error while publishing pitch" });
+//   }
+// };
+
+
 const pitchFormController = async (req, res) => {
   try {
     const startupId = req.user.id;
@@ -116,11 +184,36 @@ const pitchFormController = async (req, res) => {
       });
     }
 
+    // Check if startup already has a pitch and delete old PDF if exists
+    const existingPitch = await Pitch.findOne({ startupId });
+    if (existingPitch && existingPitch.pdf) {
+      try {
+        // Parse existing PDF data to get publicId
+        const existingPdfData = JSON.parse(existingPitch.pdf);
+        if (existingPdfData.publicId) {
+          await deletePdfFromCloudinary(existingPdfData.publicId);
+          console.log("Old PDF deleted from Cloudinary");
+        }
+      } catch (deleteError) {
+        console.warn("Old PDF deletion from Cloudinary failed:", deleteError.message);
+        // Continue with update even if deletion fails
+      }
+    }
+
+    // Store complete PDF data as JSON string in the pdf field
+    const pdfData = {
+      url: pdf.path,
+      publicId: pdf.filename, // This is the public ID from Cloudinary
+      originalName: pdf.originalname,
+      size: pdf.size,
+      uploadedAt: new Date()
+    };
+
     const newPitch = new Pitch({
       startupId,
       title,
       tagline,
-      pdf: pdf.path,
+      pdf: JSON.stringify(pdfData), // Store PDF data as JSON string
       youtube,
       problem,
       solution,
@@ -131,15 +224,151 @@ const pitchFormController = async (req, res) => {
       raised,
       activeUser,
     });
+
     const savedPitch = await newPitch.save();
+
+    // Parse PDF data for response
+    let responseData = { ...savedPitch.toObject() };
+    if (responseData.pdf) {
+      try {
+        responseData.pdfData = JSON.parse(responseData.pdf);
+      } catch (e) {
+        // If parsing fails, treat as old string format
+        responseData.pdfData = { url: responseData.pdf };
+      }
+    }
+
     res.status(201).json({
       message: "Pitch Published Successfully.",
-      pitch: savedPitch,
+      pitch: responseData,
     });
   } catch (error) {
     console.log("publish Pitch Error:", error.message);
+
+    // If there was an upload but save failed, clean up the uploaded file from Cloudinary
+    if (req.file?.filename) {
+      try {
+        await deletePdfFromCloudinary(req.file.filename);
+        console.log("Cleanup: Deleted uploaded PDF from Cloudinary after error");
+      } catch (cleanupError) {
+        console.error('Error cleaning up uploaded PDF:', cleanupError.message);
+      }
+    }
+
     res.status(500).json({ error: "Server error while publishing pitch" });
   }
+};
+
+// Helper function to update existing pitch (if needed)
+const updatePitchController = async (req, res) => {
+  try {
+    const startupId = req.user.id;
+    const {
+      title,
+      tagline,
+      youtube,
+      problem,
+      solution,
+      market,
+      traction,
+      funding,
+      team,
+      raised,
+      activeUser,
+    } = req.body;
+    const uploadedFile = req.file;
+
+    // If new PDF is uploaded, delete the old one from Cloudinary
+    if (uploadedFile) {
+      const existingPitch = await Pitch.findOne({ startupId });
+      if (existingPitch && existingPitch.pdf) {
+        try {
+          // Parse existing PDF data to get publicId
+          const existingPdfData = JSON.parse(existingPitch.pdf);
+          if (existingPdfData.publicId) {
+            await deletePdfFromCloudinary(existingPdfData.publicId);
+            console.log("Old PDF deleted from Cloudinary");
+          }
+        } catch (deleteError) {
+          console.warn("Old PDF deletion from Cloudinary failed:", deleteError.message);
+          // Continue with update even if deletion fails
+        }
+      }
+    }
+
+    const updateData = {
+      title,
+      tagline,
+      youtube,
+      problem,
+      solution,
+      market,
+      traction,
+      funding,
+      team,
+      raised,
+      activeUser,
+    };
+
+    // Store complete PDF data as JSON string in the pdf field
+    if (uploadedFile) {
+      const pdfData = {
+        url: uploadedFile.path,
+        publicId: uploadedFile.filename, // This is the public ID from Cloudinary
+        originalName: uploadedFile.originalname,
+        size: uploadedFile.size,
+        uploadedAt: new Date()
+      };
+      updateData.pdf = JSON.stringify(pdfData);
+    }
+
+    const updated = await Pitch.findOneAndUpdate(
+      { startupId },
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        error: "Pitch not found for this startup",
+      });
+    }
+
+    // Parse PDF data for response
+    let responseData = { ...updated.toObject() };
+    if (responseData.pdf) {
+      try {
+        responseData.pdfData = JSON.parse(responseData.pdf);
+      } catch (e) {
+        // If parsing fails, treat as old string format
+        responseData.pdfData = { url: responseData.pdf };
+      }
+    }
+
+    res.status(200).json({
+      message: "Pitch updated successfully",
+      pitch: responseData,
+    });
+  } catch (error) {
+    console.log("update Pitch Error:", error.message);
+
+    // If there was an upload but update failed, clean up the uploaded file from Cloudinary
+    if (req.file?.filename) {
+      try {
+        await deletePdfFromCloudinary(req.file.filename);
+        console.log("Cleanup: Deleted uploaded PDF from Cloudinary after error");
+      } catch (cleanupError) {
+        console.error('Error cleaning up uploaded PDF:', cleanupError.message);
+      }
+    }
+
+    res.status(500).json({ error: "Server error while updating pitch" });
+  }
+};
+
+module.exports = {
+  pitchFormController,
+  updatePitchController
 };
 
 const getFounderProfileController = async (req, res) => {
