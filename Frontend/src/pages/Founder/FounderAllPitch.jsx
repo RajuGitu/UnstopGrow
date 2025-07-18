@@ -64,16 +64,13 @@ const FounderAllPitch = () => {
 
     const getPdfUrl = (pdfData) => {
         if (!pdfData) return null;
-        
+
         try {
-            // If pdfData is a string, try to parse it as JSON
-            if (typeof pdfData === 'string') {
-                const parsedData = JSON.parse(pdfData);
-                return parsedData.url || null;
-            }
+            const parsedData = JSON.parse(pdfData);
+            return parsedData.url || null;
         } catch (error) {
             console.error("Error parsing PDF data:", error);
-            
+
             // Fallback for old format
             if (typeof pdfData === 'string') {
                 const rel = pdfData.split("uploads")[1];
@@ -81,27 +78,23 @@ const FounderAllPitch = () => {
                     ? `https://unstopgrowb.onrender.com/uploads${rel.replace(/\\/g, "/")}`
                     : null;
             }
-            
+
             return null;
         }
     };
 
     const getPdfFileName = (pdfData) => {
         if (!pdfData) return "PDF";
-        
+
         try {
-            // If pdfData is a string, try to parse it as JSON
-            if (typeof pdfData === 'string') {
-                const parsedData = JSON.parse(pdfData);
-                return parsedData.originalName || "PDF";
-            }
-            
+            const parsedData = JSON.parse(pdfData);
+            return parsedData.originalName || "PDF";
+
+
             // // If pdfData is already an object, get the original name
             // if (typeof pdfData === 'object' && pdfData.originalName) {
             //     return pdfData.originalName;
             // }
-            
-            return "PDF";
         } catch (error) {
             return "PDF";
         }
@@ -109,7 +102,7 @@ const FounderAllPitch = () => {
 
     const formatFileSize = (bytes) => {
         if (!bytes) return "";
-        
+
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
         return `${Math.round(bytes / Math.pow(1024, i) * 100) / 100} ${sizes[i]}`;
@@ -117,19 +110,19 @@ const FounderAllPitch = () => {
 
     const getPdfSize = (pdfData) => {
         if (!pdfData) return "";
-        
+
         try {
             // If pdfData is a string, try to parse it as JSON
             if (typeof pdfData === 'string') {
                 const parsedData = JSON.parse(pdfData);
                 return parsedData.size ? formatFileSize(parsedData.size) : "";
             }
-            
+
             // If pdfData is already an object, get the size
             if (typeof pdfData === 'object' && pdfData.size) {
                 return formatFileSize(pdfData.size);
             }
-            
+
             return "";
         } catch (error) {
             return "";
@@ -187,7 +180,7 @@ const FounderAllPitch = () => {
                         const pdfUrl = getPdfUrl(pitchItem.pdf);
                         const pdfFileName = getPdfFileName(pitchItem.pdf);
                         const pdfSize = getPdfSize(pitchItem.pdf);
-                        
+
                         return (
                             <Card key={pitchItem._id} className="bg-white/90 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                                 <CardHeader className="pb-3 p-4 md:p-6">
@@ -314,8 +307,8 @@ const FounderAllPitch = () => {
                                                 >
                                                     <FileText className="h-4 w-4 flex-shrink-0" />
                                                     <span className="text-xs">
-                                                        {pdfFileName.length > 15 
-                                                            ? `${pdfFileName.substring(0, 15)}...` 
+                                                        {pdfFileName.length > 15
+                                                            ? `${pdfFileName.substring(0, 15)}...`
                                                             : pdfFileName}
                                                     </span>
                                                     {pdfSize && (

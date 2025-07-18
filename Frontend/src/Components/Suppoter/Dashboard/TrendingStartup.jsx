@@ -1,7 +1,7 @@
 // TrendingStartup.js
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 const Card = ({ children, className = "" }) => (
     <div className={`bg-white rounded-lg shadow-sm ${className}`}>{children}</div>
@@ -77,8 +77,8 @@ function TrendingStartup() {
     };
 
     const makeUrl = (absolute) => {
-        if (!imagePath) return null;
-        const parsed = JSON.parse(imagePath);
+        if (!absolute) return null;
+        const parsed = JSON.parse(absolute);
         return parsed.url;
     };
 

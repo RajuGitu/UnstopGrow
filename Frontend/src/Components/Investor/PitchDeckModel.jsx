@@ -26,7 +26,6 @@ import {
 
 import { Avatar, AvatarFallback } from "../../Components/UI/Avatar";
 
-const imgPlaceholder = "https://via.placeholder.com/120x80?text=No+Image";
 
 export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
   if (!startup) return null;
@@ -55,10 +54,8 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
       // }
 
       // If it's a JSON string, parse it
-      if (typeof pdfData === 'string' && pdfData.startsWith('{')) {
-        const parsedData = JSON.parse(pdfData);
-        return parsedData.url || null;
-      }
+      const parsedData = JSON.parse(pdfData);
+      return parsedData.url || null;
 
       // If it's already a parsed object
       // if (typeof pdfData === 'object' && pdfData.url) {
@@ -73,8 +70,6 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
       //   const relativePath = normalizedPath.substring(uploadsIndex);
       //   return `http://localhost:5000/${relativePath}`;
       // }
-
-      return null;
     } catch (error) {
       console.error("Error parsing PDF data:", error);
       return null;
@@ -87,17 +82,15 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
 
     try {
       // If it's a JSON string, parse it
-      if (typeof pdfData === 'string' && pdfData.startsWith('{')) {
-        const parsedData = JSON.parse(pdfData);
-        return parsedData.originalName || "PDF";
-      }
+      const parsedData = JSON.parse(pdfData);
+      return parsedData.originalName || "PDF";
+
 
       // If it's already a parsed object
       // if (typeof pdfData === 'object' && pdfData.originalName) {
       //   return pdfData.originalName;
       // }
 
-      return "PDF";
     } catch (error) {
       console.error("Error getting PDF filename:", error);
       return "PDF";

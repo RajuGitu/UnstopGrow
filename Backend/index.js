@@ -19,7 +19,7 @@ connectDb();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware
+// Middleware 
 app.use(cookieParser());
 app.use(cors({
     origin: 'https://unstop-grow.vercel.app',
