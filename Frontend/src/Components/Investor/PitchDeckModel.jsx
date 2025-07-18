@@ -268,9 +268,9 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
               <h5 className="font-semibold text-slate-800 mb-3 text-sm sm:text-base">
                 Current Metrics
               </h5>
-              <div className="grid grid-cols-2 gap-4 text-center">
+              <div className="grid grid-cols-2 gap-4 text-center ">
                 {startup.activeUser && (
-                  <div className="p-3 bg-white rounded-lg border">
+                  <div className="p-3 bg-white rounded-lg border border-gray-300">
                     <p className="text-sm sm:text-base font-semibold text-emerald-600">
                       {startup.activeUser}
                     </p>
@@ -278,7 +278,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                   </div>
                 )}
                 {startup.raised && (
-                  <div className="p-3 bg-white rounded-lg border">
+                  <div className="p-3 bg-white rounded-lg border border-gray-300">
                     <p className="text-sm sm:text-base font-semibold text-indigo-600">
                       {startup.raised}
                     </p>
@@ -307,7 +307,7 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                   </div>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
-                  <Button
+                  {/* <Button
                     variant="outline"
                     size="sm"
                     className="flex-1 sm:flex-none"
@@ -322,11 +322,11 @@ export const PitchDeckModal = ({ isOpen, onClose, startup }) => {
                       <span className="hidden sm:inline">View PDF</span>
                       <span className="sm:hidden">View</span>
                     </a>
-                  </Button>
+                  </Button> */}
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 sm:flex-none"
+                    className="flex-1 sm:flex-none border border-gray-300"
                     asChild
                   >
                     <a

@@ -112,18 +112,10 @@ const FounderAllPitch = () => {
         if (!pdfData) return "";
 
         try {
-            // If pdfData is a string, try to parse it as JSON
-            if (typeof pdfData === 'string') {
-                const parsedData = JSON.parse(pdfData);
-                return parsedData.size ? formatFileSize(parsedData.size) : "";
-            }
+            const parsedData = JSON.parse(pdfData);
+            return parsedData.size ? formatFileSize(parsedData.size) : "";
 
-            // If pdfData is already an object, get the size
-            if (typeof pdfData === 'object' && pdfData.size) {
-                return formatFileSize(pdfData.size);
-            }
 
-            return "";
         } catch (error) {
             return "";
         }

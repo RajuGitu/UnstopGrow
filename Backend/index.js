@@ -10,16 +10,13 @@ const founderRoutes = require('./route/founderRoutes');
 const investorRoutes = require('./route/investorRoutes');
 const supporterRoutes = require('./route/supporterRoute');
 
-// Load .env variables
 dotenv.config();
 
-// Connect to MongoDB
 connectDb();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Middleware 
 app.use(cookieParser());
 app.use(cors({
     origin: 'https://unstop-grow.vercel.app',
