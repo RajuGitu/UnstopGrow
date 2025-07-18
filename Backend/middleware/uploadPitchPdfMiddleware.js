@@ -20,7 +20,7 @@ const createPitchPdfUploadMiddleware = (
       params: {
         folder: customPath, // Use customPath as Cloudinary folder
         allowed_formats: allowedExtensions,
-        resource_type: 'auto', // Important: allows PDF uploads
+         resource_type: 'raw', // Important: allows PDF uploads
         public_id: (req, file) => {
           const title = req.body.title || "pitch";
           const startupId = req.user?.id || "unknown";
