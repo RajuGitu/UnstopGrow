@@ -76,7 +76,7 @@ function TrendingStartup() {
         });
     };
 
-    const makeUrl = (absolute) => {
+    const makeUrl = (imagePath) => {
         if (!imagePath) return null;
         const parsed = JSON.parse(imagePath);
         return parsed.url;

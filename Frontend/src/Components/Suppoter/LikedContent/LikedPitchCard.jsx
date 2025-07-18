@@ -192,11 +192,8 @@ const LikedPitchCard = ({
 
     const makePdfUrl = (pdfPath) => {
         if (!pdfPath) return null;
-        const normalizedPath = pdfPath.replace(/\\/g, "/");
-        const uploadsIndex = normalizedPath.indexOf("uploads/");
-        if (uploadsIndex === -1) return null;
-        const relativePath = normalizedPath.substring(uploadsIndex);
-        return `https://unstopgrowb.onrender.com/${relativePath}`;
+        const parsedData = JSON.parse(pdfData);
+        return parsedData.url || null;
     };
 
     return (
