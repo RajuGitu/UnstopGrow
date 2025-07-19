@@ -59,7 +59,7 @@ We are actively developing new features to make UnstopGrow even more powerful:
 | **Express.js**| Backend routing         |
 | **MongoDB**   | NoSQL Database          |
 | **JWT**       | Authentication          |
-| **Cloudinary (Planned)** | Media storage  |
+| **Cloudinary** | Media storage  |
 
 ---
 
